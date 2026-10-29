@@ -1,0 +1,1256 @@
+
+<title>Courbeur de frise</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&display=swap">
+<style>
+/* Layout: atelier — panneau de réglages à gauche, tapis de découpe quadrillé à droite (empilés sur mobile) */
+:root{
+  --bg:#e9ede9; --panel:#f7f9f7; --fg:#18211d; --muted:#57665e; --line:#c7d1ca;
+  --accent:#16795a; --accent-fg:#ffffff; --guide:#e0561c; --ink:#26302b; --shape:#2c5bb5;
+  --mat:#dfe7e1; --grid:rgba(22,121,90,.10); --grid-major:rgba(22,121,90,.24);
+  --warn-bg:#fff2e6; --warn-fg:#8a3a0c; --ok-bg:#e5f3ec; --ok-fg:#155e45;
+  --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101513; --panel:#171e1b; --fg:#e2eae5; --muted:#93a39a; --line:#2b3732;
+  --accent:#3fbf8f; --accent-fg:#06140e; --guide:#ff7d42; --ink:#dfe7e2; --shape:#86a9f0;
+  --mat:#131a17; --grid:rgba(63,191,143,.08); --grid-major:rgba(63,191,143,.20);
+  --warn-bg:#3a2210; --warn-fg:#ffc59e; --ok-bg:#12302a; --ok-fg:#9fe3c6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101513; --panel:#171e1b; --fg:#e2eae5; --muted:#93a39a; --line:#2b3732;
+  --accent:#3fbf8f; --accent-fg:#06140e; --guide:#ff7d42; --ink:#dfe7e2; --shape:#86a9f0;
+  --mat:#131a17; --grid:rgba(63,191,143,.08); --grid-major:rgba(63,191,143,.20);
+  --warn-bg:#3a2210; --warn-fg:#ffc59e; --ok-bg:#12302a; --ok-fg:#9fe3c6; color-scheme:dark}
+html,body{background:var(--bg);color:var(--fg)}
+body{font-family:var(--f-body);font-size:14px;line-height:1.45}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 24px;max-width:1500px;margin:0 auto;display:grid;gap:14px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+h1{font-family:var(--f-display);font-weight:600;font-size:1.7rem;letter-spacing:.01em;margin:0;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:65ch}
+.app{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:900px){.app{grid-template-columns:340px minmax(0,1fr);align-items:start}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;display:grid}
+section.grp{display:grid;gap:10px;padding:14px 16px;border-top:1px solid var(--line)}
+section.grp:first-child{border-top:0}
+h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0;font-weight:600}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.field{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
+.field label{color:var(--fg)}
+.field .hint{grid-column:1/-1;color:var(--muted);font-size:.8rem}
+input[type=number],select{font:inherit;font-family:var(--f-mono);font-size:.85rem;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 7px}
+input[type=number]{width:84px;text-align:right;font-variant-numeric:tabular-nums}
+select{font-family:var(--f-body);max-width:100%}
+input[type=range]{width:100%;accent-color:var(--accent)}
+input[type=checkbox],input[type=radio]{accent-color:var(--accent)}
+button{font:inherit;font-weight:500;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--fg);padding:6px 11px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+button.primary:hover{filter:brightness(1.07)}
+button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible,.drop:focus-visible{outline:2px solid var(--guide);outline-offset:2px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg button{border:0;border-radius:0;border-left:1px solid var(--line);padding:5px 10px}
+.seg button:first-child{border-left:0}
+.drop{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;align-items:center;border:1px dashed var(--line);border-radius:8px;padding:8px 10px;cursor:pointer}
+.drop.over{border-color:var(--accent);background:var(--ok-bg)}
+.drop .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.drop .n{font-family:var(--f-mono);font-size:.82rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drop .c{color:var(--accent);font-size:.82rem;font-weight:500}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:grid;grid-template-rows:auto 1fr auto;min-width:0}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--line)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.8rem}
+.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.cv{position:relative;height:clamp(220px,38vh,420px);background:var(--mat);touch-action:none}
+/* aperçu flottant : il reste visible pendant qu'on fait défiler les réglages */
+.stage{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;order:-1;box-shadow:0 6px 18px -10px rgba(0,0,0,.35)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+@media (min-width:900px){
+  .stage{top:calc(12px + env(safe-area-inset-top,0px));order:0;box-shadow:none}
+  .cv{height:calc(100vh - 190px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:320px}
+}
+.hist{display:inline-flex;gap:6px}
+.hist button{display:inline-flex;align-items:center;gap:5px}
+.hist button:disabled{opacity:.4;cursor:default;border-color:var(--line)}
+.hist svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:600px){.legend{display:none}.hist .lbl{display:none}.toolbar{flex-wrap:nowrap}}
+.pos{display:inline-flex;align-items:center;gap:4px;font-family:var(--f-mono);font-size:.85rem}
+.pos input{width:74px}
+.pos small{color:var(--muted);font-size:.72rem;min-width:62px;text-align:right}
+.lang{margin-left:auto;align-self:center}
+.lang button{padding:3px 10px;font-size:.8rem}
+.kbd{font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
+canvas{display:block;width:100%;height:100%;cursor:grab}
+canvas.picking{cursor:crosshair}
+.pickmsg{position:absolute;left:10px;top:10px;background:var(--guide);color:#fff;font-weight:500;padding:5px 10px;border-radius:6px;font-size:.85rem}
+.stats{display:flex;flex-wrap:wrap;gap:6px 18px;padding:9px 12px;border-top:1px solid var(--line);font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--fg);font-weight:500}
+.msgs{display:grid;gap:6px}
+.msg{border-radius:7px;padding:7px 10px;font-size:.84rem}
+.msg.warn{background:var(--warn-bg);color:var(--warn-fg)}
+.msg.ok{background:var(--ok-bg);color:var(--ok-fg)}
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.88rem;z-index:20;max-width:calc(100% - 32px)}
+.mono{font-family:var(--f-mono)}
+.inbox{display:grid;gap:6px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--bg)}
+.inbox .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.inbox .hint{color:var(--muted);font-size:.8rem}
+.ib{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:8px;align-items:center}
+.ib .p{font-size:.72rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:rtl;text-align:left}
+.ib button{padding:3px 9px;font-size:.8rem}
+.lb{display:grid;gap:10px;border-top:1px dashed var(--line);padding-top:12px}
+.pill{font-size:.75rem;font-weight:500;padding:2px 9px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.pill.on{background:var(--ok-bg);color:var(--ok-fg);border-color:transparent}
+.pill.off{background:var(--warn-bg);color:var(--warn-fg);border-color:transparent}
+.msg.info{background:var(--bg);color:var(--fg);border:1px solid var(--line)}
+#svgHost{position:absolute;left:-10000px;top:0;width:10px;height:10px;overflow:hidden;visibility:hidden}
+textarea{width:100%;min-height:120px;font-family:var(--f-mono);font-size:.75rem;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tabs button{display:inline-flex;align-items:center;gap:6px;padding:5px 10px}
+.tabs button small{color:var(--muted);font-size:.75rem}
+.tabs button[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--ok-bg)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--line);flex:none}
+button:disabled{opacity:.45;cursor:default}
+.mlist{display:grid;gap:8px}
+.mcard{border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:grid;gap:6px;background:var(--bg)}
+.mcard.active{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.mcard .mh{display:flex;align-items:center;gap:6px;font-weight:600;font-size:.85rem;cursor:pointer}
+.mcard .mh small{font-weight:400;color:var(--muted)}
+.mline{display:grid;grid-template-columns:58px minmax(0,1fr) auto;gap:4px 8px;align-items:center;border-radius:6px}
+.mline.over{background:var(--ok-bg)}
+.mline .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.mline .n{font-family:var(--f-mono);font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mline .n.none{color:var(--muted);font-family:var(--f-body);font-style:italic}
+.mline .acts{display:flex;gap:4px}
+.mline .acts button{padding:3px 8px;font-size:.78rem}
+.mline select{grid-column:2/-1;font-size:.78rem;padding:3px 6px}
+.mcard .mh .mdel{margin-left:auto;padding:2px 8px;font-size:.75rem;font-weight:500}
+.madd{border-style:dashed;color:var(--accent);font-weight:600}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Courbeur de frise</h1>
+    <p>Fait suivre un motif SVG le long d'un bord de ta forme, puis exporte pour LightBurn.</p>
+      <div class="seg lang" id="langSel" role="group" aria-label="Langue"><button type="button" data-lang="fr" aria-pressed="true">FR</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+  </header>
+
+  <div class="app">
+    <div class="panel">
+      <section class="grp">
+        <h2>Forme</h2>
+        <div class="drop" id="dropForme" tabindex="0" role="button" aria-label="Choisir la forme DXF ou SVG">
+          <span class="k">Fichier</span><span class="n" id="nameForme">—</span><span class="c">Changer</span>
+        </div>
+        <input type="file" id="fileForme" accept=".dxf,.svg" hidden>
+        <div class="field"><label for="units">Unités du fichier</label>
+          <select id="units"><option value="auto">Auto (lues dans le fichier)</option><option value="mm">Millimètres</option><option value="in">Pouces</option><option value="px">Pixels (96 ppp)</option></select>
+          <span class="hint">Si la taille ci-dessous ne correspond pas à LightBurn, force l'unité ici.</span></div>
+        <div id="inboxBox" class="inbox" hidden>
+          <span class="k">Dossiers d'échange</span>
+          <div class="ib"><span>Forme</span><span class="p mono" id="ibForme">—</span><button type="button" id="ibOpenForme">Ouvrir</button></div>
+          <div class="ib"><span>Motif</span><span class="p mono" id="ibMotif">—</span><button type="button" id="ibOpenMotif">Ouvrir</button></div>
+          <span class="hint">Exporte depuis LightBurn (Fichier › Exporter) dans un de ces dossiers : le fichier se charge tout seul ici.</span>
+        </div>
+      </section>
+
+      <section class="grp">
+        <div class="row" style="justify-content:space-between"><h2>Frises</h2>
+          <div class="row"><button type="button" id="btnAddFrise">+ Ajouter</button><button type="button" id="btnDelFrise">Supprimer</button></div></div>
+        <div class="tabs" id="tabs" role="tablist" aria-label="Frises"></div>
+        <div class="mlist" id="mlist"></div>
+        <input type="file" id="fileMotif" accept=".svg,image/svg+xml" hidden>
+        <div class="field"><span class="hint">Chaque frise suit son propre bord avec son propre motif. Clique une frise pour la régler, ou glisse un SVG sur sa ligne pour changer son motif.</span></div>
+        <div class="field"><label for="stackOpt"><input type="checkbox" id="stackOpt" checked> Empiler les frises au lieu de les superposer</label><span></span>
+          <span class="hint">Deux frises qui partagent une partie du même bord se placent l'une au-dessus de l'autre. Des frises jointes bout à bout ne bougent pas.</span></div>
+        <div class="field"><label for="stackGap">Espace entre frises empilées (mm)</label><input type="number" id="stackGap" min="0" step="0.5" value="1"></div>
+      </section>
+
+      <section class="grp">
+        <h2>Bord à suivre</h2>
+        <div class="field"><label for="selChain">Contour</label><select id="selChain"></select></div>
+        <div class="row" role="group" aria-label="Partie automatique">
+          <span style="color:var(--muted)">Auto :</span>
+          <div class="seg">
+            <button id="autoBas" type="button">Bas</button><button id="autoHaut" type="button">Haut</button><button id="autoGauche" type="button">Gauche</button><button id="autoDroite" type="button">Droite</button>
+          </div>
+        </div>
+        <div class="field"><label for="slope">Pente max (auto)</label><span class="mono"><span id="slopeVal">30</span>°</span>
+          <input type="range" id="slope" min="5" max="85" step="1" value="30" style="grid-column:1/-1"></div>
+        <div class="field"><label for="posA">Début</label><span class="pos"><input type="number" id="aVal" min="0" max="100" step="0.1" value="0" aria-label="Début en %"> %<small id="aMm"></small></span>
+          <input type="range" id="posA" min="0" max="100" step="0.1" value="0" style="grid-column:1/-1"></div>
+        <div class="field"><label for="posB">Fin</label><span class="pos"><input type="number" id="bVal" min="0" max="100" step="0.1" value="100" aria-label="Fin en %"> %<small id="bMm"></small></span>
+          <input type="range" id="posB" min="0" max="100" step="0.1" value="100" style="grid-column:1/-1"></div>
+        <div class="row">
+          <button id="btnPick" type="button" aria-pressed="false">Choisir sur le dessin</button>
+          <button id="btnSwap" type="button">Prendre l'autre partie</button>
+          <button id="btnJoin" type="button" title="Colle le début et la fin de cette frise aux frises voisines du même contour (ou fait tout le tour s'il n'y en a pas)">Joindre les bordures</button>
+        </div>
+      </section>
+
+      <section class="grp">
+        <h2>Réglages du motif</h2>
+        <div class="field"><label>Côté</label>
+          <div class="seg" role="group" aria-label="Côté du motif"><button id="sideIn" type="button" aria-pressed="true">Intérieur</button><button id="sideOut" type="button" aria-pressed="false">Extérieur</button></div></div>
+        <div class="field"><label>Orientation</label>
+          <div class="seg" role="group" aria-label="Orientation du motif"><button id="orH" type="button" aria-pressed="true" title="La longueur du motif suit le bord">Horizontale</button><button id="orV" type="button" aria-pressed="false" title="Le motif tourne d'un quart de tour et se répète debout le long du bord">Verticale</button></div></div>
+        <div class="field" id="orderBox" hidden><label for="order">Ordre d'alternance</label><input type="text" id="order" value="AB" maxlength="24" spellcheck="false" style="width:84px;font-family:var(--f-mono);text-align:center;text-transform:uppercase">
+          <span class="hint">A = motif 1, B = motif 2. Par exemple AB, ABB ou AAB. L'ordre se répète tout le long du bord.</span></div>
+        <div class="field"><label for="reps">Répétitions du motif</label><input type="number" id="reps" min="1" max="200" step="1" value="1">
+          <span class="hint" id="repsHint">Le motif entier est répété puis ajusté pour remplir le bord.</span></div>
+        <div class="field"><label for="autoReps"><input type="checkbox" id="autoReps"> Répéter automatiquement pour garder la taille</label><span></span>
+          <span class="hint" id="autoRepsHint" hidden>Le motif garde la hauteur visée : il est dupliqué autant de fois que nécessaire pour remplir le bord, sans être étiré ni écrasé.<span id="tileHint"></span></span></div>
+        <div class="field"><label for="autoH"><input type="checkbox" id="autoH" checked> <span id="autoHLbl">Hauteur auto (proportions gardées)</span></label><span></span></div>
+        <div class="field"><label for="height" id="heightLbl">Hauteur (mm)</label><input type="number" id="height" min="0.5" step="0.5" value="20" disabled></div>
+        <div class="field"><label for="offset">Écart au bord (mm)</label><input type="number" id="offset" step="0.5" value="0"></div>
+        <div class="field"><label for="margin">Marge aux extrémités (mm)</label><input type="number" id="margin" min="0" step="0.5" value="0"></div>
+        <div class="field"><label for="cornerSoft"><input type="checkbox" id="cornerSoft" checked> Adoucir les coins</label><span></span>
+          <span class="hint">Le motif ne se replie plus sur lui-même dans les virages serrés : sa base suit le bord, son haut tourne en douceur.</span></div>
+        <div class="field"><label for="smooth">Lissage de la courbe (mm)</label><input type="number" id="smooth" min="0" step="0.5" value="3">
+          <span class="hint">Plus grand = le motif ondule moins dans les petites irrégularités du bord.</span></div>
+        <div class="row">
+          <label><input type="checkbox" id="flip"> Retourner</label>
+          <label><input type="checkbox" id="mirror"> Miroir</label>
+        </div>
+        <div class="field"><label for="layerSel">Calque LightBurn</label>
+          <span class="row" style="gap:6px;flex-wrap:nowrap"><i class="sw" id="layerSw"></i><select id="layerSel"></select></span></div>
+      </section>
+
+      <section class="grp">
+        <h2>Export pour LightBurn</h2>
+        <div class="row">
+          <label><input type="checkbox" id="incShape" checked> Inclure la forme dans les fichiers</label>
+        </div>
+        <div class="field"><label for="fuseOpt"><input type="checkbox" id="fuseOpt" checked> Fusionner les formes</label><span></span>
+          <span class="hint">Sur chaque calque, tout ce qui se touche ou se recouvre devient un seul contour propre : pas de trait en double à la découpe, pas de trou dans la gravure. Mets des frises jointes sur le même calque pour qu'elles forment un seul contour.</span></div>
+        <div class="row" hidden>
+        </div>
+        <div class="field"><label for="formeLayerSel">Calque de la forme</label>
+          <span class="row" style="gap:6px;flex-wrap:nowrap"><i class="sw" id="formeLayerSw"></i><select id="formeLayerSel"></select></span></div>
+        <div class="field"><label for="svgMode">Rendu du motif</label>
+          <select id="svgMode"><option value="fill">Plein (gravure)</option><option value="line">Contour (découpe)</option></select></div>
+        <div class="row">
+          <button class="primary" id="btnDxf" type="button">Télécharger DXF</button>
+          <button id="btnSvg" type="button">Télécharger SVG</button>
+        </div>
+        <div class="field"><span class="hint" data-zipnote>Le DXF arrive dans un .zip et garde les coordonnées d'origine. Le SVG est en millimètres, avec les couleurs des calques LightBurn choisis.</span></div>
+        <div id="lbBox" class="lb" hidden>
+          <div class="row" style="justify-content:space-between"><h2 style="margin:0">Envoyer à LightBurn</h2><span class="pill" id="lbPill">…</span></div>
+          <div class="field"><label for="lbScope">Contenu</label>
+            <select id="lbScope"><option value="motif">Frises seules</option><option value="all">Frises + forme</option></select></div>
+          <div class="field"><label for="lbPlace">Position</label>
+            <select id="lbPlace"><option value="origin">Sur la forme (position d'origine)</option><option value="view">Centre de la vue</option></select></div>
+          <div class="row"><button class="primary" id="btnLb" type="button">Envoyer à LightBurn</button><button id="btnLbForget" type="button">Oublier l'appairage</button></div>
+          <div class="msg" id="lbMsg" hidden></div>
+        </div>
+        <div id="fallback" hidden>
+          <div class="field"><span class="hint">Le téléchargement n'est pas disponible ici. Copie le DXF puis colle-le dans un fichier texte nommé <span class="mono">frise.dxf</span>.</span></div>
+          <div class="row"><button id="btnCopy" type="button">Copier le DXF</button></div>
+          <textarea id="fbText" readonly hidden aria-label="Contenu DXF"></textarea>
+        </div>
+      </section>
+    </div>
+
+    <div class="stage">
+      <div class="toolbar">
+        <div class="legend"><span><i style="background:var(--shape)"></i>Forme</span><span><i style="background:var(--guide)"></i>Bord suivi</span><span><i style="background:var(--ink)"></i>Frise active</span></div>
+        <div class="hist" role="group" aria-label="Historique">
+          <button id="btnUndo" type="button" title="Annuler (Ctrl+Z)" disabled><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span class="lbl">Précédent</span></button>
+          <button id="btnRedo" type="button" title="Rétablir (Ctrl+Y)" disabled><span class="lbl">Suivant</span><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+        </div>
+        <div class="row"><button id="zIn" type="button" aria-label="Zoomer">+</button><button id="zOut" type="button" aria-label="Dézoomer">−</button><button id="zFit" type="button">Recadrer</button></div>
+      </div>
+      <div class="cv" id="cvBox"><canvas id="cv"></canvas><div class="pickmsg" id="pickMsg" hidden></div></div>
+      <div>
+        <div class="stats" id="stats"></div>
+        <div class="msgs" id="msgs" style="padding:0 12px 12px"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="svgHost" aria-hidden="true"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>__CLIPPER__</script>
+<script>
+const SAMPLE_MOTIF = __SAMPLE_MOTIF__;
+const SAMPLE_FORME = __SAMPLE_SHAPE__;
+const $ = id => document.getElementById(id);
+/* ---------- langue de l'interface : français / anglais ----------
+   Le code est écrit en français. En anglais, chaque texte qui apparaît à l'écran (y compris les messages
+   créés en cours d'utilisation) passe par ce traducteur : une table de phrases exactes, puis des règles pour
+   les phrases qui contiennent des nombres. On revient au français sans recharger la page. */
+const I18N_EXACT={
+"Courbeur de frise":"Frieze Bender",
+"Fait suivre un motif SVG le long d'un bord de ta forme, puis exporte pour LightBurn.":"Bends an SVG pattern along an edge of your shape, then exports it for LightBurn.",
+"Forme":"Shape","Fichier":"File","Changer":"Change","Unités du fichier":"File units","Auto (lues dans le fichier)":"Auto (read from the file)",
+"Millimètres":"Millimetres","Pouces":"Inches","Pixels (96 ppp)":"Pixels (96 dpi)",
+"Si la taille ci-dessous ne correspond pas à LightBurn, force l'unité ici.":"If the size below doesn't match LightBurn, force the unit here.",
+"Dossiers d'échange":"Exchange folders","Ouvrir":"Open","Motif":"Pattern",
+"Exporte depuis LightBurn (Fichier › Exporter) dans un de ces dossiers : le fichier se charge tout seul ici.":"Export from LightBurn (File › Export) into one of these folders: the file loads here automatically.",
+"Frises":"Friezes","+ Ajouter":"+ Add","Supprimer":"Delete",
+"Chaque frise suit son propre bord avec son propre motif. Clique une frise pour la régler, ou glisse un SVG sur sa ligne pour changer son motif.":"Each frieze follows its own edge with its own pattern. Click a frieze to adjust it, or drop an SVG on its row to change its pattern.",
+"Empiler les frises au lieu de les superposer":"Stack friezes instead of overlapping them",
+"Deux frises qui partagent une partie du même bord se placent l'une au-dessus de l'autre. Des frises jointes bout à bout ne bougent pas.":"Two friezes that share part of the same edge are placed one above the other. Friezes joined end to end stay put.",
+"Espace entre frises empilées (mm)":"Gap between stacked friezes (mm)",
+"Bord à suivre":"Edge to follow","Contour":"Outline","Auto :":"Auto:","Bas":"Bottom","Haut":"Top","Gauche":"Left","Droite":"Right",
+"Pente max (auto)":"Max slope (auto)","Début":"Start","Fin":"End","Choisir sur le dessin":"Pick on the drawing","Prendre l'autre partie":"Take the other part",
+"Joindre les bordures":"Join the edges","Réglages du motif":"Pattern settings","Côté":"Side","Intérieur":"Inside","Extérieur":"Outside",
+"Orientation":"Orientation","Horizontale":"Horizontal","Verticale":"Vertical","Ordre d'alternance":"Alternation order",
+"A = motif 1, B = motif 2. Par exemple AB, ABB ou AAB. L'ordre se répète tout le long du bord.":"A = pattern 1, B = pattern 2. For example AB, ABB or AAB. The order repeats along the whole edge.",
+"Répétitions du motif":"Pattern repeats","Le motif entier est répété puis ajusté pour remplir le bord.":"The whole pattern is repeated, then adjusted to fill the edge.",
+"Répéter automatiquement pour garder la taille":"Repeat automatically to keep the size",
+"Le motif garde la hauteur visée : il est dupliqué autant de fois que nécessaire pour remplir le bord, sans être étiré ni écrasé.":"The pattern keeps the target height: it is duplicated as many times as needed to fill the edge, without being stretched or squashed.",
+"Hauteur auto (proportions gardées)":"Auto height (keep proportions)","Hauteur (mm)":"Height (mm)","Hauteur visée (mm)":"Target height (mm)",
+"Proportions exactes (la hauteur s'ajuste un peu)":"Exact proportions (height adjusts slightly)",
+"Écart au bord (mm)":"Distance from edge (mm)","Marge aux extrémités (mm)":"End margin (mm)","Adoucir les coins":"Soften corners",
+"Le motif ne se replie plus sur lui-même dans les virages serrés : sa base suit le bord, son haut tourne en douceur.":"The pattern no longer folds over itself in tight turns: its base follows the edge, its top turns smoothly.",
+"Lissage de la courbe (mm)":"Curve smoothing (mm)","Plus grand = le motif ondule moins dans les petites irrégularités du bord.":"Larger = the pattern wobbles less over small irregularities of the edge.",
+"Retourner":"Flip","Miroir":"Mirror","Calque LightBurn":"LightBurn layer","Export pour LightBurn":"Export for LightBurn",
+"Inclure la forme dans les fichiers":"Include the shape in the files","Fusionner les formes":"Merge shapes",
+"Sur chaque calque, tout ce qui se touche ou se recouvre devient un seul contour propre : pas de trait en double à la découpe, pas de trou dans la gravure. Mets des frises jointes sur le même calque pour qu'elles forment un seul contour.":"On each layer, everything that touches or overlaps becomes one clean outline: no double lines when cutting, no holes when engraving. Put joined friezes on the same layer so they form one outline.",
+"Calque de la forme":"Shape layer","Rendu du motif":"Pattern output","Plein (gravure)":"Filled (engrave)","Contour (découpe)":"Outline (cut)",
+"Télécharger DXF":"Download DXF","Télécharger SVG":"Download SVG",
+"Le DXF arrive dans un .zip et garde les coordonnées d'origine. Le SVG est en millimètres, avec les couleurs des calques LightBurn choisis.":"The DXF comes in a .zip and keeps the original coordinates. The SVG is in millimetres, with the colours of the chosen LightBurn layers.",
+"Le DXF garde les coordonnées d'origine. Le SVG est en millimètres, avec les couleurs des calques LightBurn choisis.":"The DXF keeps the original coordinates. The SVG is in millimetres, with the colours of the chosen LightBurn layers.",
+"Envoyer à LightBurn":"Send to LightBurn","Contenu":"Content","Frises seules":"Friezes only","Frises + forme":"Friezes + shape","Position":"Position",
+"Sur la forme (position d'origine)":"On the shape (original position)","Centre de la vue":"Centre of the view","Oublier l'appairage":"Forget pairing",
+"Le téléchargement n'est pas disponible ici. Copie le DXF puis colle-le dans un fichier texte nommé":"Download isn't available here. Copy the DXF and paste it into a text file named",
+"Copier le DXF":"Copy the DXF","Bord suivi":"Followed edge","Frise active":"Active frieze","Précédent":"Undo","Suivant":"Redo","Recadrer":"Fit view",
+"Choisir la forme DXF ou SVG":"Choose the DXF or SVG shape","Partie automatique":"Automatic part","Début en %":"Start in %","Fin en %":"End in %",
+"Colle le début et la fin de cette frise aux frises voisines du même contour (ou fait tout le tour s'il n'y en a pas)":"Snaps the start and end of this frieze to the neighbouring friezes of the same outline (or goes all the way round if there are none)",
+"Côté du motif":"Pattern side","Orientation du motif":"Pattern orientation","La longueur du motif suit le bord":"The pattern's length follows the edge",
+"Le motif tourne d'un quart de tour et se répète debout le long du bord":"The pattern turns a quarter turn and repeats upright along the edge",
+"Contenu DXF":"DXF content","Historique":"History","Annuler (Ctrl+Z)":"Undo (Ctrl+Z)","Rétablir (Ctrl+Y)":"Redo (Ctrl+Y)","Zoomer":"Zoom in","Dézoomer":"Zoom out",
+"Ajouter":"Add","Retirer":"Remove","Garder":"Keep","Ajouter à la bibliothèque":"Add to library","Ne plus alterner":"Stop alternating",
+"+ Ajouter une frise":"+ Add a frieze","aucun (pas d'alternance)":"none (no alternation)","Hauteur":"Height","Échelle":"Scale","Étirement":"Stretch",
+"Copies":"Copies","Éléments":"Elements","Frise":"Frieze","choisis une portion de bord plus longue":"choose a longer part of the edge",
+"Cette frise reste dans la forme sans toucher les autres éléments.":"This frieze stays inside the shape without touching anything else.",
+"Clique le début du bord":"Click the start of the edge","Clique la fin du bord":"Click the end of the edge",
+"LightBurn connecté":"LightBurn connected","LightBurn détecté":"LightBurn detected","LightBurn non détecté":"LightBurn not detected","Outil fermé":"Tool closed",
+"Envoi en cours…":"Sending…","Envoyé à LightBurn":"Sent to LightBurn","Rien à envoyer":"Nothing to send","Rien à exporter":"Nothing to export",
+"Fichier enregistré":"File saved","Enregistrement annulé":"Save cancelled","Une fenêtre d'enregistrement est déjà ouverte":"A save window is already open",
+"Téléchargement indisponible ici":"Download unavailable here","DXF copié":"DXF copied","Sélectionne le texte et copie-le":"Select the text and copy it",
+"Forme chargée":"Shape loaded","Motif chargé":"Pattern loaded","Frise supprimée":"Frieze deleted","Frises empilées":"Friezes stacked",
+"Frises libres : elles peuvent se superposer":"Free friezes: they may overlap","Unités appliquées":"Units applied","Fusion des formes…":"Merging shapes…",
+"Bordure jointe":"Edge joined","La frise fait maintenant tout le tour du contour, en gardant sa hauteur":"The frieze now goes all the way round the outline, keeping its height",
+"La frise couvre tout le contour, en gardant sa hauteur":"The frieze covers the whole outline, keeping its height",
+"Une fenêtre s'ouvre dans LightBurn : clique « Autoriser » (30 secondes max).":"A window opens in LightBurn: click “Allow” (30 seconds max).",
+"Appairage oublié. Le prochain envoi redemandera l'autorisation dans LightBurn.":"Pairing forgotten. The next send will ask for permission in LightBurn again.",
+"Impossible de joindre l'outil. Relance CourbeurDeFrise.exe.":"Can't reach the tool. Restart CourbeurDeFrise.exe.",
+"Ce fichier n'est pas un SVG lisible.":"This file isn't a readable SVG.","Aucun tracé trouvé dans le motif.":"No path found in the pattern.",
+"Aucune forme trouvée dans ce fichier.":"No shape found in this file.","DXF binaire non pris en charge : enregistre-le en DXF ASCII.":"Binary DXF isn't supported: save it as ASCII DXF.",
+"Section ENTITIES introuvable dans le DXF.":"ENTITIES section not found in the DXF.","Aucun motif":"No pattern","Ce motif n'est pas un SVG.":"This pattern isn't an SVG.",
+"Enregistrement impossible":"Can't save","Fichier vide.":"Empty file.",
+"noir":"black","bleu":"blue","rouge":"red","vert":"green","jaune":"yellow","orange":"orange","cyan":"cyan","magenta":"magenta","gris clair":"light grey","gris":"grey",
+"Exporte depuis LightBurn":"Export from LightBurn","Langue":"Language",
+"bas":"bottom","haut":"top","gauche":"left","droite":"right",
+/* messages renvoyés par CourbeurDeFrise.exe */
+"LightBurn ne répond pas. Vérifie qu'il est ouvert.":"LightBurn isn't responding. Check that it is open.",
+"Autorisation refusée ou délai dépassé (30 s). Renvoie et clique « Autoriser » dans la fenêtre de LightBurn.":"Permission refused or timed out (30 s). Send again and click “Allow” in the LightBurn window.",
+"Ta version de LightBurn ne propose pas encore l'API d'envoi. Mets LightBurn à jour.":"Your LightBurn version doesn't offer the send API yet. Update LightBurn.",
+"Réponse d'appairage illisible.":"Unreadable pairing response.",
+"LightBurn n'est pas ouvert (ou son API n'est pas disponible). Ouvre LightBurn puis réessaie.":"LightBurn isn't open (or its API isn't available). Open LightBurn and try again.",
+"C'est dans LightBurn : la frise a été importée dans le projet ouvert.":"Done: the frieze has been imported into the open LightBurn project.",
+"Fichier envoyé à LightBurn.":"File sent to LightBurn.","Fichier envoyé. LightBurn n'a pas encore confirmé l'import : vérifie le projet.":"File sent. LightBurn hasn't confirmed the import yet: check the project.",
+"LightBurn n'a pas pu importer le fichier.":"LightBurn couldn't import the file.",
+"LightBurn refuse l'autorisation. Clique « Oublier l'appairage » puis réessaie.":"LightBurn refuses permission. Click “Forget pairing” and try again."
+};
+const I18N_RULES=[
+[/^Frise (\d+)$/,"Frieze $1"],
+[/^Frise (\d+) ajoutée : choisis son bord et son motif$/,"Frieze $1 added: choose its edge and pattern"],
+[/^Frise (\d+) ajoutée : un anneau complet à l'intérieur du précédent$/,"Frieze $1 added: a full ring inside the previous one"],
+[/^Contour (\d+) · fermé · (\d+) mm$/,"Outline $1 · closed · $2 mm"],[/^Contour (\d+) · ouvert · (\d+) mm$/,"Outline $1 · open · $2 mm"],
+[/^· (\d+) mm de bord$/,"· $1 mm of edge"],[/^(\d+) mm de bord$/,"$1 mm of edge"],
+[/^Empilée sur la frise (\d+)$/,"Stacked on frieze $1"],
+[/^Supprimer la frise (\d+)$/,"Delete frieze $1"],
+[/^(\d+) · (.+?)( \(utilisé\))?$/,(m,n,c,u)=>n+" · "+(I18N_EXACT[c]||c)+(u?" (in use)":"")],
+[/^(.*) \(utilisé\)$/,"$1 (in use)"],
+[/^Bibliothèque \((\d+)\)…$/,"Library ($1)…"],
+[/^Motif( \d)? de la frise (\d+) depuis la bibliothèque$/,"Pattern$1 of frieze $2 from the library"],
+[/^Fichier enregistré : (.*)$/,"File saved: $1"],[/^Motif chargé : (.*)$/,"Pattern loaded: $1"],[/^Motif : (.*)$/,"Pattern: $1"],
+[/^Motif introuvable : (.*)$/,"Pattern not found: $1"],
+[/^Forme reçue : (.*)$/,"Shape received: $1"],[/^Motif reçu : (.*)$/,"Pattern received: $1"],
+[/^Ajouté à la bibliothèque : (.*)$/,"Added to the library: $1"],
+[/^Fusion : (\d+) tracés → (\d+) contours$/,"Merge: $1 paths → $2 outlines"],
+[/^Répétition automatique activée pour garder la hauteur de (.*) mm$/,"Automatic repeat on, to keep the height of $1 mm"],
+[/^Collée aux deux bouts de la frise (\d+)(, même hauteur et même calque que la frise (\d+))?$/,(m,a,b,c)=>"Snapped to both ends of frieze "+a+(b?", same height and layer as frieze "+c:"")],
+[/^Collée aux frises (\d+) et (\d+)(, même hauteur et même calque que la frise (\d+))?$/,(m,a,b,c,d)=>"Snapped to friezes "+a+" and "+b+(c?", same height and layer as frieze "+d:"")],
+[/^Bordure jointe(, même hauteur et même calque que la frise (\d+))?$/,(m,a,b)=>"Edge joined"+(a?", same height and layer as frieze "+b:"")],
+[/^Cette frise touche la frise (\d+)\.$/,"This frieze touches frieze $1."],
+[/^Cette frise chevauche une autre forme \(contour ([\d, ]+)\)\. Diminue la hauteur ou augmente les répétitions\.$/,"This frieze overlaps another shape (outline $1). Lower the height or increase the repeats."],
+[/^Cette frise chevauche (\d+) autres formes \(contour ([\d, ]+)\)\. Diminue la hauteur ou augmente les répétitions\.$/,"This frieze overlaps $1 other shapes (outlines $2). Lower the height or increase the repeats."],
+[/^Environ ([\d.]+) % de cette frise dépasse du contour\. Réduis la pente max, ajoute une marge ou un lissage\.$/,"About $1 % of this frieze goes past the outline. Lower the max slope, add a margin or smoothing."],
+[/^Environ ([\d.]+) % de cette frise dépasse à l'intérieur de la forme\. Réduis la pente max, ajoute une marge ou un lissage\.$/,"About $1 % of this frieze goes inside the shape. Lower the max slope, add a margin or smoothing."],
+[/^Hauteur trop petite pour ce bord : limité à (\d+) copies pour ne pas saturer la mémoire\. Augmente la hauteur visée\.$/,"Height too small for this edge: limited to $1 copies to avoid running out of memory. Increase the target height."],
+[/^ Ce motif contient (\d+) éléments identiques : il est dupliqué élément par élément\.$/," This pattern has $1 identical elements: it is duplicated element by element."],
+[/^Ce motif contient (\d+) éléments identiques : il est dupliqué élément par élément\.$/,"This pattern has $1 identical elements: it is duplicated element by element."],
+[/^(\d+) motifs?$/,"$1 pattern(s)"],
+[/^V([\d.]+) · calcul sur (\d+) cœurs$/,"V$1 · computing on $2 cores"],
+[/^L'envoi vers LightBurn a échoué : (.*)$/,"Sending to LightBurn failed: $1"],
+[/^LightBurn a refusé le fichier \(code (\d+)\)\.$/,"LightBurn refused the file (code $1)."],
+[/^LightBurn a refusé l'appairage \(code (\d+)\)\.$/,"LightBurn refused pairing (code $1)."],
+[/^LightBurn n'a pas pu importer le fichier\. (.*)$/,"LightBurn couldn't import the file. $1"],
+[/^Écriture impossible : (.*)$/,"Can't write: $1"]
+];
+let LANG='fr';
+function trText(s){if(LANG!=='en'||!s)return s;const m=s.match(/^(\s*)([\s\S]*?)(\s*)$/);const core=m[2];if(!core)return s;
+  let r=I18N_EXACT[core];if(r===undefined)for(const [re,to] of I18N_RULES){if(re.test(core)){r=core.replace(re,to);break;}}
+  return r===undefined?s:m[1]+r+m[3];}
+const I18N_ORIG=new WeakMap();   /* texte français d'origine de chaque nœud traduit */
+const I18N_ATTRS=['title','aria-label','placeholder'];
+function trNode(n){
+  if(n.nodeType===3){const p=n.parentNode;if(!p||p.nodeName==='SCRIPT'||p.nodeName==='STYLE'||p.nodeName==='TEXTAREA')return;
+    const t=trText(n.data);if(t!==n.data){I18N_ORIG.set(n,n.data);n.data=t;}return;}
+  if(n.nodeType!==1)return;
+  for(const a of I18N_ATTRS){const v=n.getAttribute&&n.getAttribute(a);if(!v)continue;const t=trText(v);if(t!==v){let o=I18N_ORIG.get(n);if(!o||typeof o!=='object'){o={};I18N_ORIG.set(n,o);}o[a]=v;n.setAttribute(a,t);}}
+  for(const c of n.childNodes)trNode(c);}
+function untrNode(n){
+  if(n.nodeType===3){const o=I18N_ORIG.get(n);if(typeof o==='string'){n.data=o;I18N_ORIG.delete(n);}return;}
+  if(n.nodeType!==1)return;const o=I18N_ORIG.get(n);if(o&&typeof o==='object'){for(const a in o)n.setAttribute(a,o[a]);I18N_ORIG.delete(n);}
+  for(const c of n.childNodes)untrNode(c);}
+const I18N_OBS=new MutationObserver(list=>{if(LANG!=='en')return;
+  for(const m of list){if(m.type==='characterData')trNode(m.target);else if(m.type==='attributes')trNode(m.target);else for(const n of m.addedNodes)trNode(n);}});
+function setLang(l,save){LANG=l==='en'?'en':'fr';document.documentElement.lang=LANG;
+  if(LANG==='en'){trNode(document.body);I18N_OBS.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:I18N_ATTRS});}
+  else{I18N_OBS.disconnect();untrNode(document.body);}
+  document.title=LANG==='en'?'Frieze Bender · Courbeur de frise':'Courbeur de frise';
+  for(const b of document.querySelectorAll('#langSel button'))b.setAttribute('aria-pressed',b.dataset.lang===LANG);
+  if(save){try{localStorage.setItem('courbeur.lang',LANG);}catch(e){}}}
+function initialLang(){try{const s=localStorage.getItem('courbeur.lang');if(s==='fr'||s==='en')return s;}catch(e){}
+  return /^fr\b/i.test(navigator.language||'')?'fr':'en';}
+
+const PAGE_VERSION = '1.12';
+
+/* ---------- geometry helpers ---------- */
+const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+function bboxOf(list){let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;for(const P of list)for(const p of P){if(p[0]<x0)x0=p[0];if(p[0]>x1)x1=p[0];if(p[1]<y0)y0=p[1];if(p[1]>y1)y1=p[1];}return {x0,y0,x1,y1,w:x1-x0,h:y1-y0};}
+function pip(x,y,P){let c=false;for(let i=0,j=P.length-1;i<P.length;j=i++){const a=P[i],b=P[j];if(((a[1]>y)!==(b[1]>y))&&(x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0]))c=!c;}return c;}
+function decimate(P,max){if(P.length<=max)return P;const k=Math.ceil(P.length/max),o=[];for(let i=0;i<P.length;i+=k)o.push(P[i]);return o;}
+function dedupe(P,tol){const o=[P[0]];for(let i=1;i<P.length;i++)if(dist(P[i],o[o.length-1])>tol)o.push(P[i]);return o;}
+function densify(P,closed,maxSeg){const o=[];const n=P.length,m=closed?n:n-1;for(let i=0;i<m;i++){const a=P[i],b=P[(i+1)%n];o.push(a);const d=dist(a,b);if(d>maxSeg){const k=Math.ceil(d/maxSeg);for(let j=1;j<k;j++)o.push([a[0]+(b[0]-a[0])*j/k,a[1]+(b[1]-a[1])*j/k]);}}if(!closed)o.push(P[n-1]);return o;}
+function rdp(P,eps){if(P.length<3)return P;const keep=new Uint8Array(P.length);keep[0]=keep[P.length-1]=1;const st=[[0,P.length-1]];
+  while(st.length){const [s,e]=st.pop();const a=P[s],b=P[e];const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy)||1e-12;let md=0,mi=-1;
+    for(let i=s+1;i<e;i++){const d=Math.abs(dy*(P[i][0]-a[0])-dx*(P[i][1]-a[1]))/L;if(d>md){md=d;mi=i;}}
+    if(md>eps&&mi>0){keep[mi]=1;st.push([s,mi],[mi,e]);}}
+  return P.filter((_,i)=>keep[i]);}
+function makeChain(pts,closed){
+  pts=dedupe(pts,1e-6);
+  if(closed&&pts.length>2&&dist(pts[0],pts[pts.length-1])<1e-6)pts.pop();
+  const ring=closed?pts.concat([pts[0]]):pts;const S=[0];for(let i=1;i<ring.length;i++)S.push(S[i-1]+dist(ring[i],ring[i-1]));
+  return {pts,closed,ring,S,L:S[S.length-1],bb:bboxOf([pts]),dec:decimate(pts,700)};
+}
+function pointAt(c,s){
+  if(c.closed){s=((s%c.L)+c.L)%c.L;}else{s=Math.max(0,Math.min(c.L,s));}
+  let lo=0,hi=c.S.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(c.S[m]<=s)lo=m;else hi=m;}
+  const d=c.S[hi]-c.S[lo]||1e-12,t=(s-c.S[lo])/d,a=c.ring[lo],b=c.ring[hi];return [a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
+}
+
+/* ---------- DXF ---------- */
+function parseDXF(txt,force){
+  const L=txt.split(/\r?\n/);const pairs=[];
+  for(let i=0;i+1<L.length;i+=2){const c=parseInt(L[i].trim(),10);if(isNaN(c))continue;pairs.push([c,L[i+1].trim()]);}
+  let unit=1;
+  for(let i=0;i<pairs.length-1;i++)if(pairs[i][0]===9&&pairs[i][1]==='$INSUNITS'){const u=parseInt(pairs[i+1][1]);unit={1:25.4,2:304.8,4:1,5:10,6:1000}[u]||1;break;}
+  if(force)unit=force;
+  let i=0;while(i<pairs.length&&!(pairs[i][0]===2&&pairs[i][1]==='ENTITIES'))i++;
+  if(i>=pairs.length)throw new Error("Section ENTITIES introuvable dans le DXF.");
+  const ents=[];let cur=null;
+  for(i++;i<pairs.length;i++){const [c,v]=pairs[i];if(c===0){if(cur)ents.push(cur);if(v==='ENDSEC'){cur=null;break;}cur={type:v,g:[]};}else if(cur)cur.g.push([c,v]);}
+  if(cur)ents.push(cur);
+  const num=(e,code,def=0)=>{const f=e.g.find(p=>p[0]===code);return f?parseFloat(f[1]):def;};
+  const pieces=[];
+  const arcPts=(cx,cy,r,a0,a1)=>{if(a1<a0)a1+=Math.PI*2;const n=Math.max(8,Math.ceil((a1-a0)*r/0.3));const o=[];for(let k=0;k<=n;k++){const t=a0+(a1-a0)*k/n;o.push([cx+r*Math.cos(t),cy+r*Math.sin(t)]);}return o;};
+  const bulgeSeg=(p,q,b,out)=>{if(!b){return;}const th=4*Math.atan(b);const d=dist(p,q);if(d<1e-9)return;const r=d/(2*Math.sin(Math.abs(th)/2));
+    const mx=(p[0]+q[0])/2,my=(p[1]+q[1])/2;const h=Math.sqrt(Math.max(0,r*r-d*d/4))*(Math.abs(th)>Math.PI?-1:1);
+    const ux=(q[0]-p[0])/d,uy=(q[1]-p[1])/d;const sgn=b>0?1:-1;const cx=mx-uy*h*sgn,cy=my+ux*h*sgn;
+    let a0=Math.atan2(p[1]-cy,p[0]-cx);const n=Math.max(4,Math.ceil(Math.abs(th)*r/0.3));for(let k=1;k<n;k++){const t=a0+th*k/n;out.push([cx+r*Math.cos(t),cy+r*Math.sin(t)]);}};
+  const vertsToPts=(vs,closed)=>{const o=[];for(let k=0;k<vs.length;k++){const v=vs[k];o.push([v.x,v.y]);const nx=vs[k+1]||(closed?vs[0]:null);if(nx&&v.b)bulgeSeg([v.x,v.y],[nx.x,nx.y],v.b,o);}return o;};
+  for(let k=0;k<ents.length;k++){const e=ents[k];
+    try{
+    if(e.type==='LWPOLYLINE'){const vs=[];for(const [c,v] of e.g){if(c===10)vs.push({x:+v,y:0,b:0});else if(c===20&&vs.length)vs[vs.length-1].y=+v;else if(c===42&&vs.length)vs[vs.length-1].b=+v;}
+      const closed=(num(e,70)&1)===1;if(vs.length>1)pieces.push({pts:vertsToPts(vs,closed),closed});}
+    else if(e.type==='POLYLINE'){const closed=(num(e,70)&1)===1;const vs=[];let j=k+1;for(;j<ents.length&&ents[j].type==='VERTEX';j++){const v=ents[j];vs.push({x:num(v,10),y:num(v,20),b:num(v,42)});}k=j;if(vs.length>1)pieces.push({pts:vertsToPts(vs,closed),closed});}
+    else if(e.type==='LINE'){pieces.push({pts:[[num(e,10),num(e,20)],[num(e,11),num(e,21)]],closed:false});}
+    else if(e.type==='CIRCLE'){const p=arcPts(num(e,10),num(e,20),num(e,40),0,Math.PI*2);p.pop();pieces.push({pts:p,closed:true});}
+    else if(e.type==='ARC'){pieces.push({pts:arcPts(num(e,10),num(e,20),num(e,40),num(e,50)*Math.PI/180,num(e,51)*Math.PI/180),closed:false});}
+    else if(e.type==='ELLIPSE'){const cx=num(e,10),cy=num(e,20),mx=num(e,11),my=num(e,21),ra=num(e,40,1);let t0=num(e,41,0),t1=num(e,42,Math.PI*2);if(t1<=t0)t1+=Math.PI*2;
+      const R=Math.hypot(mx,my),ang=Math.atan2(my,mx);const n=Math.max(16,Math.ceil((t1-t0)*R/0.3));const o=[];for(let q=0;q<=n;q++){const t=t0+(t1-t0)*q/n;const x=R*Math.cos(t),y=R*ra*Math.sin(t);o.push([cx+x*Math.cos(ang)-y*Math.sin(ang),cy+x*Math.sin(ang)+y*Math.cos(ang)]);}
+      const full=Math.abs(t1-t0-Math.PI*2)<1e-6;if(full)o.pop();pieces.push({pts:o,closed:full});}
+    else if(e.type==='SPLINE'){const p=Math.round(num(e,71,3));const kn=[],cp=[],w=[],fp=[];
+      for(const [c,v] of e.g){if(c===40)kn.push(+v);else if(c===10)cp.push([+v,0]);else if(c===20&&cp.length)cp[cp.length-1][1]=+v;else if(c===41)w.push(+v);else if(c===11)fp.push([+v,0]);else if(c===21&&fp.length)fp[fp.length-1][1]=+v;}
+      let pts;
+      if(cp.length>p&&kn.length===cp.length+p+1){pts=evalNurbs(p,kn,cp,w.length===cp.length?w:null);}
+      else if(fp.length>1){pts=fp;}
+      if(pts&&pts.length>1){const closed=dist(pts[0],pts[pts.length-1])<1e-4||((num(e,70)&1)===1);pieces.push({pts,closed});}}
+    }catch(err){console.warn('entité ignorée',e.type,err);}
+  }
+  if(unit!==1)for(const pc of pieces)for(const q of pc.pts){q[0]*=unit;q[1]*=unit;}
+  return chainPieces(pieces);
+}
+function evalNurbs(p,k,cp,w){
+  const n=cp.length;const t0=k[p],t1=k[n];const out=[];const N=Math.max(200,n*40);
+  for(let q=0;q<=N;q++){let t=t0+(t1-t0)*q/N;if(q===N)t=t1-1e-12*(t1-t0+1);
+    let s=p;while(s<n-1&&k[s+1]<=t)s++;
+    const d=[];for(let j=0;j<=p;j++){const c=cp[s-p+j],ww=w?w[s-p+j]:1;d.push([c[0]*ww,c[1]*ww,ww]);}
+    for(let r=1;r<=p;r++)for(let j=p;j>=r;j--){const i=s-p+j;const den=k[i+p-r+1]-k[i];const a=den===0?0:(t-k[i])/den;d[j]=[(1-a)*d[j-1][0]+a*d[j][0],(1-a)*d[j-1][1]+a*d[j][1],(1-a)*d[j-1][2]+a*d[j][2]];}
+    out.push([d[p][0]/d[p][2],d[p][1]/d[p][2]]);}
+  return out;
+}
+function chainPieces(pieces){
+  const tol=0.05;const closed=[],open=[];
+  for(const pc of pieces){if(pc.pts.length<2)continue;if(pc.closed||(pc.pts.length>2&&dist(pc.pts[0],pc.pts[pc.pts.length-1])<tol))closed.push(pc.pts);else open.push(pc.pts.slice());}
+  const res=closed.map(p=>makeChain(p,true));
+  while(open.length){let ch=open.pop();let grew=true;
+    while(grew){grew=false;for(let i=0;i<open.length;i++){const o=open[i];const e=ch[ch.length-1],s=ch[0];
+      if(dist(e,o[0])<tol){ch=ch.concat(o.slice(1));}else if(dist(e,o[o.length-1])<tol){ch=ch.concat(o.slice().reverse().slice(1));}
+      else if(dist(s,o[o.length-1])<tol){ch=o.slice(0,-1).concat(ch);}else if(dist(s,o[0])<tol){ch=o.slice().reverse().slice(0,-1).concat(ch);}else continue;
+      open.splice(i,1);grew=true;break;}}
+    const isC=ch.length>2&&dist(ch[0],ch[ch.length-1])<tol;res.push(makeChain(ch,isC));}
+  return res.filter(c=>c.L>0);
+}
+
+/* ---------- SVG ---------- */
+function loadSvgDoc(text){
+  const doc=new DOMParser().parseFromString(text,'image/svg+xml');
+  const root=doc.documentElement;if(!root||root.nodeName.toLowerCase()!=='svg'||doc.querySelector('parsererror'))throw new Error("Ce fichier n'est pas un SVG lisible.");
+  root.querySelectorAll('script,foreignObject').forEach(n=>n.remove());
+  root.querySelectorAll('*').forEach(n=>{for(const a of [...n.attributes])if(/^on/i.test(a.name))n.removeAttribute(a.name);});
+  const host=$('svgHost');host.textContent='';const svg=document.importNode(root,true);host.appendChild(svg);return svg;
+}
+function elMatrix(el,root){const ms=[];let n=el;while(n&&n!==root){if(n.transform&&n.transform.baseVal){const t=n.transform.baseVal.consolidate();if(t)ms.push(t.matrix);}n=n.parentNode;}
+  let m=new DOMMatrix();for(let i=ms.length-1;i>=0;i--){const q=ms[i];m=m.multiply(new DOMMatrix([q.a,q.b,q.c,q.d,q.e,q.f]));}return m;}
+function sampleSvg(svg){
+  const els=[...svg.querySelectorAll('path,rect,circle,ellipse,polygon,polyline,line')].filter(e=>!e.closest('defs,clipPath,mask,symbol,marker,pattern'));
+  let diag=0;const vb=svg.viewBox&&svg.viewBox.baseVal;if(vb&&vb.width)diag=Math.hypot(vb.width,vb.height);
+  if(!diag){try{const b=svg.getBBox();diag=Math.hypot(b.width,b.height);}catch(e){diag=100;}}
+  const step=diag/3500;const polys=[];
+  let ei=-1;
+  for(const el of els){ei++;let len;try{len=el.getTotalLength();}catch(e){continue;}if(!(len>0))continue;
+    const m=elMatrix(el,svg);const n=Math.max(16,Math.ceil(len/step));const seg=len/n;let cur=[];
+    const push=()=>{if(cur.length>1){let closed=el.tagName!=='polyline'&&el.tagName!=='line'&&dist(cur[0],cur[cur.length-1])<seg*2.5;if(closed&&cur.length>2)cur.pop();if(cur.length>(closed?2:1))polys.push({pts:cur,closed,el:ei});}cur=[];};
+    let prev=null;
+    for(let k=0;k<=n;k++){const q=el.getPointAtLength(len*k/n);const p=m.transformPoint(new DOMPoint(q.x,q.y));const pt=[p.x,p.y];
+      if(prev&&dist(prev,pt)>seg*3+1e-9)push();cur.push(pt);prev=pt;}
+    push();}
+  return polys;
+}
+function svgUnitToMm(svg){
+  const vb=svg.viewBox&&svg.viewBox.baseVal;const w=svg.getAttribute('width');
+  const f={mm:1,cm:10,in:25.4,pt:25.4/72,pc:25.4/6,px:25.4/96,'':25.4/96};
+  if(w){const m=w.trim().match(/^([\d.]+)\s*(mm|cm|in|pt|pc|px)?$/);if(m){const wm=parseFloat(m[1])*f[m[2]||''];if(vb&&vb.width)return wm/vb.width;return f[m[2]||''];}}
+  return 25.4/96;
+}
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0;}return t;})();
+function crc32(u){let c=0xFFFFFFFF;for(let i=0;i<u.length;i++)c=CRC[(c^u[i])&255]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function zip(files){const enc=new TextEncoder();const parts=[],cen=[];let off=0;
+  for(const f of files){const name=enc.encode(f.name),data=f.data,crc=crc32(data);
+    const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(8,0,true);h.setUint32(14,crc,true);h.setUint32(18,data.length,true);h.setUint32(22,data.length,true);h.setUint16(26,name.length,true);
+    parts.push(new Uint8Array(h.buffer),name,data);
+    const c=new DataView(new ArrayBuffer(46));c.setUint32(0,0x02014b50,true);c.setUint16(4,20,true);c.setUint16(6,20,true);c.setUint32(16,crc,true);c.setUint32(20,data.length,true);c.setUint32(24,data.length,true);c.setUint16(28,name.length,true);c.setUint32(42,off,true);
+    cen.push(new Uint8Array(c.buffer),name);off+=30+name.length+data.length;}
+  const cl=cen.reduce((a,x)=>a+x.length,0);const e=new DataView(new ArrayBuffer(22));e.setUint32(0,0x06054b50,true);e.setUint16(8,files.length,true);e.setUint16(10,files.length,true);e.setUint32(12,cl,true);e.setUint32(16,off,true);
+  return new Blob([...parts,...cen,new Uint8Array(e.buffer)],{type:'application/zip'});}
+/* ---------- motifs & forme ---------- */
+function parseMotif(text,name){
+  const svg=loadSvgDoc(text);const polys=sampleSvg(svg);if(!polys.length)throw new Error("Aucun tracé trouvé dans le motif.");
+  const m={polys,bb:bboxOf(polys.map(p=>p.pts)),text,name};m.tile=detectTile(m);return m;
+}
+/* Repère un élément qui se répète à pas régulier dans le motif (ex. B1 = 10 éléments identiques).
+   Le mode « garder la taille » duplique alors élément par élément, pour tomber juste à la longueur du bord. */
+function detectTile(m){
+  const items=m.polys.map(p=>{const b=bboxOf([p.pts]);return {p,x0:b.x0,x1:b.x1};}).sort((a,b)=>a.x0-b.x0);
+  const eps=m.bb.w*1e-3,cl=[];
+  for(const it of items){const c=cl[cl.length-1];if(c&&it.x0<c.x1-eps){c.x1=Math.max(c.x1,it.x1);c.items.push(it);}else cl.push({x0:it.x0,x1:it.x1,items:[it]});}
+  if(cl.length<2)return null;
+  const pitches=cl.slice(1).map((c,i)=>c.x0-cl[i].x0),mean=pitches.reduce((a,b)=>a+b,0)/pitches.length;
+  const widths=cl.map(c=>c.x1-c.x0),wm=widths.reduce((a,b)=>a+b,0)/widths.length;
+  if(!(mean>0)||pitches.some(p=>Math.abs(p-mean)>mean*0.02)||widths.some(w=>Math.abs(w-wm)>wm*0.03))return null;
+  const n=cl[0].items.length;if(cl.some(c=>c.items.length!==n))return null;
+  const polys=cl[0].items.map(it=>it.p);
+  return {polys,bb:{x0:cl[0].x0,x1:cl[0].x0+mean,y0:m.bb.y0,y1:m.bb.y1,w:mean,h:m.bb.h},name:m.name,count:cl.length};
+}
+const UNIT_MM={mm:1,in:25.4,px:25.4/96};
+function parseForme(text,units){
+  let ch;
+  if(/^\s*<|<svg/i.test(text.slice(0,500))){const svg=loadSvgDoc(text);const k=units==='auto'?svgUnitToMm(svg):UNIT_MM[units];
+    ch=chainPieces(sampleSvg(svg).map(p=>({pts:p.pts.map(q=>[q[0]*k,-q[1]*k]),closed:p.closed})));}
+  else{if(text.slice(0,22).includes('AutoCAD Binary DXF'))throw new Error("DXF binaire non pris en charge : enregistre-le en DXF ASCII.");ch=parseDXF(text,units==='auto'?0:UNIT_MM[units]);}
+  if(!ch.length)throw new Error("Aucune forme trouvée dans ce fichier.");
+  return ch;
+}
+function bestChain(){let best=0,bl=-1;chains.forEach((c,i)=>{const sc=(c.closed?1e9:0)+c.L;if(sc>bl){bl=sc;best=i;}});return best;}
+/* remplace la forme : toutes les frises se recalent sur le nouveau contour */
+function setForme(text,name){
+  const ch=parseForme(text,docOpts.units);chains=ch;formeName=name;formeText=text;$('nameForme').textContent=name;
+  const b=bestChain();for(const f of frises){f.ci=b;autoPortionFor(f,f.lastAuto);}
+  fillChainSelect();computeAll();
+}
+function fillChainSelect(){const s=$('selChain');s.textContent='';chains.forEach((c,i)=>{const o=document.createElement('option');o.value=i;o.textContent=`Contour ${i+1} · ${c.closed?'fermé':'ouvert'} · ${c.L.toFixed(0)} mm`;s.appendChild(o);});if(state)s.value=state.ci;}
+
+/* ---------- frises ---------- */
+const DEF={ci:0,a:0,b:1,side:'in',reps:1,autoH:true,H:20,offset:0,margin:0,smooth:3,flip:false,mirror:false,slope:30,lastAuto:'bas',layer:2,order:'AB',autoReps:false,orient:'h',cornerSoft:true};
+const KEYS=Object.keys(DEF);
+const PREF_KEYS=['side','reps','autoH','H','offset','margin','smooth','flip','mirror','slope','lastAuto','layer','order','autoReps','orient','cornerSoft'];
+const pick=(o,keys)=>{const r={};for(const k of keys)r[k]=o[k];return r;};
+function newFrise(params,m,mb){const f=Object.assign({},DEF,params||{});f.motif=m||null;f.motifB=mb||null;f.guide=null;f.warped=[];return f;}
+/* suite des motifs posés le long du bord : A = motif 1, B = motif 2 */
+function sequenceOf(f,n){const reps=Math.max(1,Math.round(n||f.reps));const ord=(f.motifB?(f.order||'AB').toUpperCase().replace(/[^AB]/g,''):'')||'A';const out=[];
+  for(let k=0;k<reps;k++){const L=ord[k%ord.length];out.push(L==='B'&&f.motifB?f.motifB:f.motif);}return out;}
+let frises=[],fi=0,state=null;
+let chains=[],formeName='',formeText='';
+const docOpts={units:'auto',formeLayer:1,stack:true,gap:1,fuse:true};
+let pickStep=0,view={cx:0,cy:0,k:1};
+
+/* ---------- calques LightBurn ---------- */
+const PALETTE=['#000000','#0000FF','#FF0000','#00E000','#D0D000','#FF8000','#00E0E0','#FF00FF','#B4B4B4','#0000A0','#A00000','#00A000','#A0A000','#C08000','#00A0FF','#A000A0','#808080','#7D87B9','#BB7784','#4A6FE3','#D33F6A','#8CD78C','#F0B98D','#F6C4E1','#FA9ED4','#500A78','#B45A00','#004754','#86FA88','#FFDB66'];
+const COLOR_NAMES={0:'noir',1:'bleu',2:'rouge',3:'vert',4:'jaune',5:'orange',6:'cyan',7:'magenta',8:'gris clair',16:'gris'};
+let layers=PALETTE.map((color,index)=>({index,color,name:'',in_use:false})),layersFromLB=false;
+const layerColor=i=>(layers.find(l=>l.index===i)||layers[0]).color;
+function fillLayerSelects(){
+  for(const [id,val] of [['layerSel',state?state.layer:2],['formeLayerSel',docOpts.formeLayer]]){const s=$(id);s.textContent='';
+    for(const l of layers){const o=document.createElement('option');o.value=l.index;const nm=l.name&&!/^C\d+$/.test(l.name)?l.name:(COLOR_NAMES[l.index]||l.color);
+      o.textContent=String(l.index).padStart(2,'0')+' · '+nm+(l.in_use?' (utilisé)':'');s.appendChild(o);}
+    s.value=val;}
+  paintSwatches();}
+function paintSwatches(){$('layerSw').style.background=layerColor(state?state.layer:2);$('formeLayerSw').style.background=layerColor(docOpts.formeLayer);}
+
+/* ---------- auto portion ---------- */
+function autoPortionFor(f,dir){
+  const c=chains[f.ci];if(!c)return;f.lastAuto=dir;
+  if(!c.closed){f.a=0;f.b=1;return;}
+  const n=1500,ds=c.L/n,P=[],T=[];const h=Math.max(f.smooth,c.L/300);
+  for(let i=0;i<n;i++){const s=i*ds;P.push(pointAt(c,s));const a=pointAt(c,s-h),b=pointAt(c,s+h);T.push([b[0]-a[0],b[1]-a[1]]);}
+  let ex=0;const val=p=>dir==='bas'?-p[1]:dir==='haut'?p[1]:dir==='gauche'?-p[0]:p[0];
+  for(let i=1;i<n;i++)if(val(P[i])>val(P[ex]))ex=i;
+  const horiz=dir==='bas'||dir==='haut';const lim=f.slope*Math.PI/180;
+  const ok=i=>{const t=T[(i%n+n)%n];const d=horiz?Math.atan2(Math.abs(t[1]),Math.abs(t[0])):Math.atan2(Math.abs(t[0]),Math.abs(t[1]));return d<lim;};
+  let a=ex,b=ex;while(ok(a-1)&&ex-a<n-2)a--;while(ok(b+1)&&b-a<n-2)b++;
+  f.a=(((a%n)+n)%n)/n;f.b=(((b%n)+n)%n)/n;
+}
+function autoPortion(dir){autoPortionFor(state,dir);syncInputs();update();}
+
+/* ---------- guide + déformation ---------- */
+function buildGuide(f,hNorm){
+  const c=chains[f.ci];if(!c)return null;let sa=f.a*c.L,sb=f.b*c.L;
+  if(c.closed){if(sb<=sa)sb+=c.L;}else if(sb<sa)[sa,sb]=[sb,sa];
+  const len=sb-sa;if(len<0.5)return null;
+  const n=Math.min(20000,Math.max(200,Math.ceil(len/0.2))),ds=len/n,h=Math.max(f.smooth/2,ds,hNorm||0);
+  let P=[],T=[];
+  for(let i=0;i<=n;i++){const s=sa+i*ds;P.push(pointAt(c,s));const a=pointAt(c,s-h),b=pointAt(c,s+h);let tx=b[0]-a[0],ty=b[1]-a[1];const l=Math.hypot(tx,ty);
+    if(l<1e-12){const pv=T[T.length-1]||[1,0];tx=pv[0];ty=pv[1];}else{tx/=l;ty/=l;}T.push([tx,ty]);}
+  const m=n>>1;let useLeft;
+  if(c.closed){const e=Math.min(0.1,len*1e-3);const inside=pip(P[m][0]-T[m][1]*e,P[m][1]+T[m][0]*e,c.pts);useLeft=(inside===(f.side==='in'));}
+  else useLeft=f.side==='in';
+  if(!useLeft){P.reverse();T=T.reverse().map(t=>[-t[0],-t[1]]);}
+  const N=T.map(t=>[-t[1],t[0]]);
+  return {P,N,ds,len,n,closed:c.closed,chain:c};
+}
+/* orientation verticale : le motif tourne d'un quart de tour (sens horaire), une seule fois par motif */
+const ROT=new WeakMap();
+function rotMotif(m){if(!m)return m;let r=ROT.get(m);if(r)return r;
+  const polys=m.polys.map(p=>({pts:p.pts.map(q=>[-q[1],q[0]]),closed:p.closed,el:p.el}));
+  r={polys,bb:bboxOf(polys.map(p=>p.pts)),name:m.name};r.tile=detectTile(r);ROT.set(m,r);return r;}
+const POINT_BUDGET=1500000;   /* au-delà, l'onglet du navigateur risque de manquer de mémoire */
+/* une polyligne calculée : coordonnées compactes (Float64Array), paires [x,y] créées seulement si on les demande */
+function polyOf(a,closed,g){return {flat:a,closed,g:g||0,_p:null,get pts(){if(!this._p){const P=new Array(this.flat.length/2);for(let i=0;i<P.length;i++)P[i]=[this.flat[2*i],this.flat[2*i+1]];this._p=P;}return this._p;}};}
+/* motif préparé à une échelle donnée, gardé en mémoire : glisser un réglage ne le re-prépare plus.
+   L'échelle est arrondie par paliers de 9 % vers le haut, ce qui garde la précision à 0,004 mm ou mieux. */
+const PREP=new WeakMap();
+function preparedMotif(m,sU,sV){const bk=x=>Math.pow(2,Math.ceil(Math.log2(x)*8)/8);const lo=bk(Math.min(sU,sV)),hi=bk(Math.max(sU,sV)),key=lo+'|'+hi;
+  let c=PREP.get(m);if(!c){c=new Map();PREP.set(m,c);}let r=c.get(key);if(r)return r;
+  const eps=0.004/lo,maxSeg=0.3/hi;
+  r=m.polys.map(pl=>({D:densify(simplify(pl.pts,pl.closed,eps),pl.closed,maxSeg),closed:pl.closed,el:pl.el|0}));r.n=r.reduce((a,q)=>a+q.D.length,0);
+  if(c.size>=24)c.delete(c.keys().next().value);c.set(key,r);return r;}
+function computeWarp(f){
+  f.warped=[];f.capped=false;f.guide=buildGuide(f);if(!f.guide||!f.motif)return;
+  const vert=f.orient==='v',fm=vert?rotMotif(f.motif):f.motif,fmB=vert?rotMotif(f.motifB):f.motifB;
+  let G=f.guide;const Lf=G.len-2*f.margin;
+  /* mode « garder la taille » : nombre de copies calculé pour que le motif garde la hauteur visée */
+  let nReps=Math.max(1,Math.round(f.reps));
+  const unit=f.autoReps&&!fmB&&fm.tile?fm.tile:fm;
+  if(f.autoReps&&f.H>0&&unit.bb.h>0){const wUnit=unit.bb.w*(f.H/unit.bb.h);nReps=Math.max(1,Math.min(5000,Math.round(Lf/wUnit)));}
+  const scaleFor=n=>{const sq=unit!==fm?new Array(n).fill(unit):sequenceOf({motif:fm,motifB:fmB,order:f.order,reps:f.reps},n);const tot=sq.reduce((a,m)=>a+m.bb.w,0);return {sq,tot,sU:tot>0?Lf/tot:0};};
+  let {sq:seq,tot:total,sU}=scaleFor(nReps);if(Lf<=0||total<=0)return;
+  /* garde-fou mémoire : on limite le nombre de copies si le total de points devient déraisonnable */
+  {const m0=seq[0],sV0=f.autoH?sU:f.H/(m0.bb.h||1);const per=preparedMotif(m0,sU,sV0).n;
+    if(per*seq.length>POINT_BUDGET){const nMax=Math.max(1,Math.floor(POINT_BUDGET/per));if(nMax<nReps){nReps=nMax;f.capped=true;({sq:seq,tot:total,sU}=scaleFor(nReps));}}}
+  f.repsEff=nReps;f.unitIsTile=unit!==fm;
+  /* coins adoucis : dans un virage serré, le haut du motif se replierait sur lui-même. On lisse la direction
+     du motif sur une longueur proportionnelle à sa hauteur : la base reste collée au bord, le haut tourne en douceur. */
+  if(f.cornerSoft!==false){let mh=0;for(const m of seq)mh=Math.max(mh,f.autoH?m.bb.h*sU:f.H);
+    const vmax=Math.abs(f.offset+(f.stackOff||0))+mh,h2=1.5*vmax;
+    if(h2>Math.max(f.smooth/2,G.ds)*1.05){const G2=buildGuide(f,h2);if(G2){G=G2;f.guide=G2;}}}
+  const GP=G.P,GN=G.N,gn=G.n,ids=1/G.ds,mir=f.mirror,flip=f.flip,off=f.offset+(f.stackOff||0),mar=f.margin;
+  let maxH=0,uStart=0,sVfirst=0,copy=0;
+  for(const m of seq){const mb=m.bb,sV=f.autoH?sU:f.H/(mb.h||1);if(!sVfirst)sVfirst=sV;maxH=Math.max(maxH,mb.h*sV);
+    for(const {D,closed,el} of preparedMotif(m,sU,sV)){const out=new Float64Array(D.length*2);
+      for(let i=0;i<D.length;i++){const p=D[i];let u=uStart+(p[0]-mb.x0)*sU;if(mir)u=Lf-u;u+=mar;
+        const v=off+(flip?(p[1]-mb.y0):(mb.y1-p[1]))*sV;
+        let q=u*ids;if(q<0)q=0;if(q>gn)q=gn;let j=q|0;if(j>=gn)j=gn-1;const t=q-j;
+        const A=GP[j],B=GP[j+1],NA=GN[j],NB=GN[j+1];
+        out[2*i]=A[0]+(B[0]-A[0])*t+v*(NA[0]+(NB[0]-NA[0])*t);out[2*i+1]=A[1]+(B[1]-A[1])*t+v*(NA[1]+(NB[1]-NA[1])*t);}
+      f.warped.push(polyOf(out,closed,copy*65536+el));}
+    uStart+=mb.w*sU;copy++;}
+  G.sU=sU;G.sV=sVfirst;G.H=maxH;
+}
+/* ---------- empilement ----------
+   Deux frises du même contour, du même côté, dont les portions de bord se recouvrent : la seconde (dans l'ordre
+   de la liste) se place au-dessus de la première, plus l'espace choisi. La hauteur de chaque frise est estimée
+   directement à partir de ses réglages, sans attendre son calcul complet. */
+function edgeSpan(f){const c=chains[f.ci];if(!c)return null;let a=f.a,b=f.b;
+  if(c.closed){if(b<=a)b+=1;}else if(b<a)[a,b]=[b,a];return {a,b,c};}
+function spansOverlap(p,q){if(!p||!q||p.c!==q.c)return false;const eps=1e-4;
+  const ov=(a0,a1,b0,b1)=>Math.min(a1,b1)-Math.max(a0,b0)>eps;
+  if(!p.c.closed)return ov(p.a,p.b,q.a,q.b);
+  return ov(p.a,p.b,q.a,q.b)||ov(p.a,p.b,q.a+1,q.b+1)||ov(p.a+1,p.b+1,q.a,q.b);}
+function estimateHeight(f){const sp=edgeSpan(f);if(!sp||!f.motif)return 0;const len=(sp.b-sp.a)*sp.c.L,Lf=len-2*f.margin;if(len<0.5||Lf<=0)return 0;
+  const vert=f.orient==='v',fm=vert?rotMotif(f.motif):f.motif,fmB=vert?rotMotif(f.motifB):f.motifB;
+  if(!f.autoH)return f.H;
+  let n=Math.max(1,Math.round(f.reps));const unit=f.autoReps&&!fmB&&fm.tile?fm.tile:fm;
+  if(f.autoReps&&f.H>0&&unit.bb.h>0){const wU=unit.bb.w*(f.H/unit.bb.h);n=Math.max(1,Math.min(5000,Math.round(Lf/wU)));}
+  const sq=unit!==fm?new Array(n).fill(unit):sequenceOf({motif:fm,motifB:fmB,order:f.order,reps:f.reps},n);
+  const tot=sq.reduce((a,m)=>a+m.bb.w,0);if(tot<=0)return 0;const sU=Lf/tot;return Math.max(...sq.map(m=>m.bb.h))*sU;}
+/* niveau d'empilement : 0 = posée sur le bord, 1 = au-dessus d'une frise du niveau 0, etc. */
+function stackLevel(g,depth){depth=depth||0;if(!g||g.stackOn===null||g.stackOn===undefined||depth>50)return 0;return 1+stackLevel(frises[g.stackOn],depth+1);}
+/* les frises données couvrent-elles tout le tour d'un contour fermé ? */
+function coversLoop(list){const parts=[];for(const g of list){let a=g.a,b=g.b;if(Math.abs(b-a)<1e-9){parts.push([0,1]);continue;}
+    if(b>a)parts.push([a,b]);else{parts.push([a,1]);parts.push([0,b]);}}
+  parts.sort((x,y)=>x[0]-y[0]);let end=0;for(const [a,b] of parts){if(a>end+1e-4)return false;end=Math.max(end,b);}return end>=1-1e-4;}
+function restack(){const changed=[];
+  frises.forEach((f,k)=>{let base=0,on=null;
+    if(docOpts.stack){const sp=edgeSpan(f);
+      for(let j=0;j<k;j++){const g=frises[j];if(g.ci!==f.ci||g.side!==f.side||!spansOverlap(sp,edgeSpan(g)))continue;
+        const top=(g.stackOff||0)+g.offset+estimateHeight(g)+docOpts.gap;if(top>base){base=top;on=j;}}}
+    base=Math.round(base*1000)/1000;if((f.stackOff||0)!==base)changed.push(f);f.stackOff=base;f.stackOn=on;});
+  return changed;}
+$('fuseOpt').addEventListener('change',e=>{docOpts.fuse=e.target.checked;scheduleCommit();savePrefsSoon();});
+$('stackOpt').addEventListener('change',e=>{docOpts.stack=e.target.checked;$('stackGap').disabled=!docOpts.stack;update();toast(docOpts.stack?'Frises empilées':'Frises libres : elles peuvent se superposer');});
+$('stackGap').addEventListener('input',e=>{const v=parseFloat(String(e.target.value).replace(',','.'));if(!(v>=0))return;docOpts.gap=v;update();});
+function computeAll(){restack();for(const f of frises)requestWarp(f);}
+
+/* ---------- calcul sur tous les cœurs du processeur ----------
+   Les frises sont calculées dans des « workers » (un par cœur disponible), en parallèle et hors de
+   l'interface : glisser un curseur ne fige plus rien, et plusieurs frises se calculent en même temps.
+   Les vérifications (dépassement, chevauchements) tournent dans un worker à part.
+   Sans workers (navigateur qui les refuse), tout se calcule comme avant, sur le fil principal. */
+const CORES=Math.max(1,navigator.hardwareConcurrency||4);
+let POOL=null,CHECKER=null,poolGen=0,sentChains=null,jobSeq=0,fitPending=false,idleWaiters=[],chkT=null,chkJob=0;
+const motifIds=new WeakMap();let motifSeq=0;
+const motifId=m=>{if(!m)return 0;let id=motifIds.get(m);if(!id){id=++motifSeq;motifIds.set(m,id);}return id;};
+const unflat=a=>{const P=new Array(a.length/2);for(let i=0;i<P.length;i++)P[i]=[a[2*i],a[2*i+1]];return P;};
+function workerSource(){
+  const fns=[bboxOf,pip,decimate,dedupe,densify,rdp,makeChain,pointAt,simplify,sequenceOf,detectTile,rotMotif,polyOf,preparedMotif,buildGuide,computeWarp,checksCore].map(f=>f.toString()).join('\n');
+  return `const dist=${dist.toString()};\nconst POINT_BUDGET=${POINT_BUDGET};\nlet chains=[];const M=new Map();const ROT=new WeakMap();const PREP=new WeakMap();\n${fns}
+const flat=P=>{const a=new Float64Array(P.length*2);for(let i=0;i<P.length;i++){a[2*i]=P[i][0];a[2*i+1]=P[i][1];}return a;};
+const unflat=a=>{const P=new Array(a.length/2);for(let i=0;i<P.length;i++)P[i]=[a[2*i],a[2*i+1]];return P;};
+onmessage=e=>{const d=e.data;
+  if(d.t==='chains'){chains=d.chains.map(c=>makeChain(c.pts,c.closed));return;}
+  if(d.t==='motif'){M.set(d.id,d.m);return;}
+  if(d.t==='warp'){const t0=performance.now();const f=Object.assign({},d.p,{motif:M.get(d.mid)||null,motifB:d.mbid?M.get(d.mbid)||null:null});computeWarp(f);const ms=performance.now()-t0;
+    const G=f.guide,polys=f.warped.map(w=>w.flat),buf=polys.map(a=>a.buffer);let g=null;
+    if(G){g={P:flat(G.P),len:G.len,n:G.n,ds:G.ds,H:G.H||0,sU:G.sU||0,sV:G.sV||0,closed:G.closed};buf.push(g.P.buffer);}
+    postMessage({t:'warp',job:d.job,gen:d.gen,guide:g,polys,closed:f.warped.map(w=>w.closed),groups:f.warped.map(w=>w.g),repsEff:f.repsEff,capped:f.capped,unitIsTile:f.unitIsTile,ms},buf);return;}
+  if(d.t==='check'){const list=d.list.map(x=>({joined:x.joined,side:x.side,ci:x.ci,capped:x.capped,repsEff:x.repsEff,guide:x.has?{chain:chains[x.ci]}:null,warped:x.polys.map((a,i)=>({pts:unflat(a),closed:x.closed[i]}))}));
+    postMessage({t:'check',job:d.job,msgs:checksCore(list[d.fi],list,chains)});}
+};`;}
+function startPool(){
+  try{const url=URL.createObjectURL(new Blob([workerSource()],{type:'text/javascript'}));
+    const n=Math.max(1,Math.min(8,CORES-1));
+    const mk=()=>{const w=new Worker(url);w.sent=new Set();w.load=0;w.onmessage=onWorkerMsg;w.onerror=e=>{if(e.preventDefault)e.preventDefault();poolFailed();};return w;};
+    POOL=Array.from({length:n},mk);CHECKER=mk();}
+  catch(e){POOL=null;CHECKER=null;}
+}
+function poolFailed(){if(!POOL)return;for(const w of POOL.concat([CHECKER]))try{w.terminate();}catch(e){}POOL=null;CHECKER=null;
+  for(const f of frises){f._busy=false;f._dirty=false;computeWarp(f);}draw();renderStats();renderTabs();flushIdle();scheduleChecks();}
+function syncChains(){if(chains===sentChains)return;sentChains=chains;poolGen++;const msg={t:'chains',chains:chains.map(c=>({pts:c.pts,closed:c.closed}))};for(const w of POOL.concat([CHECKER]))w.postMessage(msg);}
+function sendMotif(w,m){const id=motifId(m);if(!m||w.sent.has(id))return id;w.sent.add(id);w.postMessage({t:'motif',id,m:{polys:m.polys,bb:m.bb,tile:m.tile,name:m.name}});return id;}
+const jobs=new Map();
+const anyBusy=()=>!!POOL&&frises.some(f=>f._busy);
+/* live = la frise que tu es en train de régler : si son calcul est court (< 6 ms), il est fait tout de suite,
+   pour que le résultat s'affiche dans la même image que ton geste. Les autres frises passent par les workers. */
+function requestWarp(f,live){
+  if(!POOL){computeWarp(f);return;}
+  const sameShape=chains===sentChains;syncChains();
+  /* rien n'a changé pour cette frise (même réglages, même forme, même motif) : pas de recalcul */
+  const p=Object.assign(pick(f,KEYS),{stackOff:f.stackOff||0}),mk=motifId(f.motif)+':'+motifId(f.motifB),key=poolGen+'|'+mk+'|'+JSON.stringify(p);
+  if(f._doneKey===key&&(f.warped.length||!f.motif)&&!f._busy)return;
+  if(f._busy&&f._key===key)return;   /* le calcul en cours a déjà les bons réglages */
+  if(live&&sameShape&&f._ms!==undefined&&f._ms<6){const t=performance.now();computeWarp(f);f._ms=performance.now()-t;
+    f._key=f._doneKey=key;f._flat=f.warped.map(w=>w.flat);f._job=0;f._busy=false;f._dirty=false;return;}
+  if(f._busy){if(f._key!==key)f._dirty=true;return;}
+  f._key=key;
+  const w=f._w&&POOL.includes(f._w)?f._w:POOL.reduce((a,b)=>b.load<a.load?b:a);f._w=w;
+  const job=++jobSeq;jobs.set(job,f);f._job=job;f._busy=true;f._t0=performance.now();w.load++;
+  w.postMessage({t:'warp',job,gen:poolGen,p,mid:sendMotif(w,f.motif),mbid:f.motifB?sendMotif(w,f.motifB):0});
+}
+function flushIdle(){if(anyBusy())return;if(fitPending){fitPending=false;fit();}const ws=idleWaiters;idleWaiters=[];ws.forEach(r=>r());}
+function whenIdle(){return new Promise(r=>{if(!anyBusy())r();else{idleWaiters.push(r);setTimeout(r,8000);}});}
+function onWorkerMsg(e){const d=e.data;
+  if(d.t==='check'){if(d.job===chkJob)renderMsgs(d.msgs);return;}
+  const f=jobs.get(d.job);jobs.delete(d.job);if(!f)return;if(f._w)f._w.load=Math.max(0,f._w.load-1);
+  if(d.job!==f._job){flushIdle();return;}   /* déjà recalculée directement entre-temps */
+  f._busy=false;if(d.ms!==undefined)f._ms=d.ms;
+  if(!frises.includes(f)){flushIdle();return;}
+  if(d.gen!==poolGen){requestWarp(f);return;}
+  f._doneKey=f._key;f.capped=!!d.capped;f.repsEff=d.repsEff;f.unitIsTile=!!d.unitIsTile;f._flat=d.polys;
+  f.guide=d.guide?Object.assign({},d.guide,{P:unflat(d.guide.P),chain:chains[f.ci]}):null;
+  f.warped=d.polys.map((a,i)=>polyOf(a,d.closed[i],d.groups?d.groups[i]:0));
+  if(f._dirty){f._dirty=false;requestWarp(f);}
+  draw();if(f===state)renderStats();renderTabs();
+  if(!anyBusy()){flushIdle();scheduleChecks();}
+}
+function scheduleChecks(){clearTimeout(chkT);chkT=setTimeout(runChecks,60);}
+function runChecks(){if(!state)return;
+  if(!POOL){const go=()=>renderMsgs(checks());if(window.requestIdleCallback)requestIdleCallback(go,{timeout:600});else go();return;}
+  if(anyBusy())return;   /* relancé dès que les calculs en cours sont finis */
+  syncChains();chkJob++;
+  CHECKER.postMessage({t:'check',job:chkJob,fi:frises.indexOf(state),
+    list:frises.map(g=>({joined:joinedTo(state,g),side:g.side,ci:g.ci,capped:!!g.capped,repsEff:g.repsEff,has:!!g.guide,polys:g._flat||[],closed:(g.warped||[]).map(w=>w.closed)}))});}
+
+
+const allWarped=()=>frises.flatMap(f=>f.warped);
+
+function checksCore(f,list,chs){
+  const msgs=[];if(!f||!f.guide||!f.warped.length)return msgs;
+  const c=f.guide.chain,W=f.warped;
+  if(c.closed){let tot=0,bad=0;const wantIn=f.side==='in';
+    for(const w of W)for(let i=0;i<w.pts.length;i+=4){tot++;const ins=pip(w.pts[i][0],w.pts[i][1],c.dec);if(ins!==wantIn)bad++;}
+    const pc=tot?bad/tot*100:0;if(pc>0.5)msgs.push(['warn',`Environ ${pc.toFixed(1)} % de cette frise dépasse ${wantIn?'du contour':'à l\'intérieur de la forme'}. Réduis la pente max, ajoute une marge ou un lissage.`]);}
+  const wb=bboxOf(W.map(w=>w.pts));const hits=[];
+  const wd=W.map(w=>({bb:bboxOf([w.pts]),d:decimate(w.pts,800)}));
+  chs.forEach((o,idx)=>{if(o===c||!o.closed)return;const b=o.bb;if(b.x1<wb.x0||b.x0>wb.x1||b.y1<wb.y0||b.y0>wb.y1)return;
+    let hit=false;for(const w of W){for(let i=0;i<w.pts.length&&!hit;i+=3){const p=w.pts[i];if(p[0]>=b.x0&&p[0]<=b.x1&&p[1]>=b.y0&&p[1]<=b.y1&&pip(p[0],p[1],o.dec))hit=true;}if(hit)break;}
+    if(!hit){for(const p of o.dec){let ins=false;for(const w of wd){if(p[0]<w.bb.x0||p[0]>w.bb.x1||p[1]<w.bb.y0||p[1]>w.bb.y1)continue;if(pip(p[0],p[1],w.d))ins=!ins;}if(ins){hit=true;break;}}}
+    if(hit)hits.push(idx+1);});
+  if(hits.length)msgs.push(['warn',`Cette frise chevauche ${hits.length>1?hits.length+' autres formes':'une autre forme'} (contour ${hits.join(', ')}). Diminue la hauteur ou augmente les répétitions.`]);
+  /* chevauchement avec les autres frises */
+  const others=list.filter(g=>g!==f&&g.warped.length&&!g.joined);   /* une frise jointe bout à bout touche sa voisine : normal */
+  for(const g of others){const gb=bboxOf(g.warped.map(w=>w.pts));if(gb.x1<wb.x0||gb.x0>wb.x1||gb.y1<wb.y0||gb.y0>wb.y1)continue;
+    const gd=g.warped.map(w=>({bb:bboxOf([w.pts]),d:decimate(w.pts,600)}));let hit=false;
+    outer:for(const w of W)for(let i=0;i<w.pts.length;i+=6){const p=w.pts[i];let ins=false;for(const q of gd){if(p[0]<q.bb.x0||p[0]>q.bb.x1||p[1]<q.bb.y0||p[1]>q.bb.y1)continue;if(pip(p[0],p[1],q.d))ins=!ins;}if(ins){hit=true;break outer;}}
+    if(hit)msgs.push(['warn',`Cette frise touche la frise ${list.indexOf(g)+1}.`]);}
+  if(f.capped)msgs.unshift(['warn',`Hauteur trop petite pour ce bord : limité à ${f.repsEff} copies pour ne pas saturer la mémoire. Augmente la hauteur visée.`]);
+  if(!msgs.length)msgs.push(['ok','Cette frise reste dans la forme sans toucher les autres éléments.']);
+  return msgs;
+}
+
+/* deux frises jointes : même contour, et le bout de l'une est exactement le début de l'autre */
+function joinedTo(f,g){if(!f||!g||f===g||f.ci!==g.ci||Math.abs(f.a-f.b)<1e-9||Math.abs(g.a-g.b)<1e-9||stackLevel(f)!==stackLevel(g))return false;const e=1e-6,d=(x,y)=>{const t=Math.abs(x-y);return Math.min(t,Math.abs(1-t));};return d(f.a,g.b)<e||d(f.b,g.a)<e;}
+function checks(){for(const g of frises)g.joined=joinedTo(state,g);return checksCore(state,frises,chains);}
+
+/* ---------- dessin ---------- */
+const cv=$('cv'),ctx=cv.getContext('2d');
+function css(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function resize(){const r=$('cvBox').getBoundingClientRect(),d=window.devicePixelRatio||1;cv.width=Math.max(1,Math.round(r.width*d));cv.height=Math.max(1,Math.round(r.height*d));drawNow();}
+function fit(){if(anyBusy()){fitPending=true;return;}const list=chains.map(c=>c.pts).concat(allWarped().map(w=>w.pts));if(!list.length)return;const b=bboxOf(list);const W=cv.width,H=cv.height;
+  view.k=Math.min(W/(b.w||1),H/(b.h||1))*0.9;view.cx=(b.x0+b.x1)/2;view.cy=(b.y0+b.y1)/2;draw();}
+const toS=(x,y)=>[(x-view.cx)*view.k+cv.width/2,cv.height/2-(y-view.cy)*view.k];
+const toW=(sx,sy)=>[(sx-cv.width/2)/view.k+view.cx,view.cy-(sy-cv.height/2)/view.k];
+/* Rendu accéléré : les tracés sont construits une seule fois en coordonnées réelles (mm),
+   puis la carte graphique les place à l'écran via la matrice du canvas. Déplacer ou zoomer
+   ne recalcule plus rien, et chaque image est groupée sur le rafraîchissement de l'écran. */
+const PATHS=new WeakMap();
+function cachedPath(key,list){let p=PATHS.get(key);if(!p){p=new Path2D();for(const w of list){if(w.flat){const a=w.flat,n=a.length;if(n<4)continue;p.moveTo(a[0],a[1]);for(let i=2;i<n;i+=2)p.lineTo(a[i],a[i+1]);if(w.closed)p.closePath();continue;}const P=w.pts;if(!P||!P.length)continue;p.moveTo(P[0][0],P[0][1]);for(let i=1;i<P.length;i++)p.lineTo(P[i][0],P[i][1]);if(w.closed)p.closePath();}PATHS.set(key,p);}return p;}
+const chainPath=c=>cachedPath(c,[c]);
+const guidePath=g=>cachedPath(g,[{pts:g.P,closed:false}]);
+const frisePath=f=>cachedPath(f.warped,f.warped);
+let COL=null;
+function readColors(){const g=n=>css(n);COL={grid:g('--grid'),major:g('--grid-major'),shape:g('--shape'),guide:g('--guide'),ink:g('--ink'),mat:g('--mat')};}
+let drawReq=0;
+function draw(){if(!drawReq)drawReq=requestAnimationFrame(()=>{drawReq=0;drawNow();});}
+function drawNow(){
+  if(!COL)readColors();
+  const W=cv.width,H=cv.height,d=window.devicePixelRatio||1,k=view.k;
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,W,H);
+  /* quadrillage du tapis : deux tracés seulement (fin / tous les 50 mm) */
+  let step=10;while(step*k<6*d)step*=5;
+  {const x0=view.cx-W/2/k,x1=view.cx+W/2/k,y0=view.cy-H/2/k,y1=view.cy+H/2/k;const minor=new Path2D(),major=new Path2D();
+    for(let gx=Math.floor(x0/step)*step;gx<=x1;gx+=step){const sx=Math.round((gx-view.cx)*k+W/2)+.5;const p=Math.round(gx/step)%5===0?major:minor;p.moveTo(sx,0);p.lineTo(sx,H);}
+    for(let gy=Math.floor(y0/step)*step;gy<=y1;gy+=step){const sy=Math.round(H/2-(gy-view.cy)*k)+.5;const p=Math.round(gy/step)%5===0?major:minor;p.moveTo(0,sy);p.lineTo(W,sy);}
+    ctx.lineWidth=1;ctx.strokeStyle=COL.grid;ctx.stroke(minor);ctx.strokeStyle=COL.major;ctx.stroke(major);}
+  /* tout le reste en millimètres, transformé par le GPU */
+  ctx.setTransform(k,0,0,-k,W/2-view.cx*k,H/2+view.cy*k);const px=1/k;
+  ctx.lineJoin='round';ctx.lineCap='round';
+  ctx.strokeStyle=COL.shape;ctx.lineWidth=1.3*d*px;for(const c of chains)ctx.stroke(chainPath(c));
+  ctx.strokeStyle=COL.guide;ctx.globalAlpha=.35;ctx.lineWidth=2*d*px;ctx.setLineDash([6*d*px,5*d*px]);
+  for(const f of frises)if(f!==state&&f.guide)ctx.stroke(guidePath(f.guide));
+  ctx.setLineDash([]);ctx.globalAlpha=.45;ctx.fillStyle=COL.ink;
+  for(const f of frises)if(f!==state&&f.warped.length)ctx.fill(frisePath(f),'evenodd');
+  ctx.globalAlpha=1;
+  const f=state;
+  if(f&&f.guide){ctx.globalAlpha=.85;ctx.lineWidth=4*d*px;ctx.stroke(guidePath(f.guide));ctx.globalAlpha=1;}
+  if(f&&f.warped.length){ctx.fillStyle=COL.ink;ctx.fill(frisePath(f),'evenodd');}
+  /* poignées début / fin, en pixels écran */
+  ctx.setTransform(1,0,0,1,0,0);
+  if(f&&f.guide){const c=chains[f.ci];const pa=toS(...pointAt(c,f.a*c.L)),pb=toS(...pointAt(c,f.b*c.L));
+    ctx.fillStyle=COL.guide;ctx.beginPath();ctx.arc(pa[0],pa[1],6*d,0,7);ctx.fill();
+    ctx.strokeStyle=COL.guide;ctx.lineWidth=2.5*d;ctx.fillStyle=COL.mat;ctx.beginPath();ctx.arc(pb[0],pb[1],6*d,0,7);ctx.fill();ctx.stroke();}
+}
+/* zoom fluide : on glisse vers le zoom visé sur quelques images, en gardant le point sous la souris immobile */
+let zoomAnim=null;
+function smoothZoom(factor,sx,sy){const W=cv.width,H=cv.height;if(sx===undefined){sx=W/2;sy=H/2;}
+  const anchor=toW(sx,sy);const target=(zoomAnim?zoomAnim.target:view.k)*factor;
+  zoomAnim={target,sx,sy,anchor};
+  if(zoomAnim.running)return;zoomAnim.running=true;
+  const tick=()=>{const z=zoomAnim;if(!z)return;const nk=view.k+(z.target-view.k)*0.35;const done=Math.abs(z.target-view.k)<z.target*0.002;
+    view.k=done?z.target:nk;view.cx=z.anchor[0]-(z.sx-cv.width/2)/view.k;view.cy=z.anchor[1]+(z.sy-cv.height/2)/view.k;drawNow();
+    if(done){zoomAnim=null;}else requestAnimationFrame(tick);};
+  requestAnimationFrame(tick);}
+
+/* ---------- interface ---------- */
+let tmr=null;
+function update(){for(const g of restack())if(g!==state)requestWarp(g);requestWarp(state,true);draw();renderStats();renderTabs();scheduleChecks();scheduleCommit();savePrefsSoon();}
+function renderStats(){const s=$('stats');s.textContent='';const g=state&&state.guide;
+  const it=[];if(chains.length){const b=bboxOf(chains.map(c=>c.pts));it.push(['Forme',b.w.toFixed(1)+' × '+b.h.toFixed(1)+' mm']);}
+  if(g){if(state.stackOff>0&&state.stackOn!==null)it.push(['Empilée sur la frise '+(state.stackOn+1),'+'+state.stackOff.toFixed(1)+' mm']);it.push(['Bord suivi',g.len.toFixed(1)+' mm'],['Hauteur',(g.H||0).toFixed(2)+' mm'],['Échelle',((g.sU||0)*100).toFixed(1)+' %']);if(!state.autoH)it.push(['Étirement',((g.sU/g.sV)*100).toFixed(0)+' %']);}
+  else it.push(['Frise','choisis une portion de bord plus longue']);
+  for(const [k,v] of it){const e=document.createElement('span');e.append(k+' ');const b=document.createElement('b');b.textContent=v;e.append(b);s.append(e);}
+  if(g&&state.autoH&&!state.autoReps)$('height').value=(g.H||0).toFixed(2);
+  if(state.autoReps){$('reps').value=state.repsEff||1;const e=document.createElement('span');e.append(state.unitIsTile?'Éléments ':'Copies ');const b=document.createElement('b');b.textContent='× '+(state.repsEff||1);e.append(b);s.append(e);}}
+function renderMsgs(m){const box=$('msgs');box.textContent='';for(const [t,x] of m){const d=document.createElement('div');d.className='msg '+t;d.textContent=x;box.append(d);}}
+function renderTabs(){renderMotifList();const t=$('tabs');t.textContent='';frises.forEach((f,i)=>{const b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',i===fi);
+    const sw=document.createElement('i');sw.className='sw';sw.style.background=layerColor(f.layer);b.append(sw,' Frise '+(i+1));
+    const sub=document.createElement('small');sub.textContent=' '+({bas:'bas',haut:'haut',gauche:'gauche',droite:'droite'}[f.lastAuto]||'');b.append(sub);
+    b.addEventListener('click',()=>selectFrise(i));t.append(b);});
+  $('btnDelFrise').disabled=frises.length<2;}
+function selectFrise(i){if(i===fi)return;commit();fi=i;state=frises[i];syncAll();renderMotifList();draw();renderStats();renderTabs();scheduleChecks();}
+function syncInputs(){$('posA').value=(state.a*100).toFixed(1);$('posB').value=(state.b*100).toFixed(1);
+  if(document.activeElement!==$('aVal'))$('aVal').value=+(state.a*100).toFixed(2);if(document.activeElement!==$('bVal'))$('bVal').value=+(state.b*100).toFixed(2);
+  const c=chains[state.ci];$('aMm').textContent=c?' '+(state.a*c.L).toFixed(1)+' mm':'';$('bMm').textContent=c?' '+(state.b*c.L).toFixed(1)+' mm':'';}
+function syncAll(){syncInputs();$('selChain').value=state.ci;$('reps').value=state.autoReps?(state.repsEff||state.reps):state.reps;$('autoH').checked=state.autoH;syncSizeUI();
+  if(!state.autoH)$('height').value=state.H;$('offset').value=state.offset;$('margin').value=state.margin;$('smooth').value=state.smooth;
+  $('cornerSoft').checked=state.cornerSoft!==false;$('flip').checked=state.flip;$('mirror').checked=state.mirror;$('slope').value=state.slope;$('slopeVal').textContent=state.slope;
+  $('sideIn').setAttribute('aria-pressed',state.side==='in');$('sideOut').setAttribute('aria-pressed',state.side==='out');
+  $('orH').setAttribute('aria-pressed',state.orient!=='v');$('orV').setAttribute('aria-pressed',state.orient==='v');
+  $('order').value=state.order||'AB';$('orderBox').hidden=true;renderMotifList();$('layerSel').value=state.layer;$('formeLayerSel').value=docOpts.formeLayer;$('units').value=docOpts.units;$('stackOpt').checked=docOpts.stack!==false;$('fuseOpt').checked=docOpts.fuse!==false;$('stackGap').value=docOpts.gap;$('stackGap').disabled=docOpts.stack===false;paintSwatches();}
+let toastT=null;function toast(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>e.hidden=true,2600);}
+
+/* ---------- historique (Précédent / Suivant) ---------- */
+const hist=[];let hIdx=-1,hTimer=null,restoring=false;
+function snap(){return {s:JSON.stringify({fi,o:docOpts,fr:frises.map(f=>pick(f,KEYS))}),motifs:frises.flatMap(f=>[f.motif,f.motifB]),chains,formeName,formeText};}
+function same(a,b){return a&&b&&a.s===b.s&&a.chains===b.chains&&a.motifs.length===b.motifs.length&&a.motifs.every((m,i)=>m===b.motifs[i]);}
+function commit(){clearTimeout(hTimer);if(restoring||!state)return;const cur=snap();if(same(cur,hist[hIdx]))return;
+  hist.splice(hIdx+1);hist.push(cur);if(hist.length>150)hist.shift();hIdx=hist.length-1;histButtons();}
+function scheduleCommit(){if(restoring)return;clearTimeout(hTimer);hTimer=setTimeout(commit,400);}
+function histButtons(){$('btnUndo').disabled=hIdx<=0;$('btnRedo').disabled=hIdx>=hist.length-1;}
+function restore(i){if(i<0||i>=hist.length)return;const h=hist[i];hIdx=i;restoring=true;
+  const o=JSON.parse(h.s);const keepView=h.chains===chains;
+  Object.assign(docOpts,o.o);frises=o.fr.map((p,k)=>newFrise(p,h.motifs[2*k],h.motifs[2*k+1]));fi=Math.min(o.fi,frises.length-1);state=frises[fi];
+  if(h.chains!==chains){chains=h.chains;formeName=h.formeName;formeText=h.formeText;$('nameForme').textContent=formeName;}
+  fillChainSelect();computeAll();syncAll();renderTabs();if(!keepView)fit();else draw();renderStats();scheduleChecks();restoring=false;histButtons();savePrefsSoon();}
+function undo(){commit();restore(hIdx-1);}
+function redo(){restore(hIdx+1);}
+$('btnUndo').addEventListener('click',undo);$('btnRedo').addEventListener('click',redo);
+document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey)return;const k=e.key.toLowerCase();if(e.target&&e.target.tagName==='TEXTAREA')return;
+  if(k==='z'&&!e.shiftKey){e.preventDefault();if(document.activeElement&&document.activeElement.tagName==='INPUT')document.activeElement.blur();undo();}
+  else if(k==='y'||(k==='z'&&e.shiftKey)){e.preventDefault();if(document.activeElement&&document.activeElement.tagName==='INPUT')document.activeElement.blur();redo();}});
+
+/* ---------- contrôles ---------- */
+const numIn=(id,key,fn=parseFloat)=>$(id).addEventListener('input',e=>{const v=fn(e.target.value);if(!isNaN(v)){state[key]=v;update();}});
+numIn('reps','reps',v=>Math.max(1,parseInt(v)));numIn('height','H',v=>{v=parseFloat(v);return v>=0.5?v:NaN;});numIn('offset','offset');numIn('margin','margin',v=>Math.max(0,parseFloat(v)));numIn('smooth','smooth',v=>Math.max(0,parseFloat(v)));
+function syncSizeUI(){const ar=!!state.autoReps;const t=state.motif&&state.motif.tile;$('tileHint').textContent=t?' Ce motif contient '+t.count+' éléments identiques : il est dupliqué élément par élément.':'';$('autoReps').checked=ar;$('autoRepsHint').hidden=!ar;$('reps').disabled=ar;
+  $('height').disabled=state.autoH&&!ar;$('heightLbl').textContent=ar?'Hauteur visée (mm)':'Hauteur (mm)';
+  $('autoHLbl').textContent=ar?'Proportions exactes (la hauteur s\'ajuste un peu)':'Hauteur auto (proportions gardées)';
+  if(ar||!state.autoH)$('height').value=state.H;}
+$('autoH').addEventListener('change',e=>{state.autoH=e.target.checked;if(!state.autoH&&!state.autoReps)state.H=parseFloat($('height').value)||20;syncSizeUI();update();});
+$('autoReps').addEventListener('change',e=>{state.autoReps=e.target.checked;
+  if(state.autoReps&&state.guide&&state.guide.H)state.H=+state.guide.H.toFixed(2);  /* on part de la taille actuelle : rien ne saute */
+  if(!state.autoReps&&state.repsEff)state.reps=Math.max(1,Math.round(state.unitIsTile&&state.motif.tile?state.repsEff/state.motif.tile.count:state.repsEff));
+  syncSizeUI();update();});
+$('flip').addEventListener('change',e=>{state.flip=e.target.checked;update();});
+$('mirror').addEventListener('change',e=>{state.mirror=e.target.checked;update();});
+$('cornerSoft').addEventListener('change',e=>{state.cornerSoft=e.target.checked;update();});
+$('posA').addEventListener('input',e=>{state.a=e.target.value/100;syncInputs();update();});
+/* saisie directe du début / de la fin, en % du contour */
+const clampPct=v=>{v=parseFloat(String(v).replace(',','.'));return isNaN(v)?NaN:Math.min(100,Math.max(0,v));};
+$('aVal').addEventListener('input',e=>{const v=clampPct(e.target.value);if(isNaN(v))return;state.a=v/100;$('posA').value=v;syncInputs();update();});
+$('bVal').addEventListener('input',e=>{const v=clampPct(e.target.value);if(isNaN(v))return;state.b=v/100;$('posB').value=v;syncInputs();update();});
+for(const id of ['aVal','bVal'])$(id).addEventListener('change',()=>{$(id).blur();syncInputs();});
+$('posB').addEventListener('input',e=>{state.b=e.target.value/100;syncInputs();update();});
+$('slope').addEventListener('input',e=>{state.slope=+e.target.value;$('slopeVal').textContent=e.target.value;autoPortion(state.lastAuto);});
+$('selChain').addEventListener('change',e=>{state.ci=+e.target.value;autoPortion(state.lastAuto);fit();});
+for(const [id,d] of [['autoBas','bas'],['autoHaut','haut'],['autoGauche','gauche'],['autoDroite','droite']])$(id).addEventListener('click',()=>autoPortion(d));
+$('btnSwap').addEventListener('click',()=>{[state.a,state.b]=[state.b,state.a];syncInputs();update();});
+/* Joindre les bordures : le début de la frise se colle à la fin de la frise précédente sur le même contour,
+   et sa fin au début de la suivante. Seule sur son contour (fermé), elle en fait tout le tour. */
+$('btnJoin').addEventListener('click',()=>{const f=state,c=chains[f.ci];if(!c)return;
+  restack();const lv=stackLevel(f);
+  const others=frises.filter(g=>g!==f&&g.ci===f.ci&&g.side===f.side&&stackLevel(g)===lv);   /* voisines du même anneau */
+  const keepSize=h=>{if(!(h>0))return;f.H=+h.toFixed(2);f.autoReps=true;};
+  if(!others.length){keepSize(f.guide&&f.guide.H);if(!c.closed){f.a=0;f.b=1;}else{f.b=f.a;}syncAll();update();toast(c.closed?'La frise fait maintenant tout le tour du contour, en gardant sa hauteur':'La frise couvre tout le contour, en gardant sa hauteur');return;}
+  const fwd=(x,y)=>c.closed?((y-x)%1+1)%1:y-x;   /* distance en avançant le long du contour */
+  let prev=null,dp=Infinity,next=null,dn=Infinity;
+  for(const g of others){const d1=fwd(g.b,f.a);if(d1>=0&&d1<dp){dp=d1;prev=g;}const d2=fwd(f.b,g.a);if(d2>=0&&d2<dn){dn=d2;next=g;}}
+  if(prev)f.a=prev.b;if(next)f.b=next.a;
+  const ref=prev||next;keepSize(ref&&ref.guide?ref.guide.H:(f.guide&&f.guide.H));if(ref)f.layer=ref.layer;   /* même calque : les deux frises fusionnent en un seul contour */
+  syncAll();update();toast((prev&&next?(prev===next?'Collée aux deux bouts de la frise '+(frises.indexOf(prev)+1):'Collée aux frises '+(frises.indexOf(prev)+1)+' et '+(frises.indexOf(next)+1)):'Bordure jointe')+(ref?', même hauteur et même calque que la frise '+(frises.indexOf(ref)+1):''));});
+function setSide(s){state.side=s;$('sideIn').setAttribute('aria-pressed',s==='in');$('sideOut').setAttribute('aria-pressed',s==='out');update();}
+$('sideIn').addEventListener('click',()=>setSide('in'));$('sideOut').addEventListener('click',()=>setSide('out'));
+/* en changeant d'orientation, on garde la hauteur actuelle de la frise et on répète le motif pour remplir le bord */
+function setOrient(o){if((state.orient||'h')===o)return;const h=state.guide&&state.guide.H?+state.guide.H.toFixed(2):state.H;
+  state.orient=o;if(!state.autoReps){state.autoReps=true;toast('Répétition automatique activée pour garder la hauteur de '+h+' mm');}
+  state.H=h;syncAll();update();}
+$('orH').addEventListener('click',()=>setOrient('h'));$('orV').addEventListener('click',()=>setOrient('v'));
+function setPick(on){pickStep=on?1:0;$('btnPick').setAttribute('aria-pressed',on);cv.classList.toggle('picking',on);$('pickMsg').hidden=!on;$('pickMsg').textContent='Clique le début du bord';}
+$('btnPick').addEventListener('click',()=>setPick(!pickStep));
+$('layerSel').addEventListener('change',e=>{state.layer=+e.target.value;paintSwatches();update();});
+$('formeLayerSel').addEventListener('change',e=>{docOpts.formeLayer=+e.target.value;paintSwatches();scheduleCommit();savePrefsSoon();});
+$('units').addEventListener('change',e=>{const prev=docOpts.units;docOpts.units=e.target.value;
+  try{setForme(formeText,formeName);syncAll();fit();renderStats();scheduleChecks();commit();savePrefsSoon();toast('Unités appliquées');}
+  catch(err){docOpts.units=prev;e.target.value=prev;toast(err.message);}});
+for(const id of ['incShape','svgMode','lbScope','lbPlace'])$(id).addEventListener('change',savePrefsSoon);
+
+const NEXT_DIR={bas:'haut',haut:'gauche',gauche:'droite',droite:'bas'};
+function addFrise(){commit();const used=new Set(frises.map(f=>f.lastAuto));let d=NEXT_DIR[state.lastAuto];for(let k=0;k<4&&used.has(d);k++)d=NEXT_DIR[d];
+  const usedL=new Set(frises.map(g=>g.layer).concat([docOpts.formeLayer]));const freeL=(layers.find(l=>l.index>=2&&!usedL.has(l.index))||{index:state.layer}).index;
+  const f=newFrise(Object.assign(pick(state,KEYS),{lastAuto:d,layer:freeL}),state.motif,null);
+  restack();const c=chains[f.ci],same=frises.filter(g=>g.ci===f.ci&&g.side===f.side);let ring=-1;
+  if(c&&c.closed&&same.length){const top=Math.max(...same.map(g=>stackLevel(g)));if(coversLoop(same.filter(g=>stackLevel(g)===top)))ring=top;}
+  if(ring>=0){const h=Math.max(...same.filter(g=>stackLevel(g)===ring).map(g=>g.guide&&g.guide.H||0));
+    f.a=f.b=same[0].a;if(h>0){f.H=+h.toFixed(2);f.autoReps=true;}}
+  else autoPortionFor(f,d);
+  frises.push(f);fi=frises.length-1;state=f;syncAll();update();
+  toast(ring>=0?'Frise '+frises.length+' ajoutée : un anneau complet à l\'intérieur du précédent':'Frise '+frises.length+' ajoutée : choisis son bord et son motif');}
+function removeFrise(i){if(frises.length<2)return;commit();frises.splice(i,1);fi=Math.min(fi>=i?Math.max(0,fi-1):fi,frises.length-1);state=frises[fi];for(const g of restack())requestWarp(g);syncAll();draw();renderStats();renderTabs();renderMsgs(checks());commit();toast('Frise supprimée');}
+$('btnAddFrise').addEventListener('click',addFrise);
+$('btnDelFrise').addEventListener('click',()=>removeFrise(fi));
+
+/* fichiers */
+function wireDrop(box,input,handler){
+  box.addEventListener('click',()=>input.click());box.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();input.click();}});
+  input.addEventListener('change',()=>{if(input.files[0])handler(input.files[0]);input.value='';});
+  box.addEventListener('dragover',e=>{e.preventDefault();box.classList.add('over');});box.addEventListener('dragleave',()=>box.classList.remove('over'));
+  box.addEventListener('drop',e=>{e.preventDefault();box.classList.remove('over');const f=e.dataTransfer.files[0];if(f)handler(f);});
+}
+function useMotif(m){setMotif(fi,'A',m);}
+
+wireDrop($('dropForme'),$('fileForme'),async f=>{try{setForme(await f.text(),f.name);syncAll();update();fit();toast('Forme chargée');}catch(e){toast(e.message);}});
+
+/* interactions avec l'aperçu */
+const ptrs=new Map();
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY});});
+cv.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)return;const d=window.devicePixelRatio||1;
+  if(ptrs.size===2){const [a,b]=[...ptrs.values()];const before=Math.hypot(a.x-b.x,a.y-b.y);p.x=e.clientX;p.y=e.clientY;const after=Math.hypot(a.x-b.x,a.y-b.y);if(before>0){view.k*=after/before;draw();}return;}
+  view.cx-=(e.clientX-p.x)*d/view.k;view.cy+=(e.clientY-p.y)*d/view.k;p.x=e.clientX;p.y=e.clientY;draw();});
+cv.addEventListener('pointerup',e=>{const p=ptrs.get(e.pointerId);ptrs.delete(e.pointerId);if(!p)return;
+  if(Math.hypot(e.clientX-p.sx,e.clientY-p.sy)>=6)return;
+  const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;const w=toW((e.clientX-r.left)*d,(e.clientY-r.top)*d);
+  if(pickStep){
+    let best=null;chains.forEach((c,ci)=>{for(let i=0;i<c.ring.length-1;i++){const pp=c.ring[i];const dd=Math.hypot(pp[0]-w[0],pp[1]-w[1]);if(!best||dd<best.d)best={d:dd,ci,s:c.S[i]};}});
+    if(!best)return;if(pickStep===1){if(best.ci!==state.ci){state.ci=best.ci;$('selChain').value=best.ci;}state.a=best.s/chains[state.ci].L;pickStep=2;$('pickMsg').textContent='Clique la fin du bord';}
+    else{if(best.ci===state.ci)state.b=best.s/chains[state.ci].L;setPick(false);}
+    syncInputs();update();return;}
+  /* un clic sur une frise la rend active */
+  const tol=8*d/view.k;let hit=-1,bd=Infinity;
+  frises.forEach((f,i)=>{if(!f.guide)return;for(let k=0;k<f.guide.P.length;k+=4){const q=f.guide.P[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}});
+  frises.forEach((f,i)=>{for(const pl of f.warped)for(let k=0;k<pl.pts.length;k+=8){const q=pl.pts[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}});
+  if(hit>=0&&bd<Math.max(tol,(frises[hit].guide?frises[hit].guide.H||0:0)/2))selectFrise(hit);});
+cv.addEventListener('pointercancel',e=>ptrs.delete(e.pointerId));
+cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;
+  const dy=e.deltaMode===1?e.deltaY*33:e.deltaY;smoothZoom(Math.exp(-dy*0.0015),(e.clientX-r.left)*d,(e.clientY-r.top)*d);},{passive:false});
+$('zIn').addEventListener('click',()=>smoothZoom(1.4));$('zOut').addEventListener('click',()=>smoothZoom(1/1.4));$('zFit').addEventListener('click',fit);
+new ResizeObserver(resize).observe($('cvBox'));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{COL=null;draw();});
+new MutationObserver(()=>{COL=null;draw();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ---------- export ---------- */
+function simplify(P,closed,eps){if(!closed||P.length<4)return rdp(P,eps);let far=0,fd=-1;for(let i=1;i<P.length;i++){const d=dist(P[0],P[i]);if(d>fd){fd=d;far=i;}}
+  const a=rdp(P.slice(0,far+1),eps),b=rdp(P.slice(far).concat([P[0]]),eps);return a.concat(b.slice(1,-1));}
+const simp=list=>list.map(w=>({pts:simplify(w.pts,w.closed,0.004),closed:w.closed}));
+/* ---------- fusion des formes ----------
+   Chaque élément du motif garde ses trous (règle pair-impair, comme dans le SVG d'origine), puis tous les éléments
+   d'un même calque sont réunis : ce qui se touche ou se recouvre devient un seul contour, sans ligne en double.
+   Calcul avec Clipper (Angus Johnson, licence Boost), en coordonnées entières au dixième de micron. */
+const FUSE_S=1e4;let lastFuse=null;const fuseCache={key:null,val:null};
+function fusePolys(list){const C=window.ClipperLib;if(!C)return null;
+  const toPath=a=>{const n=a.length/2,P=new Array(n);for(let i=0;i<n;i++)P[i]={X:Math.round(a[2*i]*FUSE_S),Y:Math.round(a[2*i+1]*FUSE_S)};return P;};
+  const groups=new Map(),open=[];
+  for(const w of list){if(!w.closed){open.push({pts:w.pts,closed:false});continue;}let g=groups.get(w.g);if(!g){g=[];groups.set(w.g,g);}g.push(toPath(w.flat));}
+  const all=[];
+  for(const paths of groups.values()){const c=new C.Clipper(),sol=new C.Paths();c.AddPaths(paths,C.PolyType.ptSubject,true);
+    c.Execute(C.ClipType.ctUnion,sol,C.PolyFillType.pftEvenOdd,C.PolyFillType.pftEvenOdd);for(const p of sol)all.push(p);}
+  const c=new C.Clipper(),sol=new C.Paths();c.AddPaths(all,C.PolyType.ptSubject,true);
+  c.Execute(C.ClipType.ctUnion,sol,C.PolyFillType.pftNonZero,C.PolyFillType.pftNonZero);
+  const clean=C.Clipper.CleanPolygons(sol,2);
+  const out=clean.filter(p=>p.length>2).map(p=>({pts:p.map(q=>[q.X/FUSE_S,q.Y/FUSE_S]),closed:true}));
+  let outer=0;for(const p of clean)if(p.length>2&&C.Clipper.Orientation(p))outer++;
+  return {polys:out.concat(open),before:list.length,after:out.length+open.length,outer};}
+function fusedByLayer(){
+  const key=[docOpts.fuse].concat(frises.map(f=>[f.warped,f.layer])).flat();
+  if(fuseCache.key&&fuseCache.key.length===key.length&&fuseCache.key.every((v,i)=>v===key[i]))return fuseCache.val;
+  const byLayer=new Map();
+  frises.forEach((f,fi)=>{if(!f.warped.length)return;let L=byLayer.get(f.layer);if(!L){L={layer:f.layer,list:[],first:fi};byLayer.set(f.layer,L);}
+    for(const w of f.warped)L.list.push({flat:w.flat,closed:w.closed,get pts(){return w.pts;},g:fi*1e7+(w.g||0)});});
+  const t=performance.now();let before=0,after=0;const res=[];
+  for(const L of byLayer.values()){const r=fusePolys(L.list);if(!r)return null;before+=r.before;after+=r.after;res.push({layer:L.layer,polys:r.polys});}
+  const val={groups:res,before,after,ms:performance.now()-t};fuseCache.key=key;fuseCache.val=val;return val;}
+function outputGroups(inc){
+  let groups=null;lastFuse=null;
+  if(docOpts.fuse){const F=fusedByLayer();if(F){lastFuse=F;const many=F.groups.length>1;
+    groups=F.groups.map(g=>({name:'MOTIF'+(many?'-C'+String(g.layer).padStart(2,'0'):''),layer:g.layer,motif:true,polys:simp(g.polys)}));}}
+  if(!groups)groups=frises.filter(f=>f.warped.length).map((f,i)=>({name:'MOTIF'+(frises.length>1?(frises.indexOf(f)+1):''),layer:f.layer,motif:true,polys:simp(f.warped)}));
+  if(inc&&chains.length)groups.unshift({name:'FORME',layer:docOpts.formeLayer,motif:false,polys:simp(chains.map(c=>({pts:c.pts,closed:c.closed})))});
+  return groups;}
+const f4=v=>(Math.round(v*1e4)/1e4).toString();
+function buildDXF(inc){if(inc===undefined)inc=$('incShape').checked;const G=outputGroups(inc);
+  const o=['0','SECTION','2','HEADER','9','$ACADVER','1','AC1009','9','$INSUNITS','70','4','9','$MEASUREMENT','70','1','0','ENDSEC',
+    '0','SECTION','2','TABLES','0','TABLE','2','LAYER','70',String(G.length)];
+  for(const g of G)o.push('0','LAYER','2',g.name,'70','0','62',g.motif?'1':'5','6','CONTINUOUS');
+  o.push('0','ENDTAB','0','ENDSEC','0','SECTION','2','ENTITIES');
+  for(const g of G)for(const w of g.polys){o.push('0','POLYLINE','8',g.name,'66','1','70',w.closed?'1':'0','10','0','20','0','30','0');for(const p of w.pts)o.push('0','VERTEX','8',g.name,'10',f4(p[0]),'20',f4(p[1]),'30','0');o.push('0','SEQEND','8',g.name);}
+  o.push('0','ENDSEC','0','EOF');return o.join('\r\n')+'\r\n';}
+/* SVG en millimètres : 1 unité = 1 mm, avec les couleurs exactes des calques LightBurn */
+function buildSVG(inc,pad){if(inc===undefined)inc=$('incShape').checked;if(pad===undefined)pad=2;const G=outputGroups(inc);if(!G.length)return null;
+  const b=bboxOf(G.flatMap(g=>g.polys.map(p=>p.pts)));const W=b.w+2*pad,H=b.h+2*pad;const X=x=>f4(x-b.x0+pad),Y=y=>f4(b.y1-y+pad);
+  const d=list=>list.map(w=>'M'+w.pts.map(p=>X(p[0])+','+Y(p[1])).join('L')+(w.closed?'Z':'')).join('');
+  const line=$('svgMode').value==='line';
+  let s=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${f4(W)}mm" height="${f4(H)}mm" viewBox="0 0 ${f4(W)} ${f4(H)}">\n`;
+  for(const g of G){const c=layerColor(g.layer);
+    if(!g.motif||line)s+=`<path id="${g.name}" fill="none" stroke="${c}" stroke-width="0.1" d="${d(g.polys)}"/>\n`;
+    else s+=`<path id="${g.name}" fill="${c}" fill-rule="evenodd" stroke="${c}" stroke-width="0.05" d="${d(g.polys)}"/>\n`;}
+  return {svg:s+'</svg>\n',bb:b,pad};}
+const baseName=()=>(formeName||'forme').replace(/\.[^.]+$/,'')+'_frise';
+/* hébergée dans claude.ai, la page passe par la fonction de téléchargement de l'hébergeur ; partout ailleurs, téléchargement direct */
+let dlP=null;function getDl(){if(!dlP)dlP=(window.claude&&window.claude.use)?window.claude.use('downloads').catch(()=>null):Promise.resolve(null);return dlP;}
+const STANDALONE=!(window.claude&&window.claude.use);
+const HTTP=location.protocol==='http:';
+function blobSave(filename,data){const b=data instanceof Blob?data:new Blob([data],{type:'application/octet-stream'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('Fichier enregistré : '+filename);}
+async function offer(filename,data){
+  if(STANDALONE){blobSave(filename,data);return;}
+  const dl=await getDl();if(!dl){showFallback();return;}
+  try{await dl.save({filename,data});toast('Fichier enregistré');}
+  catch(e){const c=e&&e.code;if(c==='declined')toast('Enregistrement annulé');else if(c==='rate_limited')toast('Une fenêtre d\'enregistrement est déjà ouverte');else{showFallback();toast('Téléchargement indisponible ici');}}}
+async function fuseNotice(){if(!docOpts.fuse||!hasOutput())return;toast('Fusion des formes…');await new Promise(r=>setTimeout(r,30));
+  setTimeout(()=>{if(lastFuse)toast('Fusion : '+lastFuse.before+' tracés → '+lastFuse.after+' contours');},900);}
+function showFallback(){$('fallback').hidden=false;}
+const hasOutput=()=>frises.some(f=>f.warped.length);
+$('btnDxf').addEventListener('click',async()=>{await whenIdle();await fuseNotice();if(!hasOutput()){toast('Rien à exporter');return;}const n=baseName();if(STANDALONE){blobSave(n+'.dxf',buildDXF());return;}offer(n+'.zip',zip([{name:n+'.dxf',data:new TextEncoder().encode(buildDXF())}]));});
+$('btnSvg').addEventListener('click',async()=>{await whenIdle();await fuseNotice();const r=buildSVG();if(!r){toast('Rien à exporter');return;}offer(baseName()+'.svg',r.svg);});
+$('btnCopy').addEventListener('click',()=>{const t=buildDXF();navigator.clipboard.writeText(t).then(()=>toast('DXF copié')).catch(()=>{const ta=$('fbText');ta.hidden=false;ta.value=t;ta.select();toast('Sélectionne le texte et copie-le');});});
+
+/* ---------- LightBurn (via CourbeurDeFrise.exe) ---------- */
+let lbAvail=false,lbBusy=false;
+function lbMsg(kind,text){const m=$('lbMsg');if(!text){m.hidden=true;return;}m.hidden=false;m.className='msg '+kind;m.textContent=text;}
+async function lbStatus(){try{const r=await fetch('/lb/status',{cache:'no-store'});if(!r.ok)throw 0;const j=await r.json();lbAvail=true;$('lbBox').hidden=false;
+    const p=$('lbPill');p.className='pill '+(j.lightburn?'on':'off');p.textContent=j.lightburn?(j.paired?'LightBurn connecté':'LightBurn détecté'):'LightBurn non détecté';
+    if(j.lightburn&&j.paired&&!layersFromLB)loadLayers();}
+  catch(e){if(lbAvail){const p=$('lbPill');p.className='pill off';p.textContent='Outil fermé';}}}
+async function loadLayers(){try{const j=await (await fetch('/lb/layers',{cache:'no-store'})).json();
+    if(j.ok&&Array.isArray(j.layers)&&j.layers.length){layers=j.layers.filter(l=>l.type!=='tool'&&/^#[0-9a-f]{6}$/i.test(l.color)).map(l=>({index:l.index,color:l.color.toUpperCase(),name:l.name||'',in_use:!!l.in_use}));layersFromLB=true;fillLayerSelects();renderTabs();}}catch(e){}}
+$('btnLb').addEventListener('click',async()=>{if(lbBusy)return;if(!hasOutput()){toast('Rien à envoyer');return;}
+  lbBusy=true;$('btnLb').disabled=true;await whenIdle();
+  const st=await fetch('/lb/status',{cache:'no-store'}).then(r=>r.json()).catch(()=>null);
+  if(st&&st.lightburn&&!st.paired)lbMsg('info','Une fenêtre s\'ouvre dans LightBurn : clique « Autoriser » (30 secondes max).');else lbMsg('info','Envoi en cours…');
+  await fuseNotice();
+  try{const r0=buildSVG($('lbScope').value==='all',0);let q='?name='+encodeURIComponent(baseName()+'.svg')+'&group=1';
+    if($('lbPlace').value==='origin')q+='&x='+f4(r0.bb.x0)+'&y='+f4(r0.bb.y0);
+    const r=await fetch('/lb/send'+q,{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:r0.svg});
+    const j=await r.json();lbMsg(j.ok?'ok':'warn',j.message);if(j.ok){toast('Envoyé à LightBurn');loadLayers();}}
+  catch(e){lbMsg('warn','Impossible de joindre l\'outil. Relance CourbeurDeFrise.exe.');}
+  finally{lbBusy=false;$('btnLb').disabled=false;lbStatus();}});
+$('btnLbForget').addEventListener('click',async()=>{await fetch('/lb/forget',{method:'POST'}).catch(()=>{});layersFromLB=false;lbMsg('info','Appairage oublié. Le prochain envoi redemandera l\'autorisation dans LightBurn.');lbStatus();});
+
+/* ---------- bibliothèque de motifs (dossier Motif) ---------- */
+let libNames=[];
+async function refreshLibrary(){if(!HTTP)return;try{const j=await (await fetch('/lb/library',{cache:'no-store'})).json();const n=j.files.map(f=>f.name);
+  const changed=n.join('|')!==libNames.join('|');libNames=n;if(changed)renderMotifList();}catch(e){}}
+async function fetchLibMotif(name){const r=await fetch('/lb/library/file?name='+encodeURIComponent(name),{cache:'no-store'});if(!r.ok)throw new Error('Motif introuvable : '+name);return parseMotif(await r.text(),name);}
+async function saveToLibrary(m){
+  const r=await fetch('/lb/library/save?name='+encodeURIComponent(m.name),{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:m.text});const j=await r.json();
+  if(!j.ok)throw new Error(j.message||'Enregistrement impossible');if(inboxSeen)inboxSeen.motif=j.name+'|'+j.mtime;m.name=j.name;await refreshLibrary();renderMotifList();return j.name;}
+
+/* ---------- liste des motifs de chaque frise ---------- */
+function setMotif(i,slot,m){const f=frises[i];if(!f)return;if(i!==fi){commit();fi=i;state=f;}
+  if(slot==='B')f.motifB=m;else f.motif=m;syncAll();update();}
+let fileTarget={i:0,slot:'A'};
+$('fileMotif').addEventListener('change',async()=>{const file=$('fileMotif').files[0];$('fileMotif').value='';if(!file)return;
+  try{setMotif(fileTarget.i,fileTarget.slot,parseMotif(await file.text(),file.name));toast('Motif chargé : '+file.name);}catch(e){toast(e.message);}});
+function motifLine(i,slot){const f=frises[i],m=slot==='B'?f.motifB:f.motif;const line=document.createElement('div');line.className='mline';
+  const k=document.createElement('span');k.className='k';k.textContent='Motif';
+  const n=document.createElement('span');n.className='n'+(m?'':' none');n.textContent=m?m.name.replace(/\.svg$/i,''):(slot==='B'?'aucun (pas d\'alternance)':'—');if(m)n.title=m.name;
+  const acts=document.createElement('span');acts.className='acts';
+  const bC=document.createElement('button');bC.type='button';bC.textContent=m?'Changer':'Ajouter';bC.addEventListener('click',()=>{fileTarget={i,slot};$('fileMotif').click();});acts.append(bC);
+  if(slot==='B'&&m){const bX=document.createElement('button');bX.type='button';bX.textContent='Retirer';bX.title='Ne plus alterner';bX.addEventListener('click',()=>setMotif(i,'B',null));acts.append(bX);}
+  if(HTTP&&m&&!libNames.includes(m.name)){const bS=document.createElement('button');bS.type='button';bS.textContent='Garder';bS.title='Ajouter à la bibliothèque';
+    bS.addEventListener('click',async()=>{try{const nm=await saveToLibrary(m);toast('Ajouté à la bibliothèque : '+nm);}catch(e){toast(e.message);}});acts.append(bS);}
+  line.append(k,n,acts);
+  if(HTTP&&libNames.length){const sel=document.createElement('select');sel.setAttribute('aria-label',(slot==='B'?'Motif 2':'Motif 1')+' de la frise '+(i+1)+' depuis la bibliothèque');
+    const o0=document.createElement('option');o0.value='';o0.textContent='Bibliothèque ('+libNames.length+')…';sel.append(o0);
+    for(const nm of libNames){const o=document.createElement('option');o.value=nm;o.textContent=nm.replace(/\.svg$/i,'');sel.append(o);}
+    sel.value=m&&libNames.includes(m.name)?m.name:'';
+    sel.addEventListener('change',async()=>{if(!sel.value)return;try{setMotif(i,slot,await fetchLibMotif(sel.value));}catch(e){toast(e.message);}});line.append(sel);}
+  line.addEventListener('dragover',e=>{e.preventDefault();line.classList.add('over');});line.addEventListener('dragleave',()=>line.classList.remove('over'));
+  line.addEventListener('drop',async e=>{e.preventDefault();line.classList.remove('over');const file=e.dataTransfer.files[0];if(!file)return;
+    try{setMotif(i,slot,parseMotif(await file.text(),file.name));toast('Motif chargé : '+file.name);}catch(err){toast(err.message);}});
+  return line;}
+function renderMotifList(){const box=$('mlist');if(!box)return;box.textContent='';
+  frises.forEach((f,i)=>{const card=document.createElement('div');card.className='mcard'+(i===fi?' active':'');
+    const h=document.createElement('div');h.className='mh';const sw=document.createElement('i');sw.className='sw';sw.style.background=layerColor(f.layer);
+    const sm=document.createElement('small');sm.textContent=f.guide?' · '+f.guide.len.toFixed(0)+' mm de bord':'';
+    h.append(sw,'Frise '+(i+1),sm);h.addEventListener('click',()=>selectFrise(i));
+    if(frises.length>1){const del=document.createElement('button');del.type='button';del.className='mdel';del.textContent='Supprimer';del.title='Supprimer la frise '+(i+1);
+      del.addEventListener('click',e=>{e.stopPropagation();removeFrise(i);});h.append(del);}
+    card.append(h,motifLine(i,'A'));box.append(card);});
+  const add=document.createElement('button');add.type='button';add.className='madd';add.textContent='+ Ajouter une frise';add.addEventListener('click',addFrise);box.append(add);}
+$('order').addEventListener('input',e=>{const v=e.target.value.toUpperCase().replace(/[^AB]/g,'');if(v){state.order=v;update();renderMotifList();}});
+
+/* ---------- dossier d'échange surveillé ---------- */
+let inboxSeen=null;
+async function pollInbox(){
+  let j;try{const r=await fetch('/lb/inbox',{cache:'no-store'});if(!r.ok)return;j=await r.json();}catch(e){return;}
+  $('inboxBox').hidden=false;$('ibForme').textContent=j.dirs.forme||'—';$('ibMotif').textContent=j.dirs.motif||'—';
+  $('ibForme').title=j.dirs.forme||'';$('ibMotif').title=j.dirs.motif||'';
+  const first=inboxSeen===null;if(first)inboxSeen={};
+  for(const kind of ['forme','motif']){const f=(j.files||{})[kind];if(!f)continue;const key=f.name+'|'+f.mtime;
+    if(inboxSeen[kind]===key)continue;
+    if(first&&Date.now()-f.mtime>120000){inboxSeen[kind]=key;continue;}
+    try{const t=await (await fetch('/lb/inbox/file?kind='+kind,{cache:'no-store'})).text();
+      if(kind==='forme'){setForme(t,f.name);syncAll();update();fit();}else{useMotif(parseMotif(t,f.name));refreshLibrary();}
+      inboxSeen[kind]=key;toast((kind==='forme'?'Forme reçue : ':'Motif reçu : ')+f.name);}
+    catch(e){/* fichier peut-être en cours d'écriture : nouvel essai au prochain passage */}}
+}
+const openDir=k=>fetch('/lb/opendir?kind='+k,{method:'POST'}).catch(()=>{});
+$('ibOpenForme').addEventListener('click',()=>openDir('forme'));$('ibOpenMotif').addEventListener('click',()=>openDir('motif'));
+
+/* ---------- réglages mémorisés ---------- */
+let prefT=null;
+function prefsObj(){return {frise:state?pick(state,PREF_KEYS):{},formeLayer:docOpts.formeLayer,units:docOpts.units,stack:docOpts.stack,gap:docOpts.gap,fuse:docOpts.fuse,motif:state&&state.motif?state.motif.name:'',
+  incShape:$('incShape').checked,svgMode:$('svgMode').value,lbScope:$('lbScope').value,lbPlace:$('lbPlace').value};}
+function savePrefsSoon(){if(restoring)return;clearTimeout(prefT);prefT=setTimeout(savePrefs,800);}
+function savePrefs(){const p=JSON.stringify(prefsObj());
+  if(HTTP)fetch('/lb/prefs',{method:'POST',headers:{'Content-Type':'application/json'},body:p}).catch(()=>{});
+  else try{localStorage.setItem('courbeur.prefs',p);}catch(e){}}
+async function loadPrefs(){try{if(HTTP){const r=await fetch('/lb/prefs',{cache:'no-store'});if(r.ok)return await r.json();}
+  else{const t=localStorage.getItem('courbeur.prefs');if(t)return JSON.parse(t);}}catch(e){}return {};}
+function applyPrefsUI(p){if(typeof p.incShape==='boolean')$('incShape').checked=p.incShape;
+  for(const id of ['svgMode','lbScope','lbPlace'])if(p[id]&&[...$(id).options].some(o=>o.value===p[id]))$(id).value=p[id];}
+
+/* ---------- démarrage ---------- */
+(async function start(){
+  setLang(initialLang(),false);
+  for(const b of document.querySelectorAll('#langSel button'))b.addEventListener('click',()=>{setLang(b.dataset.lang,true);if(state){syncAll();renderStats();renderTabs();scheduleChecks();}});
+  const p=await loadPrefs();
+  if(p.units&&UNIT_MM[p.units]!==undefined||p.units==='auto')docOpts.units=p.units||'auto';
+  if(Number.isInteger(p.formeLayer))docOpts.formeLayer=p.formeLayer;if(typeof p.stack==='boolean')docOpts.stack=p.stack;if(typeof p.fuse==='boolean')docOpts.fuse=p.fuse;if(typeof p.gap==='number'&&p.gap>=0)docOpts.gap=p.gap;
+  applyPrefsUI(p);
+  let m=null;
+  if(HTTP){try{await refreshLibrary();}catch(e){}}
+  if(HTTP&&p.motif){try{if(libNames.includes(p.motif))m=await fetchLibMotif(p.motif);}catch(e){}}
+  try{if(!m)m=parseMotif(SAMPLE_MOTIF,'motif-tulipes.svg');}catch(e){toast(e.message);}
+  let mB=null;
+  const fp=Object.assign({},p.frise||{});for(const k of Object.keys(fp))if(!PREF_KEYS.includes(k)||typeof fp[k]!==typeof DEF[k])delete fp[k];
+  frises=[newFrise(fp,m,mB)];fi=0;state=frises[0];
+  fillLayerSelects();
+  try{setForme(SAMPLE_FORME,'forme-arc.dxf');}catch(e){toast(e.message);}
+  if(STANDALONE)document.querySelector('[data-zipnote]').textContent='Le DXF garde les coordonnées d\'origine. Le SVG est en millimètres, avec les couleurs des calques LightBurn choisis.';
+  startPool();syncAll();renderTabs();resize();computeAll();fit();renderStats();scheduleChecks();commit();
+  if(!STANDALONE)getDl();
+  if(HTTP){lbStatus();setInterval(lbStatus,10000);pollInbox();setInterval(pollInbox,500);refreshLibrary();setInterval(refreshLibrary,15000);
+}
+  {const e=document.createElement('span');e.className='mono';e.style.cssText='color:var(--muted);font-size:.75rem';e.textContent='V'+PAGE_VERSION+(POOL?' · calcul sur '+CORES+' cœurs':'');document.querySelector('header').append(e);}
+})();
+</script>
+

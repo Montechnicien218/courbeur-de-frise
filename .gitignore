@@ -1,0 +1,4 @@
+dist/
+launcher/index.html
+*.exe
+node_modules/
