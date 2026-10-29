@@ -1,5 +1,9 @@
 # Journal des versions · Changelog
 
+## 1.13.1 — 29.10.2026 — licence
+- Nouvelle licence : tous droits réservés, utilisation gratuite (voir LICENSE). Les versions 1.12.0 à 1.13.0 restent sous licence MIT · New licence: all rights reserved, free to use (see LICENSE). Versions 1.12.0 to 1.13.0 remain under the MIT licence.
+- Exemple : horloge murale (examples/horloge) · Example: wall clock.
+
 ## 1.13 — 29.10.2026 — textes · text
 - Textes le long du bord : clic droit sur le dessin › « Ajouter un texte ici », ou « + Ajouter un texte » · Text along the edge: right-click › “Add a text here”, or “+ Add a text”.
 - Hauteur des lettres, distance à la ligne suivie (mm), espacement, position le long du bord, rotation de 180° · Letter height, distance from the line (mm), spacing, position along the edge, 180° turn.

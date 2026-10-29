@@ -51,7 +51,7 @@ L'envoi utilise l'[API REST de LightBurn](https://github.com/LightBurnSoftware/L
 
 ### Construire depuis les sources
 
-Il faut [Python 3](https://www.python.org) et [Go 1.24](https://go.dev).
+Pour vérifier le programme et l'utiliser toi-même, sans modification (voir la licence). Il faut [Python 3](https://www.python.org) et [Go 1.24](https://go.dev).
 
 ```
 python3 build.py
@@ -63,7 +63,14 @@ GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-H windowsgui -s -w" 
 
 ### Licence
 
-Licence [MIT](LICENSE) © 2026 Christophe Tanniou. Composants tiers : voir [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Les fichiers d'exemple (`examples/`) sont sous la même licence MIT.
+© 2026 Christophe Tanniou · **tous droits réservés** ([licence](LICENSE)).
+
+- **Permis** : télécharger l'outil ici ou sur [montechnicien.ch](https://montechnicien.ch/courbeur-de-frise.html) et l'utiliser gratuitement, même pour un usage professionnel. Ce que tu crées avec (fichiers, objets gravés ou découpés) t'appartient et peut être vendu.
+- **Interdit sans accord écrit** : modifier l'outil, le copier ou le redistribuer ailleurs, le vendre ou l'intégrer dans un autre produit. Les fichiers d'exemple servent à tes réalisations, mais ne se revendent pas.
+- Le code est visible pour la transparence ; le partager, c'est partager le lien vers ce dépôt.
+- Les versions 1.12.0 à 1.13.0 avaient été publiées sous licence MIT ; la licence actuelle s'applique dès la version 1.13.1.
+
+Composants tiers : voir [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Demandes d'autorisation : info@montechnicien.ch
 
 LightBurn est une marque de LightBurn Software, LLC. Ce projet n'est ni affilié à LightBurn Software, ni approuvé par elle.
 
@@ -116,7 +123,7 @@ Sending uses the [LightBurn REST API](https://github.com/LightBurnSoftware/Light
 
 ### Building from source
 
-You need [Python 3](https://www.python.org) and [Go 1.24](https://go.dev).
+To check the program and use it yourself, without changes (see the licence). You need [Python 3](https://www.python.org) and [Go 1.24](https://go.dev).
 
 ```
 python3 build.py
@@ -128,6 +135,13 @@ GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-H windowsgui -s -w" 
 
 ### Licence
 
-[MIT](LICENSE) licence © 2026 Christophe Tanniou. Third-party components: see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). The example files (`examples/`) are under the same MIT licence.
+© 2026 Christophe Tanniou · **all rights reserved** ([licence](LICENSE)).
+
+- **Allowed**: download the tool here or from [montechnicien.ch](https://montechnicien.ch/en/courbeur-de-frise.html) and use it for free, including professionally. What you make with it (files, engraved or cut objects) is yours and can be sold.
+- **Not allowed without written permission**: modifying the tool, copying or redistributing it elsewhere, selling it or including it in another product. The example files are for your own work, not for resale.
+- The code is visible for transparency; to share it, share the link to this repository.
+- Versions 1.12.0 to 1.13.0 were released under the MIT licence; the current licence applies from version 1.13.1.
+
+Third-party components: see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Permission requests: info@montechnicien.ch
 
 LightBurn is a trademark of LightBurn Software, LLC. This project is not affiliated with or endorsed by LightBurn Software.

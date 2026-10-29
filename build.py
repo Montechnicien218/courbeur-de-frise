@@ -29,7 +29,7 @@ head = ('<!doctype html><html lang="fr"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width,initial-scale=1">'
         '<link rel="icon" href="favicon.ico"><style>[hidden]{display:none!important}body{margin:0}</style></head><body>')
 lic = '\n'.join([read('page/vendor/fonts/' + f.name) for f in sorted(fdir.glob('OFL-*.txt'))])
-notice = ('<!-- Courbeur de frise : licence MIT. Composants tiers : Clipper (Boost), opentype.js (MIT), '
+notice = ('<!-- Courbeur de frise © 2026 Christophe Tanniou, tous droits réservés (voir LICENSE). Composants tiers : Clipper (Boost), opentype.js (MIT), '
           'polices intégrées sous SIL Open Font License 1.1 :\n' + lic.replace('--', '- -') + '\n-->')
 full = head + notice + page + '</body></html>\n'
 (ROOT / 'dist').mkdir(exist_ok=True)

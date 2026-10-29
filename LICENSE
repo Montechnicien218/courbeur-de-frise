@@ -1,21 +1,98 @@
-MIT License
+Courbeur de frise · Frieze Bender
+Copyright © 2026 Christophe Tanniou (MonTechnicien.ch, Bienne/Biel, Suisse). Tous droits réservés. All rights reserved.
 
-Copyright (c) 2026 Christophe Tanniou
+────────────────────────────────────────
+FRANÇAIS
+────────────────────────────────────────
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. Utilisation gratuite
+   Vous pouvez télécharger le Courbeur de frise depuis ses sources officielles
+   (github.com/montechnicien218/courbeur-de-frise et montechnicien.ch) et l'utiliser
+   gratuitement, à titre privé comme professionnel.
+   Ce que vous créez avec l'outil (fichiers DXF ou SVG, objets gravés ou découpés)
+   vous appartient : vous pouvez l'utiliser et le vendre librement.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+2. Ce qui est interdit sans l'accord écrit préalable de l'auteur
+   a) modifier, adapter ou traduire le logiciel, ou en créer une œuvre dérivée ;
+   b) copier ou redistribuer le logiciel, en tout ou en partie (code source, page,
+      programme, fichiers d'exemple), ailleurs que depuis ses sources officielles ;
+   c) vendre, louer ou concéder le logiciel sous licence, ou l'intégrer dans un autre
+      produit ou service ;
+   d) retirer ou modifier les mentions de droits d'auteur et de licence.
+   Partager un lien vers les sources officielles est toujours permis.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+3. Code source visible
+   Le code source est publié pour la transparence : chacun peut vérifier ce que fait le
+   programme. Le consulter, et le compiler sans aucune modification pour son propre usage,
+   est permis. Cela ne donne aucun autre droit.
+
+4. Fichiers d'exemple (dossier examples/)
+   Vous pouvez les utiliser pour vos propres réalisations, y compris celles que vous vendez.
+   La revente ou la redistribution des fichiers eux-mêmes est interdite.
+
+5. Composants tiers
+   Les composants tiers (Clipper, opentype.js, polices) restent sous leur propre licence,
+   décrite dans THIRD_PARTY_NOTICES.md.
+
+6. Versions précédentes
+   Les versions 1.12.0, 1.12.1 et 1.13.0 ont été publiées sous licence MIT ; les copies de
+   ces versions obtenues à l'époque restent sous cette licence. La présente licence
+   s'applique à partir de la version 1.13.1.
+
+7. Aucune garantie
+   Le logiciel est fourni « tel quel », sans garantie d'aucune sorte. Dans toute la mesure
+   permise par la loi, l'auteur n'est pas responsable des dommages résultant de son
+   utilisation, notamment sur une machine laser.
+
+8. Droit applicable
+   La présente licence est soumise au droit suisse. Le for est à Bienne (canton de Berne).
+
+Autorisations et questions : info@montechnicien.ch
+
+────────────────────────────────────────
+ENGLISH
+────────────────────────────────────────
+
+1. Free use
+   You may download Frieze Bender from its official sources
+   (github.com/montechnicien218/courbeur-de-frise and montechnicien.ch) and use it
+   free of charge, for private or professional purposes.
+   What you make with the tool (DXF or SVG files, engraved or cut objects) belongs to you:
+   you may use and sell it freely.
+
+2. Not allowed without the author's prior written permission
+   a) modifying, adapting or translating the software, or creating derivative works;
+   b) copying or redistributing the software, in whole or in part (source code, page,
+      program, example files), other than from its official sources;
+   c) selling, renting or sublicensing the software, or including it in another product
+      or service;
+   d) removing or changing copyright and licence notices.
+   Sharing a link to the official sources is always allowed.
+
+3. Visible source code
+   The source code is published for transparency, so anyone can check what the program
+   does. Reading it, and building it without any change for your own use, is allowed.
+   This grants no other right.
+
+4. Example files (examples/ folder)
+   You may use them for your own work, including work you sell. Reselling or
+   redistributing the files themselves is not allowed.
+
+5. Third-party components
+   Third-party components (Clipper, opentype.js, fonts) remain under their own licences,
+   described in THIRD_PARTY_NOTICES.md.
+
+6. Earlier versions
+   Versions 1.12.0, 1.12.1 and 1.13.0 were released under the MIT licence; copies of those
+   versions obtained at the time remain under that licence. This licence applies from
+   version 1.13.1 on.
+
+7. No warranty
+   The software is provided "as is", without warranty of any kind. To the fullest extent
+   permitted by law, the author is not liable for any damage arising from its use,
+   including on a laser machine.
+
+8. Governing law
+   This licence is governed by Swiss law. Place of jurisdiction: Biel/Bienne (canton of Bern).
+
+Permissions and questions: info@montechnicien.ch

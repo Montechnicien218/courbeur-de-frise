@@ -25,4 +25,4 @@ Horloge de Ø 240 mm faite entièrement avec le Courbeur de frise · A Ø 240 mm
 3. Right-click near the top, right, bottom and left › **Add a text here**: XII, III, VI, IX in Cinzel, 15 mm, distance 26 mm.
 4. Two more texts: “Time for beautiful things” (Great Vibes, 10 mm, distance 60 mm, top) and “Handmade” (Pacifico, 9 mm, distance 62 mm, bottom).
 
-Les motifs et la forme sont sous licence MIT, comme le reste du projet · The patterns and the shape are MIT-licensed, like the rest of the project.
+© 2026 Christophe Tanniou. Tu peux utiliser ces fichiers pour tes réalisations, y compris celles que tu vends ; la revente des fichiers eux-mêmes est interdite (voir [LICENSE](../../LICENSE)) · You may use these files for your own work, including work you sell; reselling the files themselves is not allowed.

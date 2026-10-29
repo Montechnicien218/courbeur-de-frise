@@ -426,7 +426,7 @@ const I18N_EXACT={
 "Distance à la ligne":"Distance from the line",
 "tape ton texte":"type your text",
 "agrandis la forme ou réduis le texte":"enlarge the shape or shorten the text",
-"Mon texte":"My text","Ce texte est plus long que le bord disponible. Réduis la hauteur des lettres ou l'espacement.":"This text is longer than the available edge. Reduce the letter height or the spacing.","Ce texte reste dans la forme sans toucher les autres éléments.":"This text stays inside the shape without touching anything else.",
+"Mon texte":"My text","© 2026 Christophe Tanniou · tous droits réservés":"© 2026 Christophe Tanniou · all rights reserved","Utilisation gratuite. Modification et redistribution interdites sans accord.":"Free to use. Modifying and redistributing without permission is not allowed.","Ce texte est plus long que le bord disponible. Réduis la hauteur des lettres ou l'espacement.":"This text is longer than the available edge. Reduce the letter height or the spacing.","Ce texte reste dans la forme sans toucher les autres éléments.":"This text stays inside the shape without touching anything else.",
 "Cette police n'est pas lisible.":"This font can't be read.",
 "Les polices .woff2 ne sont pas lues : prends la version .ttf ou .otf.":".woff2 fonts can't be read: use the .ttf or .otf version.",
 "Ajoute d'abord une frise pour ce motif":"Add a frieze first for this pattern",
@@ -508,7 +508,7 @@ function setLang(l,save){LANG=l==='en'?'en':'fr';document.documentElement.lang=L
 function initialLang(){try{const s=localStorage.getItem('courbeur.lang');if(s==='fr'||s==='en')return s;}catch(e){}
   return /^fr\b/i.test(navigator.language||'')?'fr':'en';}
 
-const PAGE_VERSION = '1.13';
+const PAGE_VERSION = '1.13.1';
 
 /* ---------- geometry helpers ---------- */
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
@@ -1556,7 +1556,8 @@ function applyPrefsUI(p){if(typeof p.incShape==='boolean')$('incShape').checked=
   if(!STANDALONE)getDl();
   if(HTTP){lbStatus();setInterval(lbStatus,10000);pollInbox();setInterval(pollInbox,500);refreshLibrary();setInterval(refreshLibrary,15000);
 }
-  {const e=document.createElement('span');e.className='mono';e.style.cssText='color:var(--muted);font-size:.75rem';e.textContent='V'+PAGE_VERSION+(POOL?' · calcul sur '+CORES+' cœurs':'');document.querySelector('header').append(e);}
+  {const e=document.createElement('span');e.className='mono';e.style.cssText='color:var(--muted);font-size:.75rem';e.textContent='V'+PAGE_VERSION+(POOL?' · calcul sur '+CORES+' cœurs':'');document.querySelector('header').append(e);
+    const c=document.createElement('span');c.className='mono';c.style.cssText='color:var(--muted);font-size:.75rem';c.textContent='© 2026 Christophe Tanniou · tous droits réservés';c.title='Utilisation gratuite. Modification et redistribution interdites sans accord.';document.querySelector('header').append(c);}
 })();
 </script>
 
