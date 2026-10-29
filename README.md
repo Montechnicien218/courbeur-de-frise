@@ -27,6 +27,12 @@ Le **Courbeur de frise** fait suivre un motif SVG (une frise) le long d'un bord 
 
 ![Textes le long du bord : « Fait main avec amour » au-dessus de la frise, « ATELIER » sur l'arc](screenshots/texte-fr.png)
 
+### Exemple : horloge murale
+
+![Horloge murale gravée : guirlande de feuilles, perles, chiffres romains et textes en arc](screenshots/exemple-horloge-fr.jpg)
+
+Une horloge de Ø 240 mm faite entièrement avec l'outil : deux frises qui font tout le tour, quatre chiffres et deux textes en arc. Les fichiers et les étapes sont dans [`examples/horloge`](examples/horloge).
+
 ### Installation (Windows)
 
 1. Télécharge la dernière version dans [Releases](../../releases) et décompresse-la dans un dossier fixe, par exemple `C:\Outils\Courbeur de frise\`.
@@ -85,6 +91,12 @@ LightBurn est une marque de LightBurn Software, LLC. Ce projet n'est ni affilié
 - French and English interface.
 
 ![Text along the edge: “Handmade with love” above the frieze, “WORKSHOP” on the arch](screenshots/texte-en.png)
+
+### Example: wall clock
+
+![Engraved wall clock: leaf garland, beads, Roman numerals and curved text](screenshots/exemple-horloge-en.jpg)
+
+A Ø 240 mm clock made entirely with the tool: two friezes all the way round, four numerals and two curved texts. Files and steps are in [`examples/horloge`](examples/horloge).
 
 ### Installation (Windows)
 
