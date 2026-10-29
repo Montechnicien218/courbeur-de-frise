@@ -10,7 +10,7 @@
 
 Le **Courbeur de frise** fait suivre un motif SVG (une frise) le long d'un bord de ta forme DXF ou SVG, puis envoie le résultat à **LightBurn** pour la découpe ou la gravure laser. LightBurn ne sait pas courber un motif le long d'une courbe : cet outil le fait, en gardant la taille et la qualité du motif.
 
-**Essayer sans rien installer :** [version web](https://TON-COMPTE.github.io/courbeur-de-frise/), sans envoi direct à LightBurn ni dossiers d'échange.
+**Essayer sans rien installer :** [version web](https://montechnicien218.github.io/courbeur-de-frise/), sans envoi direct à LightBurn ni dossiers d'échange.
 
 ### Ce qu'il fait
 
@@ -64,7 +64,7 @@ LightBurn est une marque de LightBurn Software, LLC. Ce projet n'est ni affilié
 
 **Frieze Bender** bends an SVG pattern (a frieze) along an edge of your DXF or SVG shape, then sends the result to **LightBurn** for laser cutting or engraving. LightBurn can't bend a pattern along a curve: this tool does, while keeping the pattern's size and quality.
 
-**Try it without installing anything:** [web version](https://TON-COMPTE.github.io/courbeur-de-frise/), without direct sending to LightBurn or exchange folders.
+**Try it without installing anything:** [web version](https://montechnicien218.github.io/courbeur-de-frise/), without direct sending to LightBurn or exchange folders.
 
 ![Frieze Bender: two rings of friezes on a pointed-arch shape](screenshots/apercu-en.png)
 

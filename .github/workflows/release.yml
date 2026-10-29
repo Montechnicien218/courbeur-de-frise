@@ -1,10 +1,10 @@
-# Compile l'outil à chaque étiquette de version (v1.12.0, …) et publie une « Release » avec l'archive.
-# Builds the tool on every version tag (v1.12.0, …) and publishes a Release with the archive.
+# Quand une « Release » est publiée sur GitHub (ex. v1.12.0), compile l'outil et y joint l'archive.
+# When a Release is published on GitHub (e.g. v1.12.0), builds the tool and attaches the archive.
 name: release
 
 on:
-  push:
-    tags: ["v*"]
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -40,7 +40,7 @@ jobs:
             Courbeur-de-frise-*.zip
             SHA256SUMS.txt
       - name: Publier / release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: github.event_name == 'release'
         uses: softprops/action-gh-release@v2
         with:
           files: |
