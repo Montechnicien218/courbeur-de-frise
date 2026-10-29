@@ -128,6 +128,17 @@ button:disabled{opacity:.45;cursor:default}
 .mline select{grid-column:2/-1;font-size:.78rem;padding:3px 6px}
 .mcard .mh .mdel{margin-left:auto;padding:2px 8px;font-size:.75rem;font-weight:500}
 .madd{border-style:dashed;color:var(--accent);font-weight:600}
+.addrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+/* textes : un « texte » est une frise spéciale, faite des lettres d'une police */
+body.is-text [data-only="frise"],body:not(.is-text) [data-only="text"]{display:none!important}
+input[type=text].txt{box-sizing:border-box;font:inherit;font-size:1rem;width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+.fprev{grid-column:1/-1;font-size:1.5rem;line-height:1.2;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:2.1em}
+.mline .n.tx{font-family:inherit;font-size:.9rem}
+.ctx{position:fixed;z-index:30;min-width:190px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 28px -8px rgba(0,0,0,.4);padding:4px;display:grid}
+.ctx button{border:0;background:transparent;text-align:left;padding:7px 10px;border-radius:5px}
+.ctx button:hover,.ctx button:focus-visible{background:var(--ok-bg);color:var(--ok-fg);outline:none}
+.ctx hr{border:0;border-top:1px solid var(--line);margin:3px 2px}
+canvas.dragging{cursor:grabbing}
 </style>
 
 <div class="wrap">
@@ -168,49 +179,70 @@ button:disabled{opacity:.45;cursor:default}
         <div class="field"><label for="stackGap">Espace entre frises empilées (mm)</label><input type="number" id="stackGap" min="0" step="0.5" value="1"></div>
       </section>
 
+      <section class="grp" data-only="text">
+        <h2>Texte</h2>
+        <div class="field"><label for="txtVal" style="grid-column:1/-1">Texte à graver ou découper</label>
+          <input type="text" id="txtVal" class="txt" maxlength="200" spellcheck="false" style="grid-column:1/-1" placeholder="Ton texte"></div>
+        <div class="field"><label for="fontSel">Police</label><select id="fontSel"></select>
+          <div class="fprev" id="fontPrev" aria-hidden="true"></div>
+          <span class="hint" id="fontHint"></span></div>
+        <div class="row"><button type="button" id="btnFontAdd">Ajouter une police…</button><span class="kbd">.ttf · .otf · .woff</span></div>
+        <input type="file" id="fileFont" accept=".ttf,.otf,.woff,font/ttf,font/otf,font/woff" hidden>
+        <div class="field"><label for="txtH">Hauteur des lettres (mm)</label><input type="number" id="txtH" min="0.5" step="0.5" value="10">
+          <span class="hint">Hauteur d'une majuscule, comme le « H ».</span></div>
+        <div class="field"><label for="txtOff">Distance à la ligne suivie (mm)</label><input type="number" id="txtOff" step="0.5" value="2">
+          <span class="hint">Écart entre le bord et le pied des lettres. Négatif : les lettres passent de l'autre côté de la ligne.</span></div>
+        <div class="field"><label for="txtTrack">Espacement des lettres (mm)</label><input type="number" id="txtTrack" step="0.1" value="0"></div>
+        <div class="field"><label for="txtPos">Position le long du bord</label><span class="pos"><input type="number" id="txtPosVal" min="0" max="100" step="0.1" value="50" aria-label="Position du centre du texte en %"> %<small id="txtPosMm"></small></span>
+          <input type="range" id="txtPos" min="0" max="100" step="0.1" value="50" style="grid-column:1/-1">
+          <span class="hint">Centre du texte. Tu peux aussi glisser le texte directement sur le dessin.</span></div>
+        <div class="field"><label for="txtRot"><input type="checkbox" id="txtRot"> Tourner de 180°</label><span></span>
+          <span class="hint">Pour lire le texte dans l'autre sens, par exemple sur le haut d'une forme.</span></div>
+      </section>
+
       <section class="grp">
         <h2>Bord à suivre</h2>
         <div class="field"><label for="selChain">Contour</label><select id="selChain"></select></div>
-        <div class="row" role="group" aria-label="Partie automatique">
+        <div class="row" role="group" aria-label="Partie automatique" data-only="frise">
           <span style="color:var(--muted)">Auto :</span>
           <div class="seg">
             <button id="autoBas" type="button">Bas</button><button id="autoHaut" type="button">Haut</button><button id="autoGauche" type="button">Gauche</button><button id="autoDroite" type="button">Droite</button>
           </div>
         </div>
-        <div class="field"><label for="slope">Pente max (auto)</label><span class="mono"><span id="slopeVal">30</span>°</span>
+        <div class="field" data-only="frise"><label for="slope">Pente max (auto)</label><span class="mono"><span id="slopeVal">30</span>°</span>
           <input type="range" id="slope" min="5" max="85" step="1" value="30" style="grid-column:1/-1"></div>
-        <div class="field"><label for="posA">Début</label><span class="pos"><input type="number" id="aVal" min="0" max="100" step="0.1" value="0" aria-label="Début en %"> %<small id="aMm"></small></span>
+        <div class="field" data-only="frise"><label for="posA">Début</label><span class="pos"><input type="number" id="aVal" min="0" max="100" step="0.1" value="0" aria-label="Début en %"> %<small id="aMm"></small></span>
           <input type="range" id="posA" min="0" max="100" step="0.1" value="0" style="grid-column:1/-1"></div>
-        <div class="field"><label for="posB">Fin</label><span class="pos"><input type="number" id="bVal" min="0" max="100" step="0.1" value="100" aria-label="Fin en %"> %<small id="bMm"></small></span>
+        <div class="field" data-only="frise"><label for="posB">Fin</label><span class="pos"><input type="number" id="bVal" min="0" max="100" step="0.1" value="100" aria-label="Fin en %"> %<small id="bMm"></small></span>
           <input type="range" id="posB" min="0" max="100" step="0.1" value="100" style="grid-column:1/-1"></div>
         <div class="row">
           <button id="btnPick" type="button" aria-pressed="false">Choisir sur le dessin</button>
-          <button id="btnSwap" type="button">Prendre l'autre partie</button>
-          <button id="btnJoin" type="button" title="Colle le début et la fin de cette frise aux frises voisines du même contour (ou fait tout le tour s'il n'y en a pas)">Joindre les bordures</button>
+          <button id="btnSwap" type="button" data-only="frise">Prendre l'autre partie</button>
+          <button id="btnJoin" type="button" data-only="frise" title="Colle le début et la fin de cette frise aux frises voisines du même contour (ou fait tout le tour s'il n'y en a pas)">Joindre les bordures</button>
         </div>
       </section>
 
       <section class="grp">
-        <h2>Réglages du motif</h2>
+        <h2 id="setTitle">Réglages du motif</h2>
         <div class="field"><label>Côté</label>
           <div class="seg" role="group" aria-label="Côté du motif"><button id="sideIn" type="button" aria-pressed="true">Intérieur</button><button id="sideOut" type="button" aria-pressed="false">Extérieur</button></div></div>
-        <div class="field"><label>Orientation</label>
+        <div class="field" data-only="frise"><label>Orientation</label>
           <div class="seg" role="group" aria-label="Orientation du motif"><button id="orH" type="button" aria-pressed="true" title="La longueur du motif suit le bord">Horizontale</button><button id="orV" type="button" aria-pressed="false" title="Le motif tourne d'un quart de tour et se répète debout le long du bord">Verticale</button></div></div>
         <div class="field" id="orderBox" hidden><label for="order">Ordre d'alternance</label><input type="text" id="order" value="AB" maxlength="24" spellcheck="false" style="width:84px;font-family:var(--f-mono);text-align:center;text-transform:uppercase">
           <span class="hint">A = motif 1, B = motif 2. Par exemple AB, ABB ou AAB. L'ordre se répète tout le long du bord.</span></div>
-        <div class="field"><label for="reps">Répétitions du motif</label><input type="number" id="reps" min="1" max="200" step="1" value="1">
+        <div class="field" data-only="frise"><label for="reps">Répétitions du motif</label><input type="number" id="reps" min="1" max="200" step="1" value="1">
           <span class="hint" id="repsHint">Le motif entier est répété puis ajusté pour remplir le bord.</span></div>
-        <div class="field"><label for="autoReps"><input type="checkbox" id="autoReps"> Répéter automatiquement pour garder la taille</label><span></span>
+        <div class="field" data-only="frise"><label for="autoReps"><input type="checkbox" id="autoReps"> Répéter automatiquement pour garder la taille</label><span></span>
           <span class="hint" id="autoRepsHint" hidden>Le motif garde la hauteur visée : il est dupliqué autant de fois que nécessaire pour remplir le bord, sans être étiré ni écrasé.<span id="tileHint"></span></span></div>
-        <div class="field"><label for="autoH"><input type="checkbox" id="autoH" checked> <span id="autoHLbl">Hauteur auto (proportions gardées)</span></label><span></span></div>
-        <div class="field"><label for="height" id="heightLbl">Hauteur (mm)</label><input type="number" id="height" min="0.5" step="0.5" value="20" disabled></div>
-        <div class="field"><label for="offset">Écart au bord (mm)</label><input type="number" id="offset" step="0.5" value="0"></div>
-        <div class="field"><label for="margin">Marge aux extrémités (mm)</label><input type="number" id="margin" min="0" step="0.5" value="0"></div>
-        <div class="field"><label for="cornerSoft"><input type="checkbox" id="cornerSoft" checked> Adoucir les coins</label><span></span>
+        <div class="field" data-only="frise"><label for="autoH"><input type="checkbox" id="autoH" checked> <span id="autoHLbl">Hauteur auto (proportions gardées)</span></label><span></span></div>
+        <div class="field" data-only="frise"><label for="height" id="heightLbl">Hauteur (mm)</label><input type="number" id="height" min="0.5" step="0.5" value="20" disabled></div>
+        <div class="field" data-only="frise"><label for="offset">Écart au bord (mm)</label><input type="number" id="offset" step="0.5" value="0"></div>
+        <div class="field" data-only="frise"><label for="margin">Marge aux extrémités (mm)</label><input type="number" id="margin" min="0" step="0.5" value="0"></div>
+        <div class="field" data-only="frise"><label for="cornerSoft"><input type="checkbox" id="cornerSoft" checked> Adoucir les coins</label><span></span>
           <span class="hint">Le motif ne se replie plus sur lui-même dans les virages serrés : sa base suit le bord, son haut tourne en douceur.</span></div>
         <div class="field"><label for="smooth">Lissage de la courbe (mm)</label><input type="number" id="smooth" min="0" step="0.5" value="3">
           <span class="hint">Plus grand = le motif ondule moins dans les petites irrégularités du bord.</span></div>
-        <div class="row">
+        <div class="row" data-only="frise">
           <label><input type="checkbox" id="flip"> Retourner</label>
           <label><input type="checkbox" id="mirror"> Miroir</label>
         </div>
@@ -272,11 +304,14 @@ button:disabled{opacity:.45;cursor:default}
 </div>
 <div id="svgHost" aria-hidden="true"></div>
 <div class="toast" id="toast" hidden></div>
+<div class="ctx" id="ctxMenu" role="menu" hidden></div>
 
 <script>__CLIPPER__</script>
+<script>__OPENTYPE__</script>
 <script>
 const SAMPLE_MOTIF = __SAMPLE_MOTIF__;
 const SAMPLE_FORME = __SAMPLE_SHAPE__;
+const FONT_FILES = __FONTS__;   /* polices intégrées (woff en base64) + approche extraite par tools/make_kerning.py */
 const $ = id => document.getElementById(id);
 /* ---------- langue de l'interface : français / anglais ----------
    Le code est écrit en français. En anglais, chaque texte qui apparaît à l'écran (y compris les messages
@@ -356,7 +391,52 @@ const I18N_EXACT={
 "C'est dans LightBurn : la frise a été importée dans le projet ouvert.":"Done: the frieze has been imported into the open LightBurn project.",
 "Fichier envoyé à LightBurn.":"File sent to LightBurn.","Fichier envoyé. LightBurn n'a pas encore confirmé l'import : vérifie le projet.":"File sent. LightBurn hasn't confirmed the import yet: check the project.",
 "LightBurn n'a pas pu importer le fichier.":"LightBurn couldn't import the file.",
-"LightBurn refuse l'autorisation. Clique « Oublier l'appairage » puis réessaie.":"LightBurn refuses permission. Click “Forget pairing” and try again."
+"LightBurn refuse l'autorisation. Clique « Oublier l'appairage » puis réessaie.":"LightBurn refuses permission. Click “Forget pairing” and try again.",
+/* textes */
+"Texte":"Text",
+"Texte à graver ou découper":"Text to engrave or cut",
+"Ton texte":"Your text",
+"Police":"Font",
+"Ajouter une police…":"Add a font…",
+"Hauteur des lettres (mm)":"Letter height (mm)",
+"Hauteur d'une majuscule, comme le « H ».":"Height of a capital letter, like the “H”.",
+"Distance à la ligne suivie (mm)":"Distance from the followed line (mm)",
+"Écart entre le bord et le pied des lettres. Négatif : les lettres passent de l'autre côté de la ligne.":"Gap between the edge and the letters. Negative: the letters cross to the other side of the line.",
+"Espacement des lettres (mm)":"Letter spacing (mm)",
+"Position le long du bord":"Position along the edge",
+"Position du centre du texte en %":"Position of the text centre in %",
+"Centre du texte. Tu peux aussi glisser le texte directement sur le dessin.":"Centre of the text. You can also drag the text directly on the drawing.",
+"Tourner de 180°":"Turn 180°",
+"Pour lire le texte dans l'autre sens, par exemple sur le haut d'une forme.":"To read the text the other way round, for example on the top of a shape.",
+"Réglages du texte":"Text settings",
+"Placer sur le dessin":"Place on the drawing",
+"Clique l'endroit du texte, près du bord":"Click where the text goes, near the edge",
+"Ajouter un texte ici":"Add a text here",
+"Modifier ce texte":"Edit this text",
+"Tourner ce texte de 180°":"Turn this text 180°",
+"Supprimer ce texte":"Delete this text",
+"Régler cette frise":"Adjust this frieze",
+"+ Ajouter un texte":"+ Add a text",
+"Ou clic droit sur le dessin, à l'endroit voulu":"Or right-click on the drawing, where you want it",
+"Modifier":"Edit",
+"Texte ajouté : tape ton texte":"Text added: type your text",
+"Texte supprimé":"Text deleted",
+"Polices intégrées":"Built-in fonts",
+"Mes polices":"My fonts",
+"Distance à la ligne":"Distance from the line",
+"tape ton texte":"type your text",
+"agrandis la forme ou réduis le texte":"enlarge the shape or shorten the text",
+"Mon texte":"My text","Ce texte est plus long que le bord disponible. Réduis la hauteur des lettres ou l'espacement.":"This text is longer than the available edge. Reduce the letter height or the spacing.","Ce texte reste dans la forme sans toucher les autres éléments.":"This text stays inside the shape without touching anything else.",
+"Cette police n'est pas lisible.":"This font can't be read.",
+"Les polices .woff2 ne sont pas lues : prends la version .ttf ou .otf.":".woff2 fonts can't be read: use the .ttf or .otf version.",
+"Ajoute d'abord une frise pour ce motif":"Add a frieze first for this pattern",
+"Bâton gras · lisible et robuste":"Bold sans-serif · legible and sturdy",
+"Majuscules étroites · panneaux":"Narrow capitals · signs",
+"Pochoir · les intérieurs des lettres ne tombent pas à la découpe":"Stencil · letter centres don't fall out when cutting",
+"Écriture épaisse · lettres liées, solide à la découpe":"Bold script · joined letters, sturdy when cut",
+"Écriture fine et liée · élégante, plutôt pour la gravure":"Fine joined script · elegant, best for engraving",
+"Capitales romaines · plaques, gravure":"Roman capitals · plaques, engraving",
+"Avec empattements · classique":"Serif · classic"
 };
 const I18N_RULES=[
 [/^Frise (\d+)$/,"Frieze $1"],
@@ -393,7 +473,13 @@ const I18N_RULES=[
 [/^LightBurn a refusé le fichier \(code (\d+)\)\.$/,"LightBurn refused the file (code $1)."],
 [/^LightBurn a refusé l'appairage \(code (\d+)\)\.$/,"LightBurn refused pairing (code $1)."],
 [/^LightBurn n'a pas pu importer le fichier\. (.*)$/,"LightBurn couldn't import the file. $1"],
-[/^Écriture impossible : (.*)$/,"Can't write: $1"]
+[/^Écriture impossible : (.*)$/,"Can't write: $1"],
+[/^« (.*) »$/,"“$1”"],
+[/^(Ce texte|Cette frise) touche (le texte|la frise) (\d+)\.$/,(m,a,b,n)=>(a==='Ce texte'?'This text':'This frieze')+' touches '+(b==='le texte'?'text ':'frieze ')+n+'.'],
+[/^Environ ([\d.]+) % de ce texte dépasse du contour\. Change la distance, la hauteur ou la position\.$/,"About $1 % of this text goes past the outline. Change the distance, the height or the position."],
+[/^Environ ([\d.]+) % de ce texte dépasse à l'intérieur de la forme\. Change la distance, la hauteur ou la position\.$/,"About $1 % of this text goes inside the shape. Change the distance, the height or the position."],
+[/^Ce texte chevauche une autre forme \(contour ([\d, ]+)\)\. Change sa position ou sa distance\.$/,"This text overlaps another shape (outline $1). Change its position or distance."],
+[/^Ce texte chevauche (\d+) autres formes \(contour ([\d, ]+)\)\. Change sa position ou sa distance\.$/,"This text overlaps $1 other shapes (outlines $2). Change its position or distance."],[/^Police ajoutée : (.*)$/,"Font added: $1"],[/^Ta police · (.*)$/,"Your font · $1"]
 ];
 let LANG='fr';
 function trText(s){if(LANG!=='en'||!s)return s;const m=s.match(/^(\s*)([\s\S]*?)(\s*)$/);const core=m[2];if(!core)return s;
@@ -422,7 +508,7 @@ function setLang(l,save){LANG=l==='en'?'en':'fr';document.documentElement.lang=L
 function initialLang(){try{const s=localStorage.getItem('courbeur.lang');if(s==='fr'||s==='en')return s;}catch(e){}
   return /^fr\b/i.test(navigator.language||'')?'fr':'en';}
 
-const PAGE_VERSION = '1.12';
+const PAGE_VERSION = '1.13';
 
 /* ---------- geometry helpers ---------- */
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
@@ -585,13 +671,14 @@ function bestChain(){let best=0,bl=-1;chains.forEach((c,i)=>{const sc=(c.closed?
 /* remplace la forme : toutes les frises se recalent sur le nouveau contour */
 function setForme(text,name){
   const ch=parseForme(text,docOpts.units);chains=ch;formeName=name;formeText=text;$('nameForme').textContent=name;
-  const b=bestChain();for(const f of frises){f.ci=b;autoPortionFor(f,f.lastAuto);}
+  const b=bestChain();for(const f of frises){f.ci=b;if(f.kind!=='text')autoPortionFor(f,f.lastAuto);}
   fillChainSelect();computeAll();
 }
 function fillChainSelect(){const s=$('selChain');s.textContent='';chains.forEach((c,i)=>{const o=document.createElement('option');o.value=i;o.textContent=`Contour ${i+1} · ${c.closed?'fermé':'ouvert'} · ${c.L.toFixed(0)} mm`;s.appendChild(o);});if(state)s.value=state.ci;}
 
 /* ---------- frises ---------- */
-const DEF={ci:0,a:0,b:1,side:'in',reps:1,autoH:true,H:20,offset:0,margin:0,smooth:3,flip:false,mirror:false,slope:30,lastAuto:'bas',layer:2,order:'AB',autoReps:false,orient:'h',cornerSoft:true};
+const DEF={ci:0,a:0,b:1,side:'in',reps:1,autoH:true,H:20,offset:0,margin:0,smooth:3,flip:false,mirror:false,slope:30,lastAuto:'bas',layer:2,order:'AB',autoReps:false,orient:'h',cornerSoft:true,
+  kind:'frise',text:'',font:'',tracking:0,tc:0.5,rot180:false,rotAuto:true};
 const KEYS=Object.keys(DEF);
 const PREF_KEYS=['side','reps','autoH','H','offset','margin','smooth','flip','mirror','slope','lastAuto','layer','order','autoReps','orient','cornerSoft'];
 const pick=(o,keys)=>{const r={};for(const k of keys)r[k]=o[k];return r;};
@@ -630,7 +717,138 @@ function autoPortionFor(f,dir){
   let a=ex,b=ex;while(ok(a-1)&&ex-a<n-2)a--;while(ok(b+1)&&b-a<n-2)b++;
   f.a=(((a%n)+n)%n)/n;f.b=(((b%n)+n)%n)/n;
 }
-function autoPortion(dir){autoPortionFor(state,dir);syncInputs();update();}
+function autoPortion(dir){if(state.kind==='text'){update();return;}autoPortionFor(state,dir);syncInputs();update();}
+
+/* ---------- textes le long du bord ----------
+   Un texte est une frise particulière : son « motif » est fait des lettres d'une police, posé une seule fois,
+   sans être étiré. On choisit sa hauteur de lettres, sa distance à la ligne suivie et sa position le long du bord.
+   Les lettres sont lues avec opentype.js (MIT) ; les polices intégrées sont sous licence SIL OFL 1.1. */
+const FONT_LIST=[
+  {id:'montserrat',file:'montserrat-latin-700-normal.woff',name:'Montserrat',style:'Bâton gras · lisible et robuste'},
+  {id:'bebas',file:'bebas-neue-latin-400-normal.woff',name:'Bebas Neue',style:'Majuscules étroites · panneaux'},
+  {id:'stencil',file:'allerta-stencil-latin-400-normal.woff',name:'Allerta Stencil',style:'Pochoir · les intérieurs des lettres ne tombent pas à la découpe'},
+  {id:'pacifico',file:'pacifico-latin-400-normal.woff',name:'Pacifico',style:'Écriture épaisse · lettres liées, solide à la découpe'},
+  {id:'greatvibes',file:'great-vibes-latin-400-normal.woff',name:'Great Vibes',style:'Écriture fine et liée · élégante, plutôt pour la gravure'},
+  {id:'cinzel',file:'cinzel-latin-700-normal.woff',name:'Cinzel',style:'Capitales romaines · plaques, gravure'},
+  {id:'playfair',file:'playfair-display-latin-700-normal.woff',name:'Playfair Display',style:'Avec empattements · classique'}];
+const DEFAULT_FONT='montserrat';
+const FONTS=new Map();          /* id → {id,name,style,font,capH,kern,user} */
+let KERNDATA={},userFontSeq=0;
+function b64buf(s){const bin=atob(s),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u.buffer;}
+async function loadKerning(){try{const st=new Blob([b64buf(FONT_FILES.kern)]).stream().pipeThrough(new DecompressionStream('gzip'));return JSON.parse(await new Response(st).text());}catch(e){return {};}}
+function capHeightOf(font){const o=font.tables.os2;if(o&&o.sCapHeight>0)return o.sCapHeight;
+  try{const g=font.charToGlyph('H');const b=g.getBoundingBox();if(b.y2>0)return b.y2;}catch(e){}return font.unitsPerEm*0.7;}
+function fontEntry(id,font,meta,kern){const F=Object.assign({id,font,capH:capHeightOf(font),kern:kern||null},meta);FONTS.set(id,F);return F;}
+function getFont(id){let F=FONTS.get(id);if(F)return F;const d=FONT_LIST.find(x=>x.id===id);if(!d||!window.opentype||!FONT_FILES.files[d.file])return null;
+  try{const font=opentype.parse(b64buf(FONT_FILES.files[d.file]));const k=KERNDATA[d.file];let kern=null;
+    if(k){kern=new Map();for(const g1 in k){const a=k[g1];for(let i=0;i<a.length;i+=2)kern.set(+g1*65536+a[i],a[i+1]);}}
+    return fontEntry(id,font,{name:d.name,style:d.style,user:false},kern);}catch(e){return null;}}
+const fontOf=f=>getFont(f.font)||getFont(DEFAULT_FONT);
+function kernPair(F,g1,g2){if(F.kern)return F.kern.get(g1.index*65536+g2.index)||0;try{return F.font.getKerningValue(g1,g2)||0;}catch(e){return 0;}}
+/* courbes de la police → polygones, en unités de la police, y vers le bas, ligne de base à y = 0 */
+function buildTextMotif(F,t,trU){const font=F.font,upm=font.unitsPerEm,tol=upm/2500;const gl=font.stringToGlyphs(t);const polys=[];let x=0,xEnd=0;
+  const nQ=d=>Math.max(1,Math.min(100,Math.ceil(Math.sqrt(d/(4*tol))))),nC=d=>Math.max(1,Math.min(100,Math.ceil(Math.sqrt(3*d/(4*tol)))));
+  gl.forEach((g,i)=>{let cmds;try{cmds=g.getPath(x,0,upm).commands;}catch(e){cmds=[];}let cur=null,lx=0,ly=0;
+    const flush=()=>{if(cur&&cur.length>2){const a=cur[0],b=cur[cur.length-1];if(Math.hypot(a[0]-b[0],a[1]-b[1])<tol)cur.pop();if(cur.length>2)polys.push({pts:cur,closed:true,el:i});}cur=null;};
+    for(const c of cmds){
+      if(c.type==='M'){flush();cur=[[c.x,c.y]];lx=c.x;ly=c.y;}
+      else if(!cur)continue;
+      else if(c.type==='L'){cur.push([c.x,c.y]);lx=c.x;ly=c.y;}
+      else if(c.type==='Q'){const n=nQ(Math.hypot(lx-2*c.x1+c.x,ly-2*c.y1+c.y));for(let k=1;k<=n;k++){const u=k/n,v=1-u;cur.push([v*v*lx+2*v*u*c.x1+u*u*c.x,v*v*ly+2*v*u*c.y1+u*u*c.y]);}lx=c.x;ly=c.y;}
+      else if(c.type==='C'){const d=Math.max(Math.hypot(lx-2*c.x1+c.x2,ly-2*c.y1+c.y2),Math.hypot(c.x1-2*c.x2+c.x,c.y1-2*c.y2+c.y)),n=nC(d);
+        for(let k=1;k<=n;k++){const u=k/n,v=1-u;cur.push([v*v*v*lx+3*v*v*u*c.x1+3*v*u*u*c.x2+u*u*u*c.x,v*v*v*ly+3*v*v*u*c.y1+3*v*u*u*c.y2+u*u*u*c.y]);}lx=c.x;ly=c.y;}
+      else if(c.type==='Z')flush();}
+    flush();
+    x+=g.advanceWidth||0;xEnd=x;if(i<gl.length-1)x+=kernPair(F,g,gl[i+1])+trU;});
+  if(!polys.length||!(xEnd>0))return null;
+  const capH=F.capH;return {polys,bb:{x0:0,x1:xEnd,y0:-capH,y1:0,w:xEnd,h:capH},name:t,isText:true,tile:null};}
+const TXT=new Map();
+function textMotif(f){const F=fontOf(f);if(!F)return null;const t=String(f.text||'').replace(/\s+/g,' ');if(!t.trim())return null;
+  const trU=Math.round((f.tracking||0)/((f.H>0?f.H:10)/F.capH));const key=F.id+'|'+trU+'|'+t;let m=TXT.get(key);if(m)return m;
+  m=buildTextMotif(F,t,trU);if(TXT.size>80)TXT.delete(TXT.keys().next().value);TXT.set(key,m);return m;}
+/* le texte occupe exactement sa longueur sur le bord, centrée sur la position choisie */
+function fitTextSpan(f){if(f.kind!=='text')return;const c=chains[f.ci];if(!c&&chains.length)f.ci=0;
+  const m=textMotif(f);f.motif=m;f.motifB=null;f.reps=1;f.autoH=false;f.autoReps=false;f.margin=0;f.orient='h';f.mirror=false;f.flip=false;
+  const ch=chains[f.ci];if(!ch||!m){f.a=f.b=f.tc;return;}
+  /* portion de bord assez longue pour la ligne de base (plus courte que le bord dans un creux, plus longue sur une bosse) */
+  let w=m.bb.w*(f.H/m.bb.h)*2+6*Math.abs(f.offset)+2*f.H;const L=ch.L;
+  if(ch.closed){w=Math.min(w,L*0.995);let a=f.tc-w/2/L;a=((a%1)+1)%1;f.a=a;f.b=((a+w/L)%1+1)%1;}
+  else{if(w>=L){f.a=0;f.b=1;return;}const h=w/2/L,tc=Math.min(1-h,Math.max(h,f.tc));f.a=tc-h;f.b=tc+h;}}
+function fitTexts(){for(const f of frises)if(f.kind==='text')fitTextSpan(f);}
+/* lettres à l'endroit : si le haut des lettres pointerait vers le bas de l'écran, on tourne le texte d'un demi-tour */
+function autoUpright(f){if(f.kind!=='text'||f.rotAuto===false)return;fitTextSpan(f);const G=buildGuide(f);if(!G)return;const N=G.N[G.N.length>>1];f.rot180=N[1]<-0.2;}
+/* point du contour le plus proche d'un point du dessin : contour, abscisse curviligne, distance */
+function nearestOnChain(w,only){let best=null;
+  chains.forEach((c,ci)=>{if(only!==undefined&&ci!==only)return;const R=c.ring,S=c.S;
+    for(let i=0;i<R.length-1;i++){const a=R[i],b=R[i+1],dx=b[0]-a[0],dy=b[1]-a[1],l2=dx*dx+dy*dy;let t=l2>0?((w[0]-a[0])*dx+(w[1]-a[1])*dy)/l2:0;t=t<0?0:t>1?1:t;
+      const px=a[0]+dx*t,py=a[1]+dy*t,d=Math.hypot(w[0]-px,w[1]-py);if(!best||d<best.d)best={d,ci,s:S[i]+(S[i+1]-S[i])*t,p:[px,py]};}});
+  return best;}
+function sideAt(w,hit){const c=chains[hit.ci];if(c.closed)return pip(w[0],w[1],c.pts)?'in':'out';
+  const a=pointAt(c,hit.s-1),b=pointAt(c,hit.s+1);return ((b[0]-a[0])*(w[1]-hit.p[1])-(b[1]-a[1])*(w[0]-hit.p[0]))>0?'in':'out';}
+function freeLayer(){const usedL=new Set(frises.map(g=>g.layer).concat([docOpts.formeLayer]));return (layers.find(l=>l.index>=2&&!usedL.has(l.index))||{index:state?state.layer:2}).index;}
+let lastText={font:DEFAULT_FONT,H:10};
+function addTextAt(w){if(!chains.length)return;commit();
+  let hit=w?nearestOnChain(w):null;
+  if(!hit){const ci=bestChain(),c=chains[ci];const tmp=newFrise({ci});autoPortionFor(tmp,'bas');let s=(tmp.a+((tmp.b-tmp.a+1)%1||1)/2)%1*c.L;hit={ci,s,d:0,p:pointAt(c,s)};w=null;}
+  const c=chains[hit.ci],bb=c.bb||bboxOf([c.pts]);
+  const H=lastText.H>0?lastText.H:Math.max(2,Math.min(10,Math.round(Math.min(bb.w,bb.h)/12)));
+  const side=w?sideAt(w,hit):'in';let off=w?Math.max(1,Math.round((hit.d-H/2)*2)/2):2;
+  /* au-dessus des frises déjà posées à cet endroit du bord, pour ne pas les recouvrir */
+  const u=hit.s/c.L;let top=0;
+  for(const g of frises){if(g.kind==='text'||g.ci!==hit.ci||g.side!==side)continue;const sp=edgeSpan(g);if(!sp)continue;
+    const inSpan=Math.abs(g.a-g.b)<1e-9||(u>=sp.a&&u<=sp.b)||(u+1>=sp.a&&u+1<=sp.b);if(!inSpan)continue;
+    top=Math.max(top,(g.stackOff||0)+g.offset+(g.guide&&g.guide.H?g.guide.H:estimateHeight(g))+Math.max(1,docOpts.gap));}
+  if(top>0&&off<top)off=Math.ceil(top*2)/2;
+  const f=newFrise({kind:'text',text:LANG==='en'?'My text':'Mon texte',font:FONTS.has(lastText.font)||FONT_LIST.some(x=>x.id===lastText.font)?lastText.font:DEFAULT_FONT,
+    ci:hit.ci,tc:hit.s/c.L,side,H,offset:off,smooth:2,cornerSoft:true,layer:freeLayer(),lastAuto:''},null,null);
+  autoUpright(f);frises.push(f);fi=frises.length-1;state=f;syncAll();update();
+  toast('Texte ajouté : tape ton texte');setTimeout(()=>{const e=$('txtVal');e.focus();e.select();},30);}
+/* liste des polices, aperçu dans la police choisie */
+function injectFontFaces(){const css=FONT_LIST.filter(d=>FONT_FILES.files[d.file]).map(d=>`@font-face{font-family:"cf-${d.id}";src:url(data:font/woff;base64,${FONT_FILES.files[d.file]}) format("woff");font-display:swap}`).join('\n');
+  const st=document.createElement('style');st.textContent=css;document.head.append(st);}
+function fillFontSelect(){const s=$('fontSel');s.textContent='';
+  const g1=document.createElement('optgroup');g1.label='Polices intégrées';for(const d of FONT_LIST){const o=document.createElement('option');o.value=d.id;o.textContent=d.name;g1.append(o);}s.append(g1);
+  const us=[...FONTS.values()].filter(F=>F.user);if(us.length){const g2=document.createElement('optgroup');g2.label='Mes polices';for(const F of us){const o=document.createElement('option');o.value=F.id;o.textContent=F.name;g2.append(o);}s.append(g2);}
+  if(state&&state.kind==='text')s.value=fontOf(state).id;}
+function syncTextUI(){const f=state;if(!f||f.kind!=='text')return;const F=fontOf(f);
+  if(document.activeElement!==$('txtVal'))$('txtVal').value=f.text;
+  if(!$('fontSel').querySelector('option[value="'+(F?F.id:'')+'"]'))fillFontSelect();$('fontSel').value=F?F.id:DEFAULT_FONT;
+  const p=$('fontPrev');p.textContent=f.text||'Aa';p.style.fontFamily='"cf-'+(F?F.id:DEFAULT_FONT)+'",'+'var(--f-body)';
+  $('fontHint').textContent=F?F.style||'':'';
+  for(const [id,v] of [['txtH',f.H],['txtOff',f.offset],['txtTrack',f.tracking||0]])if(document.activeElement!==$(id))$(id).value=+(+v).toFixed(2);
+  $('txtPos').value=(f.tc*100).toFixed(1);if(document.activeElement!==$('txtPosVal'))$('txtPosVal').value=+(f.tc*100).toFixed(2);
+  const c=chains[f.ci];$('txtPosMm').textContent=c?' '+(f.tc*c.L).toFixed(1)+' mm':'';$('txtRot').checked=!!f.rot180;}
+function textLabel(f){const t=String(f.text||'').trim()||'…';return '« '+(t.length>16?t.slice(0,15)+'…':t)+' »';}
+$('txtVal').addEventListener('input',e=>{state.text=e.target.value;$('fontPrev').textContent=state.text||'Aa';update();});
+$('txtVal').addEventListener('change',()=>commit());
+$('fontSel').addEventListener('change',e=>{state.font=e.target.value;lastText.font=state.font;syncTextUI();update();});
+const txtNum=(id,fn)=>$(id).addEventListener('input',e=>{const v=parseFloat(String(e.target.value).replace(',','.'));if(isNaN(v))return;if(fn(v)!==false)update();});
+txtNum('txtH',v=>{if(!(v>=0.5))return false;state.H=v;lastText.H=v;});
+txtNum('txtOff',v=>{state.offset=v;});
+txtNum('txtTrack',v=>{state.tracking=v;});
+txtNum('txtPosVal',v=>{state.tc=Math.min(100,Math.max(0,v))/100;$('txtPos').value=state.tc*100;syncTextUI();});
+$('txtPos').addEventListener('input',e=>{state.tc=e.target.value/100;syncTextUI();update();});
+$('txtPos').addEventListener('change',()=>{autoUpright(state);syncTextUI();update();});
+$('txtRot').addEventListener('change',e=>{state.rot180=e.target.checked;state.rotAuto=false;update();});
+$('btnFontAdd').addEventListener('click',()=>$('fileFont').click());
+$('fileFont').addEventListener('change',async()=>{const file=$('fileFont').files[0];$('fileFont').value='';if(!file)return;
+  try{if(/\.woff2$/i.test(file.name))throw new Error('Les polices .woff2 ne sont pas lues : prends la version .ttf ou .otf.');
+    const buf=await file.arrayBuffer();const font=opentype.parse(buf);if(!font.unitsPerEm||!font.glyphs||!font.glyphs.length)throw 0;
+    const nm=(font.names&&(font.names.fullName||font.names.fontFamily)&&((font.names.fullName||font.names.fontFamily).fr||(font.names.fullName||font.names.fontFamily).en||Object.values(font.names.fullName||font.names.fontFamily)[0]))||file.name.replace(/\.[^.]+$/,'');
+    const id='u'+(++userFontSeq);fontEntry(id,font,{name:nm,style:'Ta police · '+file.name,user:true},null);
+    try{const ff=new FontFace('cf-'+id,buf);await ff.load();document.fonts.add(ff);}catch(e){}
+    fillFontSelect();state.font=id;lastText.font=id;syncTextUI();update();toast('Police ajoutée : '+nm);}
+  catch(e){toast(e&&e.message?e.message:'Cette police n\'est pas lisible.');}});
+/* menu du clic droit sur le dessin */
+const ctxMenu=$('ctxMenu');
+function closeCtx(){ctxMenu.hidden=true;}
+function openCtx(cx,cy,items){ctxMenu.textContent='';for(const it of items){if(it==='-'){ctxMenu.append(document.createElement('hr'));continue;}
+    const b=document.createElement('button');b.type='button';b.setAttribute('role','menuitem');b.textContent=it[0];b.addEventListener('click',()=>{closeCtx();it[1]();});ctxMenu.append(b);}
+  ctxMenu.hidden=false;const r=ctxMenu.getBoundingClientRect();const x=Math.min(cx,innerWidth-r.width-8),y=Math.min(cy,innerHeight-r.height-8);
+  ctxMenu.style.left=Math.max(8,x)+'px';ctxMenu.style.top=Math.max(8,y)+'px';ctxMenu.querySelector('button').focus();}
+document.addEventListener('pointerdown',e=>{if(!ctxMenu.hidden&&!ctxMenu.contains(e.target))closeCtx();},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!ctxMenu.hidden)closeCtx();});
+addEventListener('scroll',closeCtx,{passive:true});addEventListener('resize',closeCtx);
 
 /* ---------- guide + déformation ---------- */
 function buildGuide(f,hNorm){
@@ -664,9 +882,50 @@ function preparedMotif(m,sU,sV){const bk=x=>Math.pow(2,Math.ceil(Math.log2(x)*8)
   const eps=0.004/lo,maxSeg=0.3/hi;
   r=m.polys.map(pl=>({D:densify(simplify(pl.pts,pl.closed,eps),pl.closed,maxSeg),closed:pl.closed,el:pl.el|0}));r.n=r.reduce((a,q)=>a+q.D.length,0);
   if(c.size>=24)c.delete(c.keys().next().value);c.set(key,r);return r;}
+/* Texte : les lettres sont posées le long d'une ligne de base parallèle au bord, à la distance choisie.
+   L'espacement est mesuré sur cette ligne de base : les lettres gardent leur largeur exacte, même dans un
+   virage ou un creux (où une simple déformation les écraserait). La ligne de base est lissée sur environ
+   une hauteur et demie de lettre, pour s'arrondir dans les coins serrés. */
+function warpText(f,m){
+  let G=f.guide;const mb=m.bb,s=f.H/(mb.h||1),w=mb.w*s,off=f.offset,rot=!!f.rot180;
+  const h2=1.5*(Math.abs(off)+f.H);if(f.cornerSoft!==false&&h2>Math.max(f.smooth/2,G.ds)*1.05){const G2=buildGuide(f,h2);if(G2)G=G2;}
+  const P=G.P,N=G.N,n=P.length;if(n<2)return;
+  /* ligne de base brute ; dans un creux plus serré que la distance, elle ferait une boucle : on la retire */
+  const K=[],src=[];
+  for(let i=0;i<n;i++){const b=[P[i][0]+off*N[i][0],P[i][1]+off*N[i][1]];if(!K.length){K.push(b);src.push(i);continue;}
+    const l=K[K.length-1];if((b[0]-l[0])*N[i][1]-(b[1]-l[1])*N[i][0]>1e-9){K.push(b);src.push(i);}}
+  if(K.length<2)return;
+  /* rééchantillonnée à pas régulier, puis lissée sur environ une hauteur et demie de lettre */
+  const SK=[0];for(let i=1;i<K.length;i++)SK.push(SK[i-1]+Math.hypot(K[i][0]-K[i-1][0],K[i][1]-K[i-1][1]));
+  const LK=SK[SK.length-1],h=Math.max(0.2,LK/20000),m2=Math.max(2,Math.ceil(LK/h)+1);let B=new Array(m2),SI=new Float64Array(m2);
+  for(let q=0,j=0;q<m2;q++){const u=Math.min(LK,q*h);while(j<K.length-2&&SK[j+1]<u)j++;const d=SK[j+1]-SK[j],t=d>0?(u-SK[j])/d:0;
+    B[q]=[K[j][0]+(K[j+1][0]-K[j][0])*t,K[j][1]+(K[j+1][1]-K[j][1])*t];SI[q]=src[j]+(src[j+1]-src[j])*t;}
+  const k=f.cornerSoft===false?0:Math.round(2*f.H/h);const nb=m2;
+  for(let pass=0;pass<(k>0?3:0);pass++){const cx=new Float64Array(nb+1),cy=new Float64Array(nb+1);for(let i=0;i<nb;i++){cx[i+1]=cx[i]+B[i][0];cy[i+1]=cy[i]+B[i][1];}
+    const S2=new Array(nb);for(let i=0;i<nb;i++){const lo=Math.max(0,i-k),hi=Math.min(nb-1,i+k),c=hi-lo+1;S2[i]=[(cx[hi+1]-cx[lo])/c,(cy[hi+1]-cy[lo])/c];}B=S2;}
+  const SB=new Float64Array(nb);for(let i=1;i<nb;i++)SB[i]=SB[i-1]+Math.hypot(B[i][0]-B[i-1][0],B[i][1]-B[i-1][1]);
+  const NB=new Array(nb);for(let i=0;i<nb;i++){const a=B[Math.max(0,i-1)],b=B[Math.min(nb-1,i+1)];const tx=b[0]-a[0],ty=b[1]-a[1],l=Math.hypot(tx,ty);
+    NB[i]=l<1e-12?(i?NB[i-1]:N[0]):[-ty/l,tx/l];}
+  /* centre du texte : le point du bord choisi */
+  const c=chains[f.ci],pc=pointAt(c,f.tc*c.L);let ic=0,bd=Infinity;for(let i=0;i<n;i++){const d=(P[i][0]-pc[0])**2+(P[i][1]-pc[1])**2;if(d<bd){bd=d;ic=i;}}
+  let qc=0;{let best=Infinity;for(let q=0;q<nb;q++){const d=Math.abs(SI[q]-ic);if(d<best){best=d;qc=q;}}}
+  const tot=SB[nb-1];let u0=SB[qc]-w/2;if(u0+w>tot)u0=tot-w;if(u0<0)u0=0;
+  const at=u=>{if(u<=0)return 0;if(u>=tot)return nb-2+0.999999;let lo=0,hi=nb-1;while(hi-lo>1){const md=(lo+hi)>>1;if(SB[md]<=u)lo=md;else hi=md;}const d=SB[hi]-SB[lo];return lo+(d>0?(u-SB[lo])/d:0);};
+  for(const {D,closed,el} of preparedMotif(m,s,s)){const out=new Float64Array(D.length*2);
+    for(let i=0;i<D.length;i++){const p=D[i];let u=(p[0]-mb.x0)*s;if(rot)u=w-u;u+=u0;const v=(rot?(p[1]-mb.y0):(mb.y1-p[1]))*s;
+      const q=at(u);let j=q|0;if(j>=nb-1)j=nb-2;const t=q-j,A=B[j],Bb=B[j+1],NA=NB[j],NN=NB[j+1];
+      let nx=NA[0]+(NN[0]-NA[0])*t,ny=NA[1]+(NN[1]-NA[1])*t;const nl=Math.hypot(nx,ny)||1;nx/=nl;ny/=nl;
+      out[2*i]=A[0]+(Bb[0]-A[0])*t+v*nx;out[2*i+1]=A[1]+(Bb[1]-A[1])*t+v*ny;}
+    f.warped.push(polyOf(out,closed,el));}
+  /* ligne affichée : la partie du bord sous le texte */
+  const sIdx=x=>{const q=at(x),j=Math.min(nb-2,q|0);return SI[j]+(SI[j+1]-SI[j])*(q-j);};
+  const ja=sIdx(u0),jb=sIdx(u0+w),j0=Math.max(0,Math.floor(Math.min(ja,jb))),j1=Math.min(n-1,Math.ceil(Math.max(ja,jb)));
+  f.guide=Object.assign({},G,{P:P.slice(j0,j1+1),N:N.slice(j0,j1+1),n:j1-j0,len:(j1-j0)*G.ds,H:f.H,sU:s,sV:s});
+  f.repsEff=1;f.unitIsTile=false;f.capped=w>tot+0.01;}
 function computeWarp(f){
-  f.warped=[];f.capped=false;f.guide=buildGuide(f);if(!f.guide||!f.motif)return;
+  f.warped=[];f.capped=false;f.guide=f.kind==='text'&&!f.motif?null:buildGuide(f);if(!f.guide||!f.motif)return;
   const vert=f.orient==='v',fm=vert?rotMotif(f.motif):f.motif,fmB=vert?rotMotif(f.motifB):f.motifB;
+  if(f.kind==='text'){warpText(f,fm);return;}
   let G=f.guide;const Lf=G.len-2*f.margin;
   /* mode « garder la taille » : nombre de copies calculé pour que le motif garde la hauteur visée */
   let nReps=Math.max(1,Math.round(f.reps));
@@ -683,7 +942,7 @@ function computeWarp(f){
   if(f.cornerSoft!==false){let mh=0;for(const m of seq)mh=Math.max(mh,f.autoH?m.bb.h*sU:f.H);
     const vmax=Math.abs(f.offset+(f.stackOff||0))+mh,h2=1.5*vmax;
     if(h2>Math.max(f.smooth/2,G.ds)*1.05){const G2=buildGuide(f,h2);if(G2){G=G2;f.guide=G2;}}}
-  const GP=G.P,GN=G.N,gn=G.n,ids=1/G.ds,mir=f.mirror,flip=f.flip,off=f.offset+(f.stackOff||0),mar=f.margin;
+  const isT=f.kind==='text',GP=G.P,GN=G.N,gn=G.n,ids=1/G.ds,mir=isT?!!f.rot180:f.mirror,flip=isT?!!f.rot180:f.flip,off=f.offset+(f.stackOff||0),mar=f.margin;
   let maxH=0,uStart=0,sVfirst=0,copy=0;
   for(const m of seq){const mb=m.bb,sV=f.autoH?sU:f.H/(mb.h||1);if(!sVfirst)sVfirst=sV;maxH=Math.max(maxH,mb.h*sV);
     for(const {D,closed,el} of preparedMotif(m,sU,sV)){const out=new Float64Array(D.length*2);
@@ -721,15 +980,15 @@ function coversLoop(list){const parts=[];for(const g of list){let a=g.a,b=g.b;if
   parts.sort((x,y)=>x[0]-y[0]);let end=0;for(const [a,b] of parts){if(a>end+1e-4)return false;end=Math.max(end,b);}return end>=1-1e-4;}
 function restack(){const changed=[];
   frises.forEach((f,k)=>{let base=0,on=null;
-    if(docOpts.stack){const sp=edgeSpan(f);
-      for(let j=0;j<k;j++){const g=frises[j];if(g.ci!==f.ci||g.side!==f.side||!spansOverlap(sp,edgeSpan(g)))continue;
+    if(docOpts.stack&&f.kind!=='text'){const sp=edgeSpan(f);   /* un texte garde exactement la distance choisie */
+      for(let j=0;j<k;j++){const g=frises[j];if(g.kind==='text'||g.ci!==f.ci||g.side!==f.side||!spansOverlap(sp,edgeSpan(g)))continue;
         const top=(g.stackOff||0)+g.offset+estimateHeight(g)+docOpts.gap;if(top>base){base=top;on=j;}}}
     base=Math.round(base*1000)/1000;if((f.stackOff||0)!==base)changed.push(f);f.stackOff=base;f.stackOn=on;});
   return changed;}
 $('fuseOpt').addEventListener('change',e=>{docOpts.fuse=e.target.checked;scheduleCommit();savePrefsSoon();});
 $('stackOpt').addEventListener('change',e=>{docOpts.stack=e.target.checked;$('stackGap').disabled=!docOpts.stack;update();toast(docOpts.stack?'Frises empilées':'Frises libres : elles peuvent se superposer');});
 $('stackGap').addEventListener('input',e=>{const v=parseFloat(String(e.target.value).replace(',','.'));if(!(v>=0))return;docOpts.gap=v;update();});
-function computeAll(){restack();for(const f of frises)requestWarp(f);}
+function computeAll(){fitTexts();restack();for(const f of frises)requestWarp(f);}
 
 /* ---------- calcul sur tous les cœurs du processeur ----------
    Les frises sont calculées dans des « workers » (un par cœur disponible), en parallèle et hors de
@@ -742,7 +1001,7 @@ const motifIds=new WeakMap();let motifSeq=0;
 const motifId=m=>{if(!m)return 0;let id=motifIds.get(m);if(!id){id=++motifSeq;motifIds.set(m,id);}return id;};
 const unflat=a=>{const P=new Array(a.length/2);for(let i=0;i<P.length;i++)P[i]=[a[2*i],a[2*i+1]];return P;};
 function workerSource(){
-  const fns=[bboxOf,pip,decimate,dedupe,densify,rdp,makeChain,pointAt,simplify,sequenceOf,detectTile,rotMotif,polyOf,preparedMotif,buildGuide,computeWarp,checksCore].map(f=>f.toString()).join('\n');
+  const fns=[bboxOf,pip,decimate,dedupe,densify,rdp,makeChain,pointAt,simplify,sequenceOf,detectTile,rotMotif,polyOf,preparedMotif,buildGuide,warpText,computeWarp,checksCore].map(f=>f.toString()).join('\n');
   return `const dist=${dist.toString()};\nconst POINT_BUDGET=${POINT_BUDGET};\nlet chains=[];const M=new Map();const ROT=new WeakMap();const PREP=new WeakMap();\n${fns}
 const flat=P=>{const a=new Float64Array(P.length*2);for(let i=0;i<P.length;i++){a[2*i]=P[i][0];a[2*i+1]=P[i][1];}return a;};
 const unflat=a=>{const P=new Array(a.length/2);for(let i=0;i<P.length;i++)P[i]=[a[2*i],a[2*i+1]];return P;};
@@ -753,7 +1012,7 @@ onmessage=e=>{const d=e.data;
     const G=f.guide,polys=f.warped.map(w=>w.flat),buf=polys.map(a=>a.buffer);let g=null;
     if(G){g={P:flat(G.P),len:G.len,n:G.n,ds:G.ds,H:G.H||0,sU:G.sU||0,sV:G.sV||0,closed:G.closed};buf.push(g.P.buffer);}
     postMessage({t:'warp',job:d.job,gen:d.gen,guide:g,polys,closed:f.warped.map(w=>w.closed),groups:f.warped.map(w=>w.g),repsEff:f.repsEff,capped:f.capped,unitIsTile:f.unitIsTile,ms},buf);return;}
-  if(d.t==='check'){const list=d.list.map(x=>({joined:x.joined,side:x.side,ci:x.ci,capped:x.capped,repsEff:x.repsEff,guide:x.has?{chain:chains[x.ci]}:null,warped:x.polys.map((a,i)=>({pts:unflat(a),closed:x.closed[i]}))}));
+  if(d.t==='check'){const list=d.list.map(x=>({joined:x.joined,kind:x.kind,side:x.side,ci:x.ci,capped:x.capped,repsEff:x.repsEff,guide:x.has?{chain:chains[x.ci]}:null,warped:x.polys.map((a,i)=>({pts:unflat(a),closed:x.closed[i]}))}));
     postMessage({t:'check',job:d.job,msgs:checksCore(list[d.fi],list,chains)});}
 };`;}
 function startPool(){
@@ -808,37 +1067,38 @@ function runChecks(){if(!state)return;
   if(anyBusy())return;   /* relancé dès que les calculs en cours sont finis */
   syncChains();chkJob++;
   CHECKER.postMessage({t:'check',job:chkJob,fi:frises.indexOf(state),
-    list:frises.map(g=>({joined:joinedTo(state,g),side:g.side,ci:g.ci,capped:!!g.capped,repsEff:g.repsEff,has:!!g.guide,polys:g._flat||[],closed:(g.warped||[]).map(w=>w.closed)}))});}
+    list:frises.map(g=>({joined:joinedTo(state,g),kind:g.kind,side:g.side,ci:g.ci,capped:!!g.capped,repsEff:g.repsEff,has:!!g.guide,polys:g._flat||[],closed:(g.warped||[]).map(w=>w.closed)}))});}
 
 
 const allWarped=()=>frises.flatMap(f=>f.warped);
 
 function checksCore(f,list,chs){
-  const msgs=[];if(!f||!f.guide||!f.warped.length)return msgs;
+  const msgs=[];if(!f||!f.guide||!f.warped.length)return msgs;const T=f.kind==='text';
   const c=f.guide.chain,W=f.warped;
   if(c.closed){let tot=0,bad=0;const wantIn=f.side==='in';
     for(const w of W)for(let i=0;i<w.pts.length;i+=4){tot++;const ins=pip(w.pts[i][0],w.pts[i][1],c.dec);if(ins!==wantIn)bad++;}
-    const pc=tot?bad/tot*100:0;if(pc>0.5)msgs.push(['warn',`Environ ${pc.toFixed(1)} % de cette frise dépasse ${wantIn?'du contour':'à l\'intérieur de la forme'}. Réduis la pente max, ajoute une marge ou un lissage.`]);}
+    const pc=tot?bad/tot*100:0;if(pc>0.5)msgs.push(['warn',T?`Environ ${pc.toFixed(1)} % de ce texte dépasse ${wantIn?'du contour':'à l\'intérieur de la forme'}. Change la distance, la hauteur ou la position.`:`Environ ${pc.toFixed(1)} % de cette frise dépasse ${wantIn?'du contour':'à l\'intérieur de la forme'}. Réduis la pente max, ajoute une marge ou un lissage.`]);}
   const wb=bboxOf(W.map(w=>w.pts));const hits=[];
   const wd=W.map(w=>({bb:bboxOf([w.pts]),d:decimate(w.pts,800)}));
   chs.forEach((o,idx)=>{if(o===c||!o.closed)return;const b=o.bb;if(b.x1<wb.x0||b.x0>wb.x1||b.y1<wb.y0||b.y0>wb.y1)return;
     let hit=false;for(const w of W){for(let i=0;i<w.pts.length&&!hit;i+=3){const p=w.pts[i];if(p[0]>=b.x0&&p[0]<=b.x1&&p[1]>=b.y0&&p[1]<=b.y1&&pip(p[0],p[1],o.dec))hit=true;}if(hit)break;}
     if(!hit){for(const p of o.dec){let ins=false;for(const w of wd){if(p[0]<w.bb.x0||p[0]>w.bb.x1||p[1]<w.bb.y0||p[1]>w.bb.y1)continue;if(pip(p[0],p[1],w.d))ins=!ins;}if(ins){hit=true;break;}}}
     if(hit)hits.push(idx+1);});
-  if(hits.length)msgs.push(['warn',`Cette frise chevauche ${hits.length>1?hits.length+' autres formes':'une autre forme'} (contour ${hits.join(', ')}). Diminue la hauteur ou augmente les répétitions.`]);
+  if(hits.length)msgs.push(['warn',T?`Ce texte chevauche ${hits.length>1?hits.length+' autres formes':'une autre forme'} (contour ${hits.join(', ')}). Change sa position ou sa distance.`:`Cette frise chevauche ${hits.length>1?hits.length+' autres formes':'une autre forme'} (contour ${hits.join(', ')}). Diminue la hauteur ou augmente les répétitions.`]);
   /* chevauchement avec les autres frises */
   const others=list.filter(g=>g!==f&&g.warped.length&&!g.joined);   /* une frise jointe bout à bout touche sa voisine : normal */
   for(const g of others){const gb=bboxOf(g.warped.map(w=>w.pts));if(gb.x1<wb.x0||gb.x0>wb.x1||gb.y1<wb.y0||gb.y0>wb.y1)continue;
     const gd=g.warped.map(w=>({bb:bboxOf([w.pts]),d:decimate(w.pts,600)}));let hit=false;
     outer:for(const w of W)for(let i=0;i<w.pts.length;i+=6){const p=w.pts[i];let ins=false;for(const q of gd){if(p[0]<q.bb.x0||p[0]>q.bb.x1||p[1]<q.bb.y0||p[1]>q.bb.y1)continue;if(pip(p[0],p[1],q.d))ins=!ins;}if(ins){hit=true;break outer;}}
-    if(hit)msgs.push(['warn',`Cette frise touche la frise ${list.indexOf(g)+1}.`]);}
-  if(f.capped)msgs.unshift(['warn',`Hauteur trop petite pour ce bord : limité à ${f.repsEff} copies pour ne pas saturer la mémoire. Augmente la hauteur visée.`]);
-  if(!msgs.length)msgs.push(['ok','Cette frise reste dans la forme sans toucher les autres éléments.']);
+    if(hit)msgs.push(['warn',(T?'Ce texte touche ':'Cette frise touche ')+(g.kind==='text'?'le texte ':'la frise ')+(list.indexOf(g)+1)+'.']);}
+  if(f.capped&&T)msgs.unshift(['warn','Ce texte est plus long que le bord disponible. Réduis la hauteur des lettres ou l\'espacement.']);
+  else if(f.capped)msgs.unshift(['warn',`Hauteur trop petite pour ce bord : limité à ${f.repsEff} copies pour ne pas saturer la mémoire. Augmente la hauteur visée.`]);
+  if(!msgs.length)msgs.push(['ok',T?'Ce texte reste dans la forme sans toucher les autres éléments.':'Cette frise reste dans la forme sans toucher les autres éléments.']);
   return msgs;
 }
 
 /* deux frises jointes : même contour, et le bout de l'une est exactement le début de l'autre */
-function joinedTo(f,g){if(!f||!g||f===g||f.ci!==g.ci||Math.abs(f.a-f.b)<1e-9||Math.abs(g.a-g.b)<1e-9||stackLevel(f)!==stackLevel(g))return false;const e=1e-6,d=(x,y)=>{const t=Math.abs(x-y);return Math.min(t,Math.abs(1-t));};return d(f.a,g.b)<e||d(f.b,g.a)<e;}
+function joinedTo(f,g){if(!f||!g||f===g||f.kind==='text'||g.kind==='text'||f.ci!==g.ci||Math.abs(f.a-f.b)<1e-9||Math.abs(g.a-g.b)<1e-9||stackLevel(f)!==stackLevel(g))return false;const e=1e-6,d=(x,y)=>{const t=Math.abs(x-y);return Math.min(t,Math.abs(1-t));};return d(f.a,g.b)<e||d(f.b,g.a)<e;}
 function checks(){for(const g of frises)g.joined=joinedTo(state,g);return checksCore(state,frises,chains);}
 
 /* ---------- dessin ---------- */
@@ -878,16 +1138,19 @@ function drawNow(){
   ctx.strokeStyle=COL.guide;ctx.globalAlpha=.35;ctx.lineWidth=2*d*px;ctx.setLineDash([6*d*px,5*d*px]);
   for(const f of frises)if(f!==state&&f.guide)ctx.stroke(guidePath(f.guide));
   ctx.setLineDash([]);ctx.globalAlpha=.45;ctx.fillStyle=COL.ink;
-  for(const f of frises)if(f!==state&&f.warped.length)ctx.fill(frisePath(f),'evenodd');
+  for(const f of frises)if(f!==state&&f.warped.length)ctx.fill(frisePath(f),f.kind==='text'?'nonzero':'evenodd');
   ctx.globalAlpha=1;
   const f=state;
   if(f&&f.guide){ctx.globalAlpha=.85;ctx.lineWidth=4*d*px;ctx.stroke(guidePath(f.guide));ctx.globalAlpha=1;}
-  if(f&&f.warped.length){ctx.fillStyle=COL.ink;ctx.fill(frisePath(f),'evenodd');}
+  if(f&&f.warped.length){ctx.fillStyle=COL.ink;ctx.fill(frisePath(f),f.kind==='text'?'nonzero':'evenodd');}
   /* poignées début / fin, en pixels écran */
   ctx.setTransform(1,0,0,1,0,0);
-  if(f&&f.guide){const c=chains[f.ci];const pa=toS(...pointAt(c,f.a*c.L)),pb=toS(...pointAt(c,f.b*c.L));
+  if(f&&f.guide&&f.kind!=='text'){const c=chains[f.ci];const pa=toS(...pointAt(c,f.a*c.L)),pb=toS(...pointAt(c,f.b*c.L));
     ctx.fillStyle=COL.guide;ctx.beginPath();ctx.arc(pa[0],pa[1],6*d,0,7);ctx.fill();
     ctx.strokeStyle=COL.guide;ctx.lineWidth=2.5*d;ctx.fillStyle=COL.mat;ctx.beginPath();ctx.arc(pb[0],pb[1],6*d,0,7);ctx.fill();ctx.stroke();}
+  /* texte : un repère au centre, sur la ligne suivie */
+  if(f&&f.kind==='text'&&chains[f.ci]){const c=chains[f.ci];const pc=toS(...pointAt(c,f.tc*c.L));
+    ctx.fillStyle=COL.guide;ctx.beginPath();ctx.moveTo(pc[0],pc[1]-7*d);ctx.lineTo(pc[0]+6*d,pc[1]);ctx.lineTo(pc[0],pc[1]+7*d);ctx.lineTo(pc[0]-6*d,pc[1]);ctx.closePath();ctx.fill();}
 }
 /* zoom fluide : on glisse vers le zoom visé sur quelques images, en gardant le point sous la souris immobile */
 let zoomAnim=null;
@@ -902,25 +1165,31 @@ function smoothZoom(factor,sx,sy){const W=cv.width,H=cv.height;if(sx===undefined
 
 /* ---------- interface ---------- */
 let tmr=null;
-function update(){for(const g of restack())if(g!==state)requestWarp(g);requestWarp(state,true);draw();renderStats();renderTabs();scheduleChecks();scheduleCommit();savePrefsSoon();}
+function update(){fitTexts();for(const g of restack())if(g!==state)requestWarp(g);requestWarp(state,true);draw();renderStats();renderTabs();scheduleChecks();scheduleCommit();savePrefsSoon();}
 function renderStats(){const s=$('stats');s.textContent='';const g=state&&state.guide;
   const it=[];if(chains.length){const b=bboxOf(chains.map(c=>c.pts));it.push(['Forme',b.w.toFixed(1)+' × '+b.h.toFixed(1)+' mm']);}
-  if(g){if(state.stackOff>0&&state.stackOn!==null)it.push(['Empilée sur la frise '+(state.stackOn+1),'+'+state.stackOff.toFixed(1)+' mm']);it.push(['Bord suivi',g.len.toFixed(1)+' mm'],['Hauteur',(g.H||0).toFixed(2)+' mm'],['Échelle',((g.sU||0)*100).toFixed(1)+' %']);if(!state.autoH)it.push(['Étirement',((g.sU/g.sV)*100).toFixed(0)+' %']);}
+  if(g&&state.kind==='text'){const m=state.motif;const F=fontOf(state);it.push(['Texte',(m?m.bb.w*state.H/m.bb.h:0).toFixed(1)+' × '+(+state.H).toFixed(1)+' mm'],['Police',F?F.name:'—'],['Distance à la ligne',(+state.offset).toFixed(1)+' mm']);}
+  else if(g){if(state.stackOff>0&&state.stackOn!==null)it.push(['Empilée sur la frise '+(state.stackOn+1),'+'+state.stackOff.toFixed(1)+' mm']);it.push(['Bord suivi',g.len.toFixed(1)+' mm'],['Hauteur',(g.H||0).toFixed(2)+' mm'],['Échelle',((g.sU||0)*100).toFixed(1)+' %']);if(!state.autoH)it.push(['Étirement',((g.sU/g.sV)*100).toFixed(0)+' %']);}
+  else if(state&&state.kind==='text')it.push(['Texte',String(state.text||'').trim()?'agrandis la forme ou réduis le texte':'tape ton texte']);
   else it.push(['Frise','choisis une portion de bord plus longue']);
   for(const [k,v] of it){const e=document.createElement('span');e.append(k+' ');const b=document.createElement('b');b.textContent=v;e.append(b);s.append(e);}
+  if(state.kind==='text')return;
   if(g&&state.autoH&&!state.autoReps)$('height').value=(g.H||0).toFixed(2);
   if(state.autoReps){$('reps').value=state.repsEff||1;const e=document.createElement('span');e.append(state.unitIsTile?'Éléments ':'Copies ');const b=document.createElement('b');b.textContent='× '+(state.repsEff||1);e.append(b);s.append(e);}}
 function renderMsgs(m){const box=$('msgs');box.textContent='';for(const [t,x] of m){const d=document.createElement('div');d.className='msg '+t;d.textContent=x;box.append(d);}}
 function renderTabs(){renderMotifList();const t=$('tabs');t.textContent='';frises.forEach((f,i)=>{const b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',i===fi);
-    const sw=document.createElement('i');sw.className='sw';sw.style.background=layerColor(f.layer);b.append(sw,' Frise '+(i+1));
-    const sub=document.createElement('small');sub.textContent=' '+({bas:'bas',haut:'haut',gauche:'gauche',droite:'droite'}[f.lastAuto]||'');b.append(sub);
+    const sw=document.createElement('i');sw.className='sw';sw.style.background=layerColor(f.layer);
+    if(f.kind==='text'){b.append(sw,' '+textLabel(f));}
+    else{b.append(sw,' Frise '+(i+1));const sub=document.createElement('small');sub.textContent=' '+({bas:'bas',haut:'haut',gauche:'gauche',droite:'droite'}[f.lastAuto]||'');b.append(sub);}
     b.addEventListener('click',()=>selectFrise(i));t.append(b);});
   $('btnDelFrise').disabled=frises.length<2;}
 function selectFrise(i){if(i===fi)return;commit();fi=i;state=frises[i];syncAll();renderMotifList();draw();renderStats();renderTabs();scheduleChecks();}
 function syncInputs(){$('posA').value=(state.a*100).toFixed(1);$('posB').value=(state.b*100).toFixed(1);
   if(document.activeElement!==$('aVal'))$('aVal').value=+(state.a*100).toFixed(2);if(document.activeElement!==$('bVal'))$('bVal').value=+(state.b*100).toFixed(2);
   const c=chains[state.ci];$('aMm').textContent=c?' '+(state.a*c.L).toFixed(1)+' mm':'';$('bMm').textContent=c?' '+(state.b*c.L).toFixed(1)+' mm':'';}
-function syncAll(){syncInputs();$('selChain').value=state.ci;$('reps').value=state.autoReps?(state.repsEff||state.reps):state.reps;$('autoH').checked=state.autoH;syncSizeUI();
+function syncAll(){const isT=state.kind==='text';document.body.classList.toggle('is-text',isT);$('setTitle').textContent=isT?'Réglages du texte':'Réglages du motif';if(isT)syncTextUI();
+  $('btnPick').textContent=isT?'Placer sur le dessin':'Choisir sur le dessin';
+  syncInputs();$('selChain').value=state.ci;$('reps').value=state.autoReps?(state.repsEff||state.reps):state.reps;$('autoH').checked=state.autoH;syncSizeUI();
   if(!state.autoH)$('height').value=state.H;$('offset').value=state.offset;$('margin').value=state.margin;$('smooth').value=state.smooth;
   $('cornerSoft').checked=state.cornerSoft!==false;$('flip').checked=state.flip;$('mirror').checked=state.mirror;$('slope').value=state.slope;$('slopeVal').textContent=state.slope;
   $('sideIn').setAttribute('aria-pressed',state.side==='in');$('sideOut').setAttribute('aria-pressed',state.side==='out');
@@ -971,14 +1240,14 @@ $('bVal').addEventListener('input',e=>{const v=clampPct(e.target.value);if(isNaN
 for(const id of ['aVal','bVal'])$(id).addEventListener('change',()=>{$(id).blur();syncInputs();});
 $('posB').addEventListener('input',e=>{state.b=e.target.value/100;syncInputs();update();});
 $('slope').addEventListener('input',e=>{state.slope=+e.target.value;$('slopeVal').textContent=e.target.value;autoPortion(state.lastAuto);});
-$('selChain').addEventListener('change',e=>{state.ci=+e.target.value;autoPortion(state.lastAuto);fit();});
+$('selChain').addEventListener('change',e=>{state.ci=+e.target.value;if(state.kind==='text'){autoUpright(state);syncTextUI();update();}else autoPortion(state.lastAuto);fit();});
 for(const [id,d] of [['autoBas','bas'],['autoHaut','haut'],['autoGauche','gauche'],['autoDroite','droite']])$(id).addEventListener('click',()=>autoPortion(d));
 $('btnSwap').addEventListener('click',()=>{[state.a,state.b]=[state.b,state.a];syncInputs();update();});
 /* Joindre les bordures : le début de la frise se colle à la fin de la frise précédente sur le même contour,
    et sa fin au début de la suivante. Seule sur son contour (fermé), elle en fait tout le tour. */
 $('btnJoin').addEventListener('click',()=>{const f=state,c=chains[f.ci];if(!c)return;
   restack();const lv=stackLevel(f);
-  const others=frises.filter(g=>g!==f&&g.ci===f.ci&&g.side===f.side&&stackLevel(g)===lv);   /* voisines du même anneau */
+  const others=frises.filter(g=>g!==f&&g.kind!=='text'&&g.ci===f.ci&&g.side===f.side&&stackLevel(g)===lv);   /* voisines du même anneau */
   const keepSize=h=>{if(!(h>0))return;f.H=+h.toFixed(2);f.autoReps=true;};
   if(!others.length){keepSize(f.guide&&f.guide.H);if(!c.closed){f.a=0;f.b=1;}else{f.b=f.a;}syncAll();update();toast(c.closed?'La frise fait maintenant tout le tour du contour, en gardant sa hauteur':'La frise couvre tout le contour, en gardant sa hauteur');return;}
   const fwd=(x,y)=>c.closed?((y-x)%1+1)%1:y-x;   /* distance en avançant le long du contour */
@@ -987,14 +1256,14 @@ $('btnJoin').addEventListener('click',()=>{const f=state,c=chains[f.ci];if(!c)re
   if(prev)f.a=prev.b;if(next)f.b=next.a;
   const ref=prev||next;keepSize(ref&&ref.guide?ref.guide.H:(f.guide&&f.guide.H));if(ref)f.layer=ref.layer;   /* même calque : les deux frises fusionnent en un seul contour */
   syncAll();update();toast((prev&&next?(prev===next?'Collée aux deux bouts de la frise '+(frises.indexOf(prev)+1):'Collée aux frises '+(frises.indexOf(prev)+1)+' et '+(frises.indexOf(next)+1)):'Bordure jointe')+(ref?', même hauteur et même calque que la frise '+(frises.indexOf(ref)+1):''));});
-function setSide(s){state.side=s;$('sideIn').setAttribute('aria-pressed',s==='in');$('sideOut').setAttribute('aria-pressed',s==='out');update();}
+function setSide(s){state.side=s;autoUpright(state);if(state.kind==='text')syncTextUI();$('sideIn').setAttribute('aria-pressed',s==='in');$('sideOut').setAttribute('aria-pressed',s==='out');update();}
 $('sideIn').addEventListener('click',()=>setSide('in'));$('sideOut').addEventListener('click',()=>setSide('out'));
 /* en changeant d'orientation, on garde la hauteur actuelle de la frise et on répète le motif pour remplir le bord */
 function setOrient(o){if((state.orient||'h')===o)return;const h=state.guide&&state.guide.H?+state.guide.H.toFixed(2):state.H;
   state.orient=o;if(!state.autoReps){state.autoReps=true;toast('Répétition automatique activée pour garder la hauteur de '+h+' mm');}
   state.H=h;syncAll();update();}
 $('orH').addEventListener('click',()=>setOrient('h'));$('orV').addEventListener('click',()=>setOrient('v'));
-function setPick(on){pickStep=on?1:0;$('btnPick').setAttribute('aria-pressed',on);cv.classList.toggle('picking',on);$('pickMsg').hidden=!on;$('pickMsg').textContent='Clique le début du bord';}
+function setPick(on){pickStep=on?1:0;$('btnPick').setAttribute('aria-pressed',on);cv.classList.toggle('picking',on);$('pickMsg').hidden=!on;$('pickMsg').textContent=state&&state.kind==='text'?'Clique l\'endroit du texte, près du bord':'Clique le début du bord';}
 $('btnPick').addEventListener('click',()=>setPick(!pickStep));
 $('layerSel').addEventListener('change',e=>{state.layer=+e.target.value;paintSwatches();update();});
 $('formeLayerSel').addEventListener('change',e=>{docOpts.formeLayer=+e.target.value;paintSwatches();scheduleCommit();savePrefsSoon();});
@@ -1004,17 +1273,17 @@ $('units').addEventListener('change',e=>{const prev=docOpts.units;docOpts.units=
 for(const id of ['incShape','svgMode','lbScope','lbPlace'])$(id).addEventListener('change',savePrefsSoon);
 
 const NEXT_DIR={bas:'haut',haut:'gauche',gauche:'droite',droite:'bas'};
-function addFrise(){commit();const used=new Set(frises.map(f=>f.lastAuto));let d=NEXT_DIR[state.lastAuto];for(let k=0;k<4&&used.has(d);k++)d=NEXT_DIR[d];
-  const usedL=new Set(frises.map(g=>g.layer).concat([docOpts.formeLayer]));const freeL=(layers.find(l=>l.index>=2&&!usedL.has(l.index))||{index:state.layer}).index;
-  const f=newFrise(Object.assign(pick(state,KEYS),{lastAuto:d,layer:freeL}),state.motif,null);
-  restack();const c=chains[f.ci],same=frises.filter(g=>g.ci===f.ci&&g.side===f.side);let ring=-1;
+function addFrise(){commit();const used=new Set(frises.map(f=>f.lastAuto));let d=NEXT_DIR[state.lastAuto]||'bas';for(let k=0;k<4&&used.has(d);k++)d=NEXT_DIR[d];
+  const freeL=freeLayer();const base=state.kind==='text'?(frises.find(g=>g.kind!=='text')||null):state;
+  const f=base?newFrise(Object.assign(pick(base,KEYS),{lastAuto:d,layer:freeL}),base.motif,null):newFrise({ci:state.ci,lastAuto:d,layer:freeL},lastMotif,null);
+  restack();const c=chains[f.ci],same=frises.filter(g=>g.kind!=='text'&&g.ci===f.ci&&g.side===f.side);let ring=-1;
   if(c&&c.closed&&same.length){const top=Math.max(...same.map(g=>stackLevel(g)));if(coversLoop(same.filter(g=>stackLevel(g)===top)))ring=top;}
   if(ring>=0){const h=Math.max(...same.filter(g=>stackLevel(g)===ring).map(g=>g.guide&&g.guide.H||0));
     f.a=f.b=same[0].a;if(h>0){f.H=+h.toFixed(2);f.autoReps=true;}}
   else autoPortionFor(f,d);
   frises.push(f);fi=frises.length-1;state=f;syncAll();update();
   toast(ring>=0?'Frise '+frises.length+' ajoutée : un anneau complet à l\'intérieur du précédent':'Frise '+frises.length+' ajoutée : choisis son bord et son motif');}
-function removeFrise(i){if(frises.length<2)return;commit();frises.splice(i,1);fi=Math.min(fi>=i?Math.max(0,fi-1):fi,frises.length-1);state=frises[fi];for(const g of restack())requestWarp(g);syncAll();draw();renderStats();renderTabs();renderMsgs(checks());commit();toast('Frise supprimée');}
+function removeFrise(i){if(frises.length<2)return;commit();const gone=frises[i];frises.splice(i,1);fi=Math.min(fi>=i?Math.max(0,fi-1):fi,frises.length-1);state=frises[fi];for(const g of restack())requestWarp(g);syncAll();draw();renderStats();renderTabs();renderMsgs(checks());commit();toast(gone.kind==='text'?'Texte supprimé':'Frise supprimée');}
 $('btnAddFrise').addEventListener('click',addFrise);
 $('btnDelFrise').addEventListener('click',()=>removeFrise(fi));
 
@@ -1030,25 +1299,46 @@ function useMotif(m){setMotif(fi,'A',m);}
 wireDrop($('dropForme'),$('fileForme'),async f=>{try{setForme(await f.text(),f.name);syncAll();update();fit();toast('Forme chargée');}catch(e){toast(e.message);}});
 
 /* interactions avec l'aperçu */
-const ptrs=new Map();
-cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY});});
+const ptrs=new Map();let drag=null;
+const worldOf=e=>{const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;return toW((e.clientX-r.left)*d,(e.clientY-r.top)*d);};
+/* frise ou texte sous le pointeur (-1 si rien) */
+function hitTest(w){const d=window.devicePixelRatio||1,tol=8*d/view.k;let hit=-1,bd=Infinity;
+  frises.forEach((f,i)=>{if(!f.guide||f.kind==='text')return;for(let k=0;k<f.guide.P.length;k+=4){const q=f.guide.P[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}});
+  frises.forEach((f,i)=>{for(const pl of f.warped){const P=pl.pts,st=f.kind==='text'?2:8;for(let k=0;k<P.length;k+=st){const q=P[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}}});
+  if(hit<0)return -1;const g=frises[hit];const reach=g.kind==='text'?Math.max(tol,g.H*0.6):Math.max(tol,(g.guide?g.guide.H||0:0)/2);return bd<reach?hit:-1;}
+cv.addEventListener('pointerdown',e=>{if(e.button===2)return;closeCtx();cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY});
+  /* un texte se glisse directement : le long du bord, et en s'éloignant ou se rapprochant de la ligne */
+  if(ptrs.size===1&&!pickStep){const w=worldOf(e);const i=hitTest(w);const f=frises[i];
+    if(f&&f.kind==='text'&&chains[f.ci]){const n=nearestOnChain(w,f.ci);if(n){if(i!==fi)selectFrise(i);commit();const L=chains[f.ci].L;
+      drag={f,id:e.pointerId,ds:n.s-f.tc*L,d0:n.d,off0:f.offset,moved:false};}}}});
 cv.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)return;const d=window.devicePixelRatio||1;
+  if(drag&&drag.id===e.pointerId){if(!drag.moved&&Math.hypot(e.clientX-p.sx,e.clientY-p.sy)<4)return;drag.moved=true;cv.classList.add('dragging');
+    const f=drag.f,c=chains[f.ci],n=nearestOnChain(worldOf(e),f.ci);if(!n||!c)return;
+    let tc=(n.s-drag.ds)/c.L;tc=c.closed?((tc%1)+1)%1:Math.min(1,Math.max(0,tc));f.tc=tc;
+    f.offset=Math.round((drag.off0+(n.d-drag.d0))*10)/10;syncTextUI();update();return;}
   if(ptrs.size===2){const [a,b]=[...ptrs.values()];const before=Math.hypot(a.x-b.x,a.y-b.y);p.x=e.clientX;p.y=e.clientY;const after=Math.hypot(a.x-b.x,a.y-b.y);if(before>0){view.k*=after/before;draw();}return;}
   view.cx-=(e.clientX-p.x)*d/view.k;view.cy+=(e.clientY-p.y)*d/view.k;p.x=e.clientX;p.y=e.clientY;draw();});
 cv.addEventListener('pointerup',e=>{const p=ptrs.get(e.pointerId);ptrs.delete(e.pointerId);if(!p)return;
+  if(drag&&drag.id===e.pointerId){const dr=drag;drag=null;cv.classList.remove('dragging');if(dr.moved){autoUpright(dr.f);syncTextUI();update();commit();return;}}
   if(Math.hypot(e.clientX-p.sx,e.clientY-p.sy)>=6)return;
-  const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;const w=toW((e.clientX-r.left)*d,(e.clientY-r.top)*d);
+  const w=worldOf(e);
   if(pickStep){
     let best=null;chains.forEach((c,ci)=>{for(let i=0;i<c.ring.length-1;i++){const pp=c.ring[i];const dd=Math.hypot(pp[0]-w[0],pp[1]-w[1]);if(!best||dd<best.d)best={d:dd,ci,s:c.S[i]};}});
-    if(!best)return;if(pickStep===1){if(best.ci!==state.ci){state.ci=best.ci;$('selChain').value=best.ci;}state.a=best.s/chains[state.ci].L;pickStep=2;$('pickMsg').textContent='Clique la fin du bord';}
+    if(!best)return;
+    if(state.kind==='text'){const n=nearestOnChain(w);if(n){state.ci=n.ci;$('selChain').value=n.ci;state.tc=n.s/chains[n.ci].L;state.side=sideAt(w,n);autoUpright(state);}setPick(false);syncAll();update();return;}
+    if(pickStep===1){if(best.ci!==state.ci){state.ci=best.ci;$('selChain').value=best.ci;}state.a=best.s/chains[state.ci].L;pickStep=2;$('pickMsg').textContent='Clique la fin du bord';}
     else{if(best.ci===state.ci)state.b=best.s/chains[state.ci].L;setPick(false);}
     syncInputs();update();return;}
   /* un clic sur une frise la rend active */
-  const tol=8*d/view.k;let hit=-1,bd=Infinity;
-  frises.forEach((f,i)=>{if(!f.guide)return;for(let k=0;k<f.guide.P.length;k+=4){const q=f.guide.P[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}});
-  frises.forEach((f,i)=>{for(const pl of f.warped)for(let k=0;k<pl.pts.length;k+=8){const q=pl.pts[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}});
-  if(hit>=0&&bd<Math.max(tol,(frises[hit].guide?frises[hit].guide.H||0:0)/2))selectFrise(hit);});
-cv.addEventListener('pointercancel',e=>ptrs.delete(e.pointerId));
+  const hit=hitTest(w);if(hit>=0)selectFrise(hit);});
+/* clic droit : ajouter un texte à cet endroit, ou modifier / supprimer celui qui est dessous */
+cv.addEventListener('contextmenu',e=>{e.preventDefault();if(!chains.length)return;const w=worldOf(e);const hit=hitTest(w);const g=frises[hit];
+  const items=[['Ajouter un texte ici',()=>addTextAt(w)]];
+  if(g&&g.kind==='text')items.push('-',['Modifier ce texte',()=>{selectFrise(hit);const t=$('txtVal');t.focus();t.select();}],['Tourner ce texte de 180°',()=>{selectFrise(hit);g.rot180=!g.rot180;g.rotAuto=false;syncTextUI();update();}],['Supprimer ce texte',()=>removeFrise(hit)]);
+  else if(g)items.push('-',['Régler cette frise',()=>selectFrise(hit)]);
+  items.push('-',['Recadrer',fit]);
+  openCtx(e.clientX,e.clientY,items);});
+cv.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);if(drag&&drag.id===e.pointerId){drag=null;cv.classList.remove('dragging');}});
 cv.addEventListener('wheel',e=>{e.preventDefault();const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;
   const dy=e.deltaMode===1?e.deltaY*33:e.deltaY;smoothZoom(Math.exp(-dy*0.0015),(e.clientX-r.left)*d,(e.clientY-r.top)*d);},{passive:false});
 $('zIn').addEventListener('click',()=>smoothZoom(1.4));$('zOut').addEventListener('click',()=>smoothZoom(1/1.4));$('zFit').addEventListener('click',fit);
@@ -1068,10 +1358,10 @@ const FUSE_S=1e4;let lastFuse=null;const fuseCache={key:null,val:null};
 function fusePolys(list){const C=window.ClipperLib;if(!C)return null;
   const toPath=a=>{const n=a.length/2,P=new Array(n);for(let i=0;i<n;i++)P[i]={X:Math.round(a[2*i]*FUSE_S),Y:Math.round(a[2*i+1]*FUSE_S)};return P;};
   const groups=new Map(),open=[];
-  for(const w of list){if(!w.closed){open.push({pts:w.pts,closed:false});continue;}let g=groups.get(w.g);if(!g){g=[];groups.set(w.g,g);}g.push(toPath(w.flat));}
+  for(const w of list){if(!w.closed){open.push({pts:w.pts,closed:false});continue;}let g=groups.get(w.g);if(!g){g={paths:[],nz:!!w.nz};groups.set(w.g,g);}g.paths.push(toPath(w.flat));}
   const all=[];
-  for(const paths of groups.values()){const c=new C.Clipper(),sol=new C.Paths();c.AddPaths(paths,C.PolyType.ptSubject,true);
-    c.Execute(C.ClipType.ctUnion,sol,C.PolyFillType.pftEvenOdd,C.PolyFillType.pftEvenOdd);for(const p of sol)all.push(p);}
+  for(const {paths,nz} of groups.values()){const c=new C.Clipper(),sol=new C.Paths();c.AddPaths(paths,C.PolyType.ptSubject,true);
+    const ft=nz?C.PolyFillType.pftNonZero:C.PolyFillType.pftEvenOdd;c.Execute(C.ClipType.ctUnion,sol,ft,ft);for(const p of sol)all.push(p);}
   const c=new C.Clipper(),sol=new C.Paths();c.AddPaths(all,C.PolyType.ptSubject,true);
   c.Execute(C.ClipType.ctUnion,sol,C.PolyFillType.pftNonZero,C.PolyFillType.pftNonZero);
   const clean=C.Clipper.CleanPolygons(sol,2);
@@ -1083,15 +1373,19 @@ function fusedByLayer(){
   if(fuseCache.key&&fuseCache.key.length===key.length&&fuseCache.key.every((v,i)=>v===key[i]))return fuseCache.val;
   const byLayer=new Map();
   frises.forEach((f,fi)=>{if(!f.warped.length)return;let L=byLayer.get(f.layer);if(!L){L={layer:f.layer,list:[],first:fi};byLayer.set(f.layer,L);}
-    for(const w of f.warped)L.list.push({flat:w.flat,closed:w.closed,get pts(){return w.pts;},g:fi*1e7+(w.g||0)});});
+    const nz=f.kind==='text';for(const w of f.warped)L.list.push({flat:w.flat,closed:w.closed,get pts(){return w.pts;},g:fi*1e7+(w.g||0),nz});});
   const t=performance.now();let before=0,after=0;const res=[];
   for(const L of byLayer.values()){const r=fusePolys(L.list);if(!r)return null;before+=r.before;after+=r.after;res.push({layer:L.layer,polys:r.polys});}
   const val={groups:res,before,after,ms:performance.now()-t};fuseCache.key=key;fuseCache.val=val;return val;}
 function outputGroups(inc){
   let groups=null;lastFuse=null;
   if(docOpts.fuse){const F=fusedByLayer();if(F){lastFuse=F;const many=F.groups.length>1;
-    groups=F.groups.map(g=>({name:'MOTIF'+(many?'-C'+String(g.layer).padStart(2,'0'):''),layer:g.layer,motif:true,polys:simp(g.polys)}));}}
-  if(!groups)groups=frises.filter(f=>f.warped.length).map((f,i)=>({name:'MOTIF'+(frises.length>1?(frises.indexOf(f)+1):''),layer:f.layer,motif:true,polys:simp(f.warped)}));
+    const onlyText=L=>frises.every(f=>f.layer!==L||!f.warped.length||f.kind==='text');
+    groups=F.groups.map(g=>({name:(onlyText(g.layer)?'TEXTE':'MOTIF')+(many?'-C'+String(g.layer).padStart(2,'0'):''),layer:g.layer,motif:true,polys:simp(g.polys)}));}}
+  if(!groups)groups=frises.filter(f=>f.warped.length).map((f,i)=>{let polys=f.warped;
+    /* sans fusion, les lettres sont quand même nettoyées une à une (certaines polices dessinent des contours qui se recouvrent) */
+    if(f.kind==='text'){const r=fusePolys(f.warped.map(w=>({flat:w.flat,closed:w.closed,get pts(){return w.pts;},g:w.g,nz:true})));if(r)polys=r.polys;}
+    return {name:(f.kind==='text'?'TEXTE':'MOTIF')+(frises.length>1?(frises.indexOf(f)+1):''),layer:f.layer,motif:true,polys:simp(polys)};});
   if(inc&&chains.length)groups.unshift({name:'FORME',layer:docOpts.formeLayer,motif:false,polys:simp(chains.map(c=>({pts:c.pts,closed:c.closed})))});
   return groups;}
 const f4=v=>(Math.round(v*1e4)/1e4).toString();
@@ -1163,7 +1457,9 @@ async function saveToLibrary(m){
   if(!j.ok)throw new Error(j.message||'Enregistrement impossible');if(inboxSeen)inboxSeen.motif=j.name+'|'+j.mtime;m.name=j.name;await refreshLibrary();renderMotifList();return j.name;}
 
 /* ---------- liste des motifs de chaque frise ---------- */
-function setMotif(i,slot,m){const f=frises[i];if(!f)return;if(i!==fi){commit();fi=i;state=f;}
+let lastMotif=null;
+function setMotif(i,slot,m){let f=frises[i];if(!f)return;if(f.kind==='text'){i=frises.findIndex(g=>g.kind!=='text');f=frises[i];if(!f){toast('Ajoute d\'abord une frise pour ce motif');return;}}
+  if(m&&slot!=='B')lastMotif=m;if(i!==fi){commit();fi=i;state=f;}
   if(slot==='B')f.motifB=m;else f.motif=m;syncAll();update();}
 let fileTarget={i:0,slot:'A'};
 $('fileMotif').addEventListener('change',async()=>{const file=$('fileMotif').files[0];$('fileMotif').value='';if(!file)return;
@@ -1190,11 +1486,19 @@ function renderMotifList(){const box=$('mlist');if(!box)return;box.textContent='
   frises.forEach((f,i)=>{const card=document.createElement('div');card.className='mcard'+(i===fi?' active':'');
     const h=document.createElement('div');h.className='mh';const sw=document.createElement('i');sw.className='sw';sw.style.background=layerColor(f.layer);
     const sm=document.createElement('small');sm.textContent=f.guide?' · '+f.guide.len.toFixed(0)+' mm de bord':'';
-    h.append(sw,'Frise '+(i+1),sm);h.addEventListener('click',()=>selectFrise(i));
+    if(f.kind==='text'){const F=fontOf(f);sm.textContent=F?' · '+F.name+' · '+(+f.H)+' mm':'';h.append(sw,'Texte',sm);}else h.append(sw,'Frise '+(i+1),sm);h.addEventListener('click',()=>selectFrise(i));
     if(frises.length>1){const del=document.createElement('button');del.type='button';del.className='mdel';del.textContent='Supprimer';del.title='Supprimer la frise '+(i+1);
       del.addEventListener('click',e=>{e.stopPropagation();removeFrise(i);});h.append(del);}
-    card.append(h,motifLine(i,'A'));box.append(card);});
-  const add=document.createElement('button');add.type='button';add.className='madd';add.textContent='+ Ajouter une frise';add.addEventListener('click',addFrise);box.append(add);}
+    card.append(h,f.kind==='text'?textLine(i):motifLine(i,'A'));box.append(card);});
+  const row=document.createElement('div');row.className='addrow';
+  const add=document.createElement('button');add.type='button';add.className='madd';add.textContent='+ Ajouter une frise';add.addEventListener('click',addFrise);
+  const addT=document.createElement('button');addT.type='button';addT.className='madd';addT.textContent='+ Ajouter un texte';addT.title='Ou clic droit sur le dessin, à l\'endroit voulu';addT.addEventListener('click',()=>addTextAt(null));
+  row.append(add,addT);box.append(row);}
+function textLine(i){const f=frises[i];const line=document.createElement('div');line.className='mline';
+  const k=document.createElement('span');k.className='k';k.textContent='Texte';
+  const n=document.createElement('span');n.className='n tx';n.textContent=String(f.text||'').trim()||'—';const F=fontOf(f);if(F)n.style.fontFamily='"cf-'+F.id+'",var(--f-body)';
+  const acts=document.createElement('span');acts.className='acts';const b=document.createElement('button');b.type='button';b.textContent='Modifier';
+  b.addEventListener('click',()=>{selectFrise(i);const e=$('txtVal');e.focus();e.select();});acts.append(b);line.append(k,n,acts);return line;}
 $('order').addEventListener('input',e=>{const v=e.target.value.toUpperCase().replace(/[^AB]/g,'');if(v){state.order=v;update();renderMotifList();}});
 
 /* ---------- dossier d'échange surveillé ---------- */
@@ -1217,7 +1521,7 @@ $('ibOpenForme').addEventListener('click',()=>openDir('forme'));$('ibOpenMotif')
 
 /* ---------- réglages mémorisés ---------- */
 let prefT=null;
-function prefsObj(){return {frise:state?pick(state,PREF_KEYS):{},formeLayer:docOpts.formeLayer,units:docOpts.units,stack:docOpts.stack,gap:docOpts.gap,fuse:docOpts.fuse,motif:state&&state.motif?state.motif.name:'',
+function prefsObj(){const pf=state&&state.kind==='text'?frises.find(g=>g.kind!=='text'):state;return {frise:pf?pick(pf,PREF_KEYS):{},lastText,formeLayer:docOpts.formeLayer,units:docOpts.units,stack:docOpts.stack,gap:docOpts.gap,fuse:docOpts.fuse,motif:pf&&pf.motif?pf.motif.name:'',
   incShape:$('incShape').checked,svgMode:$('svgMode').value,lbScope:$('lbScope').value,lbPlace:$('lbPlace').value};}
 function savePrefsSoon(){if(restoring)return;clearTimeout(prefT);prefT=setTimeout(savePrefs,800);}
 function savePrefs(){const p=JSON.stringify(prefsObj());
@@ -1236,10 +1540,12 @@ function applyPrefsUI(p){if(typeof p.incShape==='boolean')$('incShape').checked=
   if(p.units&&UNIT_MM[p.units]!==undefined||p.units==='auto')docOpts.units=p.units||'auto';
   if(Number.isInteger(p.formeLayer))docOpts.formeLayer=p.formeLayer;if(typeof p.stack==='boolean')docOpts.stack=p.stack;if(typeof p.fuse==='boolean')docOpts.fuse=p.fuse;if(typeof p.gap==='number'&&p.gap>=0)docOpts.gap=p.gap;
   applyPrefsUI(p);
+  if(p.lastText&&typeof p.lastText==='object'){if(FONT_LIST.some(x=>x.id===p.lastText.font))lastText.font=p.lastText.font;if(p.lastText.H>=0.5)lastText.H=p.lastText.H;}
+  injectFontFaces();KERNDATA=await loadKerning();fillFontSelect();
   let m=null;
   if(HTTP){try{await refreshLibrary();}catch(e){}}
   if(HTTP&&p.motif){try{if(libNames.includes(p.motif))m=await fetchLibMotif(p.motif);}catch(e){}}
-  try{if(!m)m=parseMotif(SAMPLE_MOTIF,'motif-tulipes.svg');}catch(e){toast(e.message);}
+  try{if(!m)m=parseMotif(SAMPLE_MOTIF,'motif-tulipes.svg');}catch(e){toast(e.message);}lastMotif=m;
   let mB=null;
   const fp=Object.assign({},p.frise||{});for(const k of Object.keys(fp))if(!PREF_KEYS.includes(k)||typeof fp[k]!==typeof DEF[k])delete fp[k];
   frises=[newFrise(fp,m,mB)];fi=0;state=frises[0];

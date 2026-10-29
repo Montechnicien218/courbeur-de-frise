@@ -1,5 +1,13 @@
 # Journal des versions · Changelog
 
+## 1.13 — 29.10.2026 — textes · text
+- Textes le long du bord : clic droit sur le dessin › « Ajouter un texte ici », ou « + Ajouter un texte » · Text along the edge: right-click › “Add a text here”, or “+ Add a text”.
+- Hauteur des lettres, distance à la ligne suivie (mm), espacement, position le long du bord, rotation de 180° · Letter height, distance from the line (mm), spacing, position along the edge, 180° turn.
+- Le texte se glisse directement sur le dessin et se remet à l'endroit tout seul · Drag the text on the drawing; it turns upright automatically.
+- Lettres posées sur une ligne de base parallèle au bord : elles gardent leur largeur dans les virages et les creux · Letters sit on a baseline parallel to the edge and keep their width in bends.
+- 7 polices intégrées (SIL OFL) et chargement de ta propre police .ttf / .otf / .woff · 7 built-in fonts (SIL OFL) plus your own .ttf / .otf / .woff.
+- Lettres nettoyées et fusionnées à l'export, sur leur propre calque LightBurn · Letters cleaned and merged on export, on their own LightBurn layer.
+
 ## 1.12 — 29.10.2026 — première version publique · first public release
 - Interface en français et en anglais, avec bascule FR / EN · French and English interface, with FR / EN switch.
 - Lanceur bilingue selon la langue de Windows · Launcher follows the Windows display language.

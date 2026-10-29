@@ -20,9 +20,12 @@ Le **Courbeur de frise** fait suivre un motif SVG (une frise) le long d'un bord 
 - **Joindre les bordures** : les frises se raccordent bout à bout ; une frise de plus forme un anneau complet à l'intérieur.
 - **Empilement** des frises au même endroit, **coins adoucis** dans les virages serrés, orientation horizontale ou verticale.
 - **Fusion des formes** à l'export : un seul contour propre par calque, sans trait en double ni trou en gravure.
+- **Textes le long du bord** : clic droit sur le dessin › « Ajouter un texte ici ». Hauteur des lettres et distance à la ligne suivie en millimètres, position le long du bord, glisser-déposer sur le dessin. 7 polices intégrées choisies pour le laser (bâton, majuscules étroites, pochoir, écritures liées, capitales romaines, empattements) ou ta propre police `.ttf`, `.otf`, `.woff`.
 - Export **DXF** (coordonnées d'origine) et **SVG** en millimètres, ou **envoi direct à LightBurn**, posé sur la forme, sur le bon calque.
 - Aperçu en temps réel, Précédent / Suivant (Ctrl+Z / Ctrl+Y), calcul réparti sur tous les cœurs du processeur.
 - Interface en français et en anglais.
+
+![Textes le long du bord : « Fait main avec amour » au-dessus de la frise, « ATELIER » sur l'arc](screenshots/texte-fr.png)
 
 ### Installation (Windows)
 
@@ -50,7 +53,7 @@ cd launcher
 GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-H windowsgui -s -w" -o ../dist/CourbeurDeFrise.exe .
 ```
 
-`build.py` assemble la page (`page/courbeur.src.html` + Clipper + les exemples) dans `dist/courbeur.html` et `docs/index.html`. Le lanceur lit `courbeur.html` à côté de lui : pour mettre l'outil à jour, il suffit de remplacer ce fichier.
+`build.py` assemble la page (`page/courbeur.src.html` + Clipper + opentype.js + les polices + les exemples) dans `dist/courbeur.html` et `docs/index.html`. Le lanceur lit `courbeur.html` à côté de lui : pour mettre l'outil à jour, il suffit de remplacer ce fichier.
 
 ### Licence
 
@@ -76,9 +79,12 @@ LightBurn est une marque de LightBurn Software, LLC. Ce projet n'est ni affilié
 - **Join the edges**: friezes meet end to end; one more frieze makes a full ring inside.
 - **Stacking** of friezes in the same place, **softened corners** in tight turns, horizontal or vertical orientation.
 - **Shape merging** on export: one clean outline per layer, no double lines when cutting, no holes when engraving.
+- **Text along the edge**: right-click on the drawing › “Add a text here”. Letter height and distance from the followed line in millimetres, position along the edge, drag on the drawing. 7 built-in fonts picked for laser work (sans-serif, narrow capitals, stencil, joined scripts, Roman capitals, serif) or your own `.ttf`, `.otf`, `.woff` font.
 - **DXF** export (original coordinates) and **SVG** in millimetres, or **direct sending to LightBurn**, placed on the shape, on the right layer.
 - Live preview, Undo / Redo (Ctrl+Z / Ctrl+Y), computation spread over all CPU cores.
 - French and English interface.
+
+![Text along the edge: “Handmade with love” above the frieze, “WORKSHOP” on the arch](screenshots/texte-en.png)
 
 ### Installation (Windows)
 
@@ -106,7 +112,7 @@ cd launcher
 GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-H windowsgui -s -w" -o ../dist/CourbeurDeFrise.exe .
 ```
 
-`build.py` assembles the page (`page/courbeur.src.html` + Clipper + the examples) into `dist/courbeur.html` and `docs/index.html`. The launcher reads `courbeur.html` next to itself: to update the tool, just replace that file.
+`build.py` assembles the page (`page/courbeur.src.html` + Clipper + opentype.js + the fonts + the examples) into `dist/courbeur.html` and `docs/index.html`. The launcher reads `courbeur.html` next to itself: to update the tool, just replace that file.
 
 ### Licence
 
