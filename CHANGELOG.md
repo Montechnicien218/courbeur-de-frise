@@ -1,5 +1,12 @@
 # Journal des versions · Changelog
 
+## 1.18.0 — 30.10.2026 — affichage optimisé · faster display
+- Affichage en couches : bouger la souris ne redessine plus que les règles, les poignées et le curseur (environ 18 fois moins de travail par image) · Layered display: moving the mouse only redraws rulers, handles and cursor (about 18× less work per frame).
+- Aperçu réaliste mis en mémoire : déplacer la vue glisse une image au lieu de tout recalculer (environ 25 fois moins de travail), rendu net dès que le zoom s'arrête · Realistic preview cached: panning slides an image instead of recomputing everything (about 25× less work), sharp render as soon as zooming stops.
+- Quadrillage dessiné par le navigateur, en fond · Grid drawn by the browser as a background.
+- Tracés allégés en vue éloignée, export toujours complet · Lighter paths when zoomed out, export always at full detail.
+- Canevas des repères à faible latence · Low-latency overlay canvas.
+
 ## 1.17.1 — 30.10.2026 — tâche en cours · busy indicator
 - Une roue tourne et le curseur passe en attente pendant les calculs, l'export, l'envoi à LightBurn et l'ouverture de fichiers · A spinner and a busy cursor show during computing, export, sending to LightBurn and opening files.
 
