@@ -1,5 +1,16 @@
 # Journal des versions · Changelog
 
+## 1.17.0 — 30.10.2026 — ergonomie · ergonomics
+- Poignées du début et de la fin du bord à glisser directement sur le dessin · Start and end handles of the edge can be dragged on the drawing.
+- Fichiers à déposer sur le dessin : forme, motif, projet ou police · Drop files onto the drawing: shape, pattern, project or font.
+- Raccourcis clavier façon logiciel laser, liste avec la touche « ? » · Laser-software keyboard shortcuts, list with the "?" key.
+- Éléments comme des calques : masquer (non exporté), verrouiller, dupliquer, glisser pour réordonner · Items like layers: hide (not exported), lock, duplicate, drag to reorder.
+- Réglages rapides : molette, Maj/Alt + flèches, glisser sur le nom d'un réglage · Quick settings: wheel, Shift/Alt + arrows, drag on a setting's name.
+- Panneau allégé : explications derrière un « i », réglages rares dans « Avancé » · Lighter panel: explanations behind an "i", rare settings under "Advanced".
+- Galerie : recherche, favoris, récents, aperçu en direct au survol · Gallery: search, favourites, recent, live preview on hover.
+- Enregistrement automatique et reprise du travail au démarrage · Autosave and resume at start-up.
+- Règles en mm sur le dessin et position du curseur · mm rulers on the drawing and cursor position.
+
 ## 1.16.0 — 30.10.2026 — illusions d'optique · optical illusions
 - 6 frises d'illusion d'optique dans la bibliothèque : cubes 3D, mur du café, vagues op-art, tunnel, ruban plié, damier bombé · 6 optical-illusion friezes in the library: 3D cubes, café wall, op-art waves, tunnel, folded ribbon, bulging checkerboard.
 

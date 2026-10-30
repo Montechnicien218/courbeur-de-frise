@@ -27,6 +27,12 @@ Le **Courbeur de frise** fait suivre un motif SVG (une frise) le long d'un bord 
 - **Aperçu réaliste** (bois clair, contreplaqué, métal, noyer, ardoise, acrylique noir) et **image PNG** de la pièce, pour la montrer avant de graver.
 - **Projets** : tout se garde dans un fichier `.courbeur` et se rouvre plus tard.
 - Aperçu en temps réel, Précédent / Suivant (Ctrl+Z / Ctrl+Y), calcul réparti sur tous les cœurs du processeur.
+- **Confortable comme un logiciel laser** : clic sur un élément du dessin pour le régler, poignées à glisser pour le début et la fin du bord, fichiers à déposer directement sur le dessin, règles en mm et position du curseur.
+- **Raccourcis clavier** (touche **?** pour la liste) : Ctrl+S, Ctrl+O, Ctrl+D, Suppr, T, F, flèches pour déplacer, Ctrl+E pour exporter, Ctrl+Entrée pour envoyer à LightBurn.
+- **Éléments comme des calques** : masquer, verrouiller, dupliquer, et glisser pour changer l'ordre.
+- **Réglages rapides** : molette dans un champ, ou glisser sur le nom d'un réglage. Explications repliées derrière un petit « i », réglages rares dans « Avancé ».
+- **Galerie** avec recherche, favoris, motifs récents et aperçu en direct sur le dessin au survol.
+- **Enregistrement automatique** : après une fermeture, le dernier travail est proposé au démarrage.
 - Interface en français et en anglais.
 
 ![Textes le long du bord : « Fait main avec amour » au-dessus de la frise, « ATELIER » sur l'arc](screenshots/texte-fr.png)
@@ -105,6 +111,12 @@ LightBurn est une marque de LightBurn Software, LLC. Ce projet n'est ni affilié
 - **Realistic preview** (light wood, plywood, metal, walnut, slate, black acrylic) and a **PNG image** of the piece, to show it before engraving.
 - **Projects**: everything is kept in a `.courbeur` file and reopens later.
 - Live preview, Undo / Redo (Ctrl+Z / Ctrl+Y), computation spread over all CPU cores.
+- **As comfortable as laser software**: click an item on the drawing to edit it, drag handles for the start and end of the edge, drop files straight onto the drawing, mm rulers and cursor position.
+- **Keyboard shortcuts** (press **?** for the list): Ctrl+S, Ctrl+O, Ctrl+D, Del, T, F, arrows to move, Ctrl+E to export, Ctrl+Enter to send to LightBurn.
+- **Items like layers**: hide, lock, duplicate, and drag to change the order.
+- **Quick settings**: mouse wheel in a field, or drag on a setting's name. Explanations folded behind a small "i", rare settings under "Advanced".
+- **Gallery** with search, favourites, recent patterns and a live preview on the drawing on hover.
+- **Autosave**: after closing, your last work is offered at start-up.
 - French and English interface.
 
 ![Text along the edge: “Handmade with love” above the frieze, “WORKSHOP” on the arch](screenshots/texte-en.png)

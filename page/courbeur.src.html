@@ -169,6 +169,83 @@ input[type=text].txt{width:100%;font-family:var(--f-body);font-size:.95rem;heigh
 canvas{display:block;width:100%;height:100%;cursor:grab}
 canvas.picking{cursor:crosshair}
 canvas.dragging{cursor:grabbing}
+/* ---- ergonomie (1.17) ---- */
+.legend{top:30px!important}
+.pickmsg{left:30px;top:30px}
+canvas.onhandle{cursor:ew-resize}
+.cursor{font-family:var(--f-mono);font-size:.72rem;color:var(--accent);white-space:nowrap;font-variant-numeric:tabular-nums;flex:0 0 22ch;text-align:right;overflow:hidden}
+.statusbar .sbrow{flex-wrap:wrap;row-gap:0;column-gap:14px}
+.statusbar .sbrow .stats{flex:1 1 420px}
+.statusbar .sbrow .copy{margin-left:auto}
+@media (max-width:600px){.cursor{display:none}#helpBtn{display:none}}
+/* dépôt de fichiers sur le dessin */
+.dropov{position:absolute;inset:0;z-index:6;display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:30px 12px 12px 30px;background:color-mix(in srgb,var(--mat) 70%,transparent);backdrop-filter:blur(2px)}
+.dropov .dz{display:grid;place-content:center;gap:6px;text-align:center;border:2px dashed var(--line);border-radius:12px;color:var(--muted);background:color-mix(in srgb,var(--panel) 80%,transparent);transition:border-color .12s,background .12s}
+.dropov .dz b{color:var(--fg);font-size:1.05rem;font-family:var(--f-display);letter-spacing:.02em}
+.dropov .dz svg{width:34px;height:34px;margin:0 auto 4px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.dropov .dz.over{border-color:var(--accent);background:var(--accent-soft);color:var(--fg)}
+/* cartes d'objets : icônes, masqué, verrouillé, glisser pour réordonner */
+.mcard .mh{cursor:grab}
+.mlist>*{min-width:0}
+.mcard{min-width:0}
+.mcard .mh{min-width:0}
+.mcard .mh .ttl{display:block;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;flex:1}
+.micons{display:inline-flex;gap:1px;margin-left:auto;flex:none}
+.micons button{display:inline-flex;align-items:center;justify-content:center;width:24px;height:22px;padding:0;border:1px solid transparent;background:transparent;color:var(--muted);border-radius:4px}
+.micons button:hover{color:var(--fg);border-color:var(--line);background:var(--panel)}
+.micons button.on{color:var(--guide)}
+.micons button.del:hover{color:#e5484d}
+.micons svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.mcard.is-hidden{opacity:.55}
+.mcard.is-hidden .ttl{text-decoration:line-through;text-decoration-color:var(--muted)}
+.mcard.dragging{opacity:.35}
+.mcard.drop-before{box-shadow:0 -3px 0 0 var(--accent)}
+.mcard.drop-after{box-shadow:0 3px 0 0 var(--accent)}
+/* élément verrouillé : réglages grisés */
+.locknote{display:none;align-items:center;gap:8px;margin:8px 12px 0;padding:7px 10px;border-radius:6px;background:var(--warn-bg);color:var(--warn-fg);font-size:.8rem}
+.locknote svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.locknote button{margin-left:auto}
+body.is-locked .locknote{display:flex}
+body.is-locked .dock.right details.grp>.body{pointer-events:none;opacity:.45}
+/* réglages : glisser sur le nom pour changer la valeur */
+label.scrub{cursor:ew-resize;user-select:none;-webkit-user-select:none}
+label.scrub:hover{color:var(--accent)}
+body.scrubbing,body.scrubbing *{cursor:ew-resize!important;user-select:none!important}
+/* explications : masquées, un « i » les affiche */
+body.hints-off .hx:not(.show){display:none!important}
+.info{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;padding:0;margin-left:6px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--muted);font:600 9.5px/1 var(--f-mono);vertical-align:1px;cursor:help}
+.info:hover,.info.on{border-color:var(--accent);color:var(--accent)}
+body:not(.hints-off) .info{display:none}
+/* section Avancé */
+details.adv{border-top:1px dashed var(--line);padding-top:6px}
+details.adv>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600;padding:2px 0}
+details.adv>summary::-webkit-details-marker{display:none}
+details.adv>summary::before{content:"";width:5px;height:5px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(-45deg);transition:transform .15s}
+details.adv[open]>summary::before{transform:rotate(45deg)}
+details.adv>.advb{display:grid;gap:9px;padding-top:8px}
+/* galerie : recherche, favoris, récents ; sur grand écran elle s'ouvre à gauche pour voir l'aperçu sur le dessin */
+.galHead{display:grid;gap:8px}
+.galHead input[type=search]{font:inherit;font-size:.85rem;height:30px;width:100%;padding:4px 10px;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:6px}
+.galHead input[type=search]:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft);outline:none}
+.galCell{position:relative;display:grid}
+.galFav{position:absolute;top:5px;right:5px;width:24px;height:24px;padding:0;border-radius:50%;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:13px;line-height:1;opacity:.0;transition:opacity .12s}
+.galCell:hover .galFav,.galFav:focus-visible,.galFav[aria-pressed="true"]{opacity:1}
+.galFav[aria-pressed="true"]{color:#f5b301;border-color:#f5b301}
+.galEmpty{grid-column:1/-1;color:var(--muted);font-size:.85rem;padding:12px 2px}
+.galHint{color:var(--muted);font-size:.74rem}
+@media (min-width:1000px){
+  .gal.side{background:transparent;backdrop-filter:none;place-items:stretch start;padding:calc(var(--top) + 8px) 0 10px 8px;pointer-events:none}
+  .gal.side .galIn{pointer-events:auto;width:440px;max-width:440px;max-height:none;height:100%;align-content:start;grid-template-rows:auto 1fr}
+  .gal.side .galGrid{grid-template-columns:repeat(2,minmax(0,1fr));align-content:start;overflow:auto;min-height:0;padding-right:2px}
+}
+@media (max-width:999px){.galHint{display:none}}
+/* aide et raccourcis */
+.help{max-width:620px}
+.keys{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;align-items:center;font-size:.85rem}
+.keys h3{grid-column:1/-1;margin:8px 0 0;font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;background:var(--panel2);font:500 .75rem/1.5 var(--f-mono);text-align:center;color:var(--fg);white-space:nowrap}
+.keys .k{white-space:nowrap}
+#restoreBar{border-color:var(--guide)}
 .pickmsg{position:absolute;left:12px;top:12px;background:var(--guide);color:#fff;font-weight:600;padding:5px 10px;border-radius:6px;font-size:.82rem;box-shadow:var(--shadow)}
 .legend{position:absolute;right:12px;top:12px;display:flex;gap:10px;color:var(--muted);font-size:.72rem;background:color-mix(in srgb,var(--panel) 85%,transparent);border:1px solid var(--line);border-radius:6px;padding:4px 9px;pointer-events:none;backdrop-filter:blur(6px)}
 .legend i{display:inline-block;width:12px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
@@ -243,6 +320,7 @@ canvas.dragging{cursor:grabbing}
     </div>
     <div class="tgrp end">
       <div class="seg lang" id="langSel" role="group" aria-label="Langue"><button type="button" data-lang="fr" aria-pressed="true">FR</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+      <button type="button" class="ibtn" id="helpBtn" title="Raccourcis et aide (?)" aria-label="Raccourcis et aide (?)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .8c0 1.8-2.5 2.2-2.5 3.8"/><path d="M12 17.2v.1"/></svg></button>
       <button type="button" class="ibtn" id="themeBtn" title="Thème clair" aria-label="Thème clair"><svg viewBox="0 0 24 24" class="sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg viewBox="0 0 24 24" class="moon"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
     </div>
   </header>
@@ -290,17 +368,22 @@ canvas.dragging{cursor:grabbing}
 
   <main class="stage">
     <div class="cv" id="cvBox"><canvas id="cv"></canvas><div class="pickmsg" id="pickMsg" hidden></div>
+      <div class="dropov" id="dropOv" hidden>
+        <div class="dz" data-as="forme"><svg viewBox="0 0 24 24"><path d="M4 18c3-9 13-9 16 0"/><path d="M12 3v9m-3-3 3 3 3-3"/></svg><b>Forme</b><span>DXF, SVG ou projet .courbeur</span></div>
+        <div class="dz" data-as="motif"><svg viewBox="0 0 24 24"><path d="M3 15c3-4 6 4 9 0s6 4 9 0"/><path d="M12 3v7m-3-3 3 3 3-3"/></svg><b>Motif de la frise</b><span>SVG</span></div>
+      </div>
       <div class="legend"><span><i style="background:var(--shape)"></i>Forme</span><span><i style="background:var(--guide)"></i>Bord suivi</span><span><i style="background:var(--ink)"></i>Frise active</span></div>
       <div class="zoom" role="group" aria-label="Zoom"><button id="zIn" type="button" aria-label="Zoomer" title="Zoomer">+</button><button id="zOut" type="button" aria-label="Dézoomer" title="Dézoomer">−</button><button id="zFit" type="button" title="Recadrer"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg><span class="lbl">Recadrer</span></button></div>
     </div>
     <div class="statusbar">
-      <div class="sbrow"><div class="stats" id="stats"></div><span class="copy" id="copyTag"></span></div>
+      <div class="sbrow"><div class="stats" id="stats"></div><span class="cursor" id="cursorPos"></span><span class="copy" id="copyTag"></span></div>
       <div class="msgs" id="msgs"></div>
     </div>
   </main>
 
   <aside class="dock right">
     <div class="dockTitle"><svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Propriétés</div>
+    <div class="locknote" id="lockNote"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Cet élément est verrouillé.</span><button type="button" id="unlockBtn">Déverrouiller</button></div>
 
     <details class="grp" open data-only="text">
       <summary><h2>Texte</h2></summary>
@@ -354,12 +437,15 @@ canvas.dragging{cursor:grabbing}
           <button id="autoBas" type="button">Bas</button><button id="autoHaut" type="button">Haut</button><button id="autoGauche" type="button">Gauche</button><button id="autoDroite" type="button">Droite</button>
         </div>
       </div>
-      <div class="field" data-only="frise"><label for="slope">Pente max (auto)</label><span class="mono"><span id="slopeVal">30</span>°</span>
-        <input type="range" id="slope" min="5" max="85" step="1" value="30" style="grid-column:1/-1"></div>
+
       <div class="field" data-only="frise"><label for="posA">Début</label><span class="pos"><input type="number" id="aVal" min="0" max="100" step="0.1" value="0" aria-label="Début en %"> %<small id="aMm"></small></span>
         <input type="range" id="posA" min="0" max="100" step="0.1" value="0" style="grid-column:1/-1"></div>
       <div class="field" data-only="frise"><label for="posB">Fin</label><span class="pos"><input type="number" id="bVal" min="0" max="100" step="0.1" value="100" aria-label="Fin en %"> %<small id="bMm"></small></span>
         <input type="range" id="posB" min="0" max="100" step="0.1" value="100" style="grid-column:1/-1"></div>
+      <details class="adv" data-only="frise"><summary>Avancé</summary><div class="advb">
+      <div class="field" data-only="frise"><label for="slope">Pente max (auto)</label><span class="mono"><span id="slopeVal">30</span>°</span>
+        <input type="range" id="slope" min="5" max="85" step="1" value="30" style="grid-column:1/-1"></div>
+      </div></details>
       <div class="row">
         <button id="btnPick" type="button" aria-pressed="false" data-only="frise text">Choisir sur le dessin</button>
         <button id="btnSwap" type="button" data-only="frise">Prendre l'autre partie</button>
@@ -384,15 +470,17 @@ canvas.dragging{cursor:grabbing}
       <div class="field" data-only="frise"><label for="autoH"><input type="checkbox" id="autoH" checked> <span id="autoHLbl">Hauteur auto (proportions gardées)</span></label><span></span></div>
       <div class="field" data-only="frise"><label for="height" id="heightLbl">Hauteur (mm)</label><input type="number" id="height" min="0.5" step="0.5" value="20" disabled></div>
       <div class="field" data-only="frise"><label for="offset">Écart au bord (mm)</label><input type="number" id="offset" step="0.5" value="0"></div>
+      <div class="row" data-only="frise">
+        <label><input type="checkbox" id="flip"> Retourner</label>
+        <label><input type="checkbox" id="mirror"> Miroir</label>
+      </div>
+      <details class="adv"><summary>Avancé</summary><div class="advb">
       <div class="field" data-only="frise"><label for="margin">Marge aux extrémités (mm)</label><input type="number" id="margin" min="0" step="0.5" value="0"></div>
       <div class="field" data-only="frise"><label for="cornerSoft"><input type="checkbox" id="cornerSoft" checked> Adoucir les coins</label><span></span>
         <span class="hint">Le motif ne se replie plus sur lui-même dans les virages serrés : sa base suit le bord, son haut tourne en douceur.</span></div>
       <div class="field"><label for="smooth">Lissage de la courbe (mm)</label><input type="number" id="smooth" min="0" step="0.5" value="3">
         <span class="hint">Plus grand = le motif ondule moins dans les petites irrégularités du bord.</span></div>
-      <div class="row" data-only="frise">
-        <label><input type="checkbox" id="flip"> Retourner</label>
-        <label><input type="checkbox" id="mirror"> Miroir</label>
-      </div>
+      </div></details>
       <div class="field"><label for="layerSel">Calque LightBurn</label>
         <span class="row" style="gap:6px;flex-wrap:nowrap"><i class="sw" id="layerSw"></i><select id="layerSel"></select></span></div>
       </div>
@@ -442,8 +530,40 @@ canvas.dragging{cursor:grabbing}
 <div class="toast" id="toast" hidden></div>
 <div class="ctx" id="ctxMenu" role="menu" hidden></div>
 <div class="upd" id="updBar" role="status" hidden><span id="updTxt">Nouvelle version disponible.</span> <span class="upd-s">Ton travail en cours est gardé.</span><button type="button" class="primary" id="updGo">Recharger</button><button type="button" id="updLater" aria-label="Plus tard">✕</button></div>
+<div class="upd" id="restoreBar" role="status" hidden><span>Travail non enregistré retrouvé :</span> <span class="upd-s mono" id="restoreInfo"></span><button type="button" class="primary" id="restoreGo">Reprendre</button><button type="button" id="restoreNo">Ignorer</button></div>
+<div class="gal" id="helpBox" hidden><div class="galIn help" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+  <div class="row" style="justify-content:space-between"><h2 id="helpTitle">Raccourcis clavier</h2><button type="button" id="helpClose" aria-label="Fermer">✕</button></div>
+  <div class="keys">
+    <h3>Fichiers</h3>
+    <span class="k"><kbd>Ctrl</kbd> <kbd>S</kbd></span><span>Enregistrer le projet</span>
+    <span class="k"><kbd>Ctrl</kbd> <kbd>O</kbd></span><span>Ouvrir un projet</span>
+    <span class="k"><kbd>Ctrl</kbd> <kbd>E</kbd></span><span>Télécharger le DXF</span>
+    <span class="k"><kbd>Ctrl</kbd> <kbd>Maj</kbd> <kbd>E</kbd></span><span>Télécharger le SVG</span>
+    <span class="k"><kbd>Ctrl</kbd> <kbd>Entrée</kbd></span><span>Envoyer à LightBurn</span>
+    <span class="k"><kbd>Glisser</kbd></span><span>Déposer une forme, un motif, un projet ou une police sur le dessin</span>
+    <h3>Éléments</h3>
+    <span class="k"><kbd>T</kbd></span><span>Ajouter un texte</span>
+    <span class="k"><kbd>Ctrl</kbd> <kbd>D</kbd></span><span>Dupliquer l'élément</span>
+    <span class="k"><kbd>Suppr</kbd></span><span>Supprimer l'élément</span>
+    <span class="k"><kbd>H</kbd> · <kbd>L</kbd></span><span>Masquer · verrouiller l'élément</span>
+    <span class="k"><kbd>[</kbd> <kbd>]</kbd></span><span>Élément précédent · suivant</span>
+    <span class="k"><kbd>Alt</kbd> <kbd>↑</kbd> <kbd>↓</kbd></span><span>Changer l'ordre d'empilement</span>
+    <span class="k"><kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd></span><span>Déplacer l'élément de 0,5 mm (Maj : 5 mm)</span>
+    <h3>Vue</h3>
+    <span class="k"><kbd>F</kbd></span><span>Recadrer</span>
+    <span class="k"><kbd>+</kbd> <kbd>−</kbd></span><span>Zoomer · dézoomer</span>
+    <span class="k"><kbd>Ctrl</kbd> <kbd>Z</kbd> · <kbd>Ctrl</kbd> <kbd>Y</kbd></span><span>Précédent · suivant</span>
+    <h3>Réglages</h3>
+    <span class="k"><kbd>Glisser</kbd></span><span>Glisser sur le nom d'un réglage en mm pour changer sa valeur</span>
+    <span class="k"><kbd>Molette</kbd></span><span>Dans un champ : changer la valeur (Maj : ×10, Alt : ÷10)</span>
+    <span class="k"><kbd>Glisser</kbd></span><span>Les poignées rondes du bord suivi règlent le début et la fin</span>
+  </div>
+  <label><input type="checkbox" id="hintsAll"> Afficher toutes les explications sous les réglages</label>
+</div></div>
 <div class="gal" id="galBox" hidden><div class="galIn" role="dialog" aria-modal="true" aria-labelledby="galTitle">
-  <div class="row" style="justify-content:space-between"><h2 id="galTitle">Motifs</h2><button type="button" id="galClose" aria-label="Fermer">✕</button></div>
+  <div class="galHead"><div class="row" style="justify-content:space-between"><h2 id="galTitle">Motifs</h2><button type="button" id="galClose" aria-label="Fermer">✕</button></div>
+  <input type="search" id="galSearch" placeholder="Rechercher un motif" aria-label="Rechercher un motif" spellcheck="false">
+  <span class="galHint">Survole un motif pour le voir sur le dessin. ★ pour le garder en favori.</span></div>
   <div class="galGrid" id="galGrid"></div></div></div>
 <script>__CLIPPER__</script>
 <script>const MOTIF_LIB = __MOTIFS__;const SL_FONTS = __LINEFONTS__;</script>
@@ -458,6 +578,7 @@ const $ = id => document.getElementById(id);
    créés en cours d'utilisation) passe par ce traducteur : une table de phrases exactes, puis des règles pour
    les phrases qui contiennent des nombres. On revient au français sans recharger la page. */
 const I18N_EXACT={
+"Masquer":"Hide","Afficher":"Show","Verrouiller":"Lock","Déverrouiller":"Unlock","Dupliquer":"Duplicate","Glisser pour changer l'ordre":"Drag to change the order","Explication":"Explanation","Raccourcis et aide (?)":"Shortcuts and help (?)","Avancé":"Advanced","DXF, SVG ou projet .courbeur":"DXF, SVG or .courbeur project","Motif de la frise":"Frieze pattern","Cet élément est verrouillé.":"This item is locked.","Rechercher un motif":"Search patterns","Survole un motif pour le voir sur le dessin. ★ pour le garder en favori.":"Hover a pattern to see it on the drawing. ★ to keep it as a favourite.","Favoris":"Favourites","Récents":"Recent","Ornements":"Ornaments","Aucun motif trouvé":"No pattern found","Ajouter aux favoris":"Add to favourites","Retirer des favoris":"Remove from favourites","Travail non enregistré retrouvé :":"Unsaved work found:","Reprendre":"Resume","Ignorer":"Dismiss","Raccourcis clavier":"Keyboard shortcuts","Fichiers":"Files","Vue":"View","Réglages":"Settings","Enregistrer le projet":"Save the project","Ouvrir un projet":"Open a project","Télécharger le DXF":"Download the DXF","Télécharger le SVG":"Download the SVG","Glisser":"Drag","Déposer une forme, un motif, un projet ou une police sur le dessin":"Drop a shape, pattern, project or font on the drawing","Dupliquer l'élément":"Duplicate the item","Suppr":"Del","Supprimer l'élément":"Delete the item","Masquer · verrouiller l'élément":"Hide · lock the item","Élément précédent · suivant":"Previous · next item","Changer l'ordre d'empilement":"Change the stacking order","Déplacer l'élément de 0,5 mm (Maj : 5 mm)":"Move the item by 0.5 mm (Shift: 5 mm)","Zoomer · dézoomer":"Zoom in · out","Précédent · suivant":"Undo · redo","Glisser sur le nom d'un réglage en mm pour changer sa valeur":"Drag on the name of a mm setting to change its value","Molette":"Wheel","Dans un champ : changer la valeur (Maj : ×10, Alt : ÷10)":"In a field: change the value (Shift: ×10, Alt: ÷10)","Les poignées rondes du bord suivi règlent le début et la fin":"The round handles on the followed edge set the start and end","Afficher toutes les explications sous les réglages":"Show all explanations under the settings","Maj":"Shift","Entrée":"Enter","Élément masqué : il ne sera pas exporté":"Item hidden: it will not be exported","Élément affiché":"Item shown","Élément verrouillé":"Item locked","Élément déverrouillé":"Item unlocked","Élément dupliqué":"Item duplicated","Ordre changé":"Order changed","Objet verrouillé":"Item locked","Il faut garder au moins un élément":"At least one item must remain","L'envoi à LightBurn passe par le programme Windows":"Sending to LightBurn needs the Windows program","Travail restauré":"Work restored",
 "Objets":"Objects","Propriétés":"Properties","Empilement":"Stacking","Thème clair":"Light theme","Thème sombre":"Dark theme","Zoom":"Zoom",
 "Ouvrir un projet .courbeur":"Open a .courbeur project","Enregistrer le projet .courbeur":"Save the .courbeur project",
 "Courbeur de frise":"Frieze Bender",
@@ -661,6 +782,7 @@ const I18N_EXACT={
 "Avec empattements · classique":"Serif · classic"
 };
 const I18N_RULES=[
+[/^Forme chargée : (.*)$/,"Shape loaded: $1"],[/^Format non pris en charge : (.*)$/,"Unsupported format: $1"],[/^(.+) · (\d+) éléments? · (.+)$/,(m,a,n,c)=>a+" · "+n+(n==="1"?" item · ":" items · ")+c],
 [/^Frise (\d+)$/,"Frieze $1"],
 [/^Frise (\d+) ajoutée : choisis son bord et son motif$/,"Frieze $1 added: choose its edge and pattern"],
 [/^Frise (\d+) ajoutée : un anneau complet à l'intérieur du précédent$/,"Frieze $1 added: a full ring inside the previous one"],
@@ -732,7 +854,7 @@ function setLang(l,save){LANG=l==='en'?'en':'fr';document.documentElement.lang=L
 function initialLang(){try{const s=localStorage.getItem('courbeur.lang');if(s==='fr'||s==='en')return s;}catch(e){}
   return /^fr\b/i.test(navigator.language||'')?'fr':'en';}
 
-const PAGE_VERSION = '1.16.0';
+const PAGE_VERSION = '1.17.0';
 
 /* ---------- geometry helpers ---------- */
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
@@ -971,8 +1093,8 @@ function fillChainSelect(){const s=$('selChain');s.textContent='';chains.forEach
 
 /* ---------- frises ---------- */
 const DEF={ci:0,a:0,b:1,side:'in',reps:1,autoH:true,H:20,offset:0,margin:0,smooth:3,flip:false,mirror:false,slope:30,lastAuto:'bas',layer:2,order:'AB',autoReps:false,orient:'h',cornerSoft:true,
-  kind:'frise',text:'',font:'',tracking:0,tc:0.5,rot180:false,rotAuto:true,sens:40,free:'',cx:0,cy:0,radius:40,angle:0};
-const KEYS=Object.keys(DEF);
+  kind:'frise',text:'',font:'',tracking:0,tc:0.5,rot180:false,rotAuto:true,sens:40,free:'',cx:0,cy:0,radius:40,angle:0,hidden:false,locked:false};
+const KEYS=Object.keys(DEF);const WARP_KEYS=KEYS.filter(k=>k!=='hidden'&&k!=='locked');
 const PREF_KEYS=['side','reps','autoH','H','offset','margin','smooth','flip','mirror','slope','lastAuto','layer','order','autoReps','orient','cornerSoft'];
 const pick=(o,keys)=>{const r={};for(const k of keys)r[k]=o[k];return r;};
 function newFrise(params,m,mb){const f=Object.assign({},DEF,params||{});f.motif=m||null;f.motifB=mb||null;f.guide=null;f.warped=[];return f;}
@@ -1132,13 +1254,7 @@ $('txtPos').addEventListener('change',()=>{autoUpright(state);syncTextUI();updat
 $('txtRot').addEventListener('change',e=>{state.rot180=e.target.checked;state.rotAuto=false;update();});
 $('btnFontAdd').addEventListener('click',()=>$('fileFont').click());
 $('fileFont').addEventListener('change',async()=>{const file=$('fileFont').files[0];$('fileFont').value='';if(!file)return;
-  try{if(/\.woff2$/i.test(file.name))throw new Error('Les polices .woff2 ne sont pas lues : prends la version .ttf ou .otf.');
-    const buf=await file.arrayBuffer();const font=opentype.parse(buf);if(!font.unitsPerEm||!font.glyphs||!font.glyphs.length)throw 0;
-    const nm=(font.names&&(font.names.fullName||font.names.fontFamily)&&((font.names.fullName||font.names.fontFamily).fr||(font.names.fullName||font.names.fontFamily).en||Object.values(font.names.fullName||font.names.fontFamily)[0]))||file.name.replace(/\.[^.]+$/,'');
-    const id='u'+(++userFontSeq);fontEntry(id,font,{name:nm,style:'Ta police · '+file.name,user:true,b64:ab2b64(buf)},null);
-    try{const ff=new FontFace('cf-'+id,buf);await ff.load();document.fonts.add(ff);}catch(e){}
-    fillFontSelect();state.font=id;lastText.font=id;syncTextUI();update();toast('Police ajoutée : '+nm);}
-  catch(e){toast(e&&e.message?e.message:'Cette police n\'est pas lisible.');}});
+  try{await addFontFile(file);}catch(e){toast(e&&e.message?e.message:'Cette police n\'est pas lisible.');}});
 /* menu du clic droit sur le dessin */
 const ctxMenu=$('ctxMenu');
 function closeCtx(){ctxMenu.hidden=true;}
@@ -1160,17 +1276,7 @@ const LIBM=new Map();
 function libMotif(name){let m=LIBM.get(name);if(m)return m;const svg=MOTIF_LIB.files[name];if(!svg)return null;
   const all=MOTIF_LIB.index.frises.concat(MOTIF_LIB.index.coins,MOTIF_LIB.index.illusions||[]);const it=all.find(x=>x[0]===name);
   m=parseMotif(svg,(it?it[1]:name)+'.svg');m.lib=name;LIBM.set(name,m);return m;}
-function openGallery(kind,onPick){const box=$('galBox'),grid=$('galGrid');grid.textContent='';
-  $('galTitle').textContent=kind==='coins'?'Ornements de coin':'Motifs de frise';
-  const groups=kind==='coins'?[['coins',null]]:[['frises',null],['illusions',"Illusions d'optique"]];
-  for(const [gk,gt] of groups){const list=MOTIF_LIB.index[gk]||[];if(!list.length)continue;
-  if(gt){const h=document.createElement('h3');h.className='galSec';h.textContent=gt;grid.append(h);}
-  for(const [name,label] of list){const b=document.createElement('button');b.type='button';b.className='galItem'+(kind==='coins'?' coin':'');
-    const img=document.createElement('img');img.alt='';img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(MOTIF_LIB.files[name]);
-    const t=document.createElement('span');t.textContent=label;b.append(img,t);
-    b.addEventListener('click',()=>{closeGallery();const m=libMotif(name);if(m)onPick(m);});grid.append(b);}}
-  box.hidden=false;const f=grid.querySelector('button');if(f)f.focus();}
-function closeGallery(){$('galBox').hidden=true;}
+
 $('galClose').addEventListener('click',closeGallery);
 $('galBox').addEventListener('click',e=>{if(e.target===$('galBox'))closeGallery();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('galBox').hidden)closeGallery();});
@@ -1322,7 +1428,7 @@ function renderReal(g,W,H,k,vcx,vcy,key,d,exporting){const M=MATS[key]||MATS.boi
   const pat=g.createPattern(matTexture(key),'repeat');if(pat.setTransform)pat.setTransform(new DOMMatrix().translate(T[4],T[5]).scale(k*0.22));g.fillStyle=pat;g.fillRect(0,0,W,H);
   if(M.grain===2){const gr=g.createLinearGradient(0,0,W,H);gr.addColorStop(0,'rgba(255,255,255,.10)');gr.addColorStop(.45,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,W,H);}
   g.setTransform(...T);const px=1/k,off=0.22;
-  for(const f of frises){if(!f.warped.length)continue;const p=frisePath(f),rule=f.kind==='text'?'nonzero':'evenodd',single=f.motif&&f.motif.single;
+  for(const f of frises){if(!f.warped.length||f.hidden)continue;const p=frisePath(f),rule=f.kind==='text'?'nonzero':'evenodd',single=f.motif&&f.motif.single;
     if(single){g.lineCap='round';g.lineJoin='round';g.lineWidth=Math.max(0.3,1.2*d*px);g.strokeStyle=M.engr;g.stroke(p);continue;}
     g.save();g.translate(off,-off);g.fillStyle=M.hi;g.fill(p,rule);g.restore();g.fillStyle=M.engr;g.fill(p,rule);}
   g.restore();
@@ -1541,7 +1647,7 @@ function requestWarp(f,live){
   if(!POOL||f.free){computeWarp(f);f._flat=f.warped.map(w=>w.flat);f._doneKey=null;f._busy=false;return;}   /* un texte libre a sa propre ligne : calcul direct */
   const sameShape=chains===sentChains;syncChains();
   /* rien n'a changé pour cette frise (même réglages, même forme, même motif) : pas de recalcul */
-  const p=Object.assign(pick(f,KEYS),{stackOff:f.stackOff||0}),mk=motifId(f.motif)+':'+motifId(f.motifB),key=poolGen+'|'+mk+'|'+JSON.stringify(p);
+  const p=Object.assign(pick(f,WARP_KEYS),{stackOff:f.stackOff||0}),mk=motifId(f.motif)+':'+motifId(f.motifB),key=poolGen+'|'+mk+'|'+JSON.stringify(p);
   if(f._doneKey===key&&(f.warped.length||!f.motif)&&!f._busy)return;
   if(f._busy&&f._key===key)return;   /* le calcul en cours a déjà les bons réglages */
   if(live&&sameShape&&f._ms!==undefined&&f._ms<6){const t=performance.now();computeWarp(f);f._ms=performance.now()-t;
@@ -1608,7 +1714,7 @@ function checksCore(f,list,chs){
 
 /* deux frises jointes : même contour, et le bout de l'une est exactement le début de l'autre */
 function joinedTo(f,g){if(!f||!g||f===g||!isFr(f)||!isFr(g)||f.ci!==g.ci||Math.abs(f.a-f.b)<1e-9||Math.abs(g.a-g.b)<1e-9||stackLevel(f)!==stackLevel(g))return false;const e=1e-6,d=(x,y)=>{const t=Math.abs(x-y);return Math.min(t,Math.abs(1-t));};return d(f.a,g.b)<e||d(f.b,g.a)<e;}
-function checks(){for(const g of frises)g.joined=joinedTo(state,g);return checksCore(state,frises,chains);}
+function checks(){for(const g of frises)g.joined=joinedTo(state,g);return checksCore(state,frises.filter(g=>g===state||!g.hidden),chains);}
 
 /* ---------- dessin ---------- */
 const cv=$('cv'),ctx=cv.getContext('2d');
@@ -1633,7 +1739,7 @@ function draw(){if(!drawReq)drawReq=requestAnimationFrame(()=>{drawReq=0;drawNow
 function drawNow(){
   if(!COL)readColors();
   const W=cv.width,H=cv.height,d=window.devicePixelRatio||1,k=view.k;
-  if(view.mode&&view.mode!=='plan'){renderReal(ctx,W,H,k,view.cx,view.cy,view.mode,d,false);return;}
+  if(view.mode&&view.mode!=='plan'){renderReal(ctx,W,H,k,view.cx,view.cy,view.mode,d,false);drawRulers();return;}
   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,W,H);
   /* quadrillage du tapis : deux tracés seulement (fin / tous les 50 mm) */
   let step=10;while(step*k<6*d)step*=5;
@@ -1646,13 +1752,13 @@ function drawNow(){
   ctx.lineJoin='round';ctx.lineCap='round';
   ctx.strokeStyle=COL.shape;ctx.lineWidth=1.3*d*px;for(const c of chains)ctx.stroke(chainPath(c));
   ctx.strokeStyle=COL.guide;ctx.globalAlpha=.35;ctx.lineWidth=2*d*px;ctx.setLineDash([6*d*px,5*d*px]);
-  for(const f of frises)if(f!==state&&f.guide&&f.kind!=='coin')ctx.stroke(guidePath(f.guide));
+  for(const f of frises)if(f!==state&&!f.hidden&&f.guide&&f.kind!=='coin')ctx.stroke(guidePath(f.guide));
   ctx.setLineDash([]);ctx.globalAlpha=.45;ctx.fillStyle=COL.ink;
-  for(const f of frises)if(f!==state&&f.warped.length){if(f.motif&&f.motif.single){ctx.strokeStyle=COL.ink;ctx.lineWidth=Math.max(0.3,1.3*d*px);ctx.stroke(frisePath(f));}else ctx.fill(frisePath(f),f.kind==='text'?'nonzero':'evenodd');}
+  for(const f of frises)if(f!==state&&!f.hidden&&f.warped.length){if(f.motif&&f.motif.single){ctx.strokeStyle=COL.ink;ctx.lineWidth=Math.max(0.3,1.3*d*px);ctx.stroke(frisePath(f));}else ctx.fill(frisePath(f),f.kind==='text'?'nonzero':'evenodd');}
   ctx.globalAlpha=1;
   const f=state;
   if(f&&f.guide&&f.kind!=='coin'){ctx.globalAlpha=.85;ctx.lineWidth=4*d*px;ctx.stroke(guidePath(f.guide));ctx.globalAlpha=1;}
-  if(f&&f.warped.length){ctx.fillStyle=COL.ink;if(f.motif&&f.motif.single){ctx.strokeStyle=COL.ink;ctx.lineWidth=Math.max(0.3,1.6*d*px);ctx.stroke(frisePath(f));}else ctx.fill(frisePath(f),f.kind==='text'?'nonzero':'evenodd');}
+  if(f&&f.warped.length){ctx.globalAlpha=f.hidden?.18:1;ctx.fillStyle=COL.ink;if(f.motif&&f.motif.single){ctx.strokeStyle=COL.ink;ctx.lineWidth=Math.max(0.3,1.6*d*px);ctx.stroke(frisePath(f));}else ctx.fill(frisePath(f),f.kind==='text'?'nonzero':'evenodd');}
   /* poignées début / fin, en pixels écran */
   ctx.setTransform(1,0,0,1,0,0);
   if(f&&f.guide&&isFr(f)){const c=chains[f.ci];const pa=toS(...pointAt(c,f.a*c.L)),pb=toS(...pointAt(c,f.b*c.L));
@@ -1662,6 +1768,7 @@ function drawNow(){
   if(f&&f.kind==='coin'&&f.guide){ctx.fillStyle=COL.guide;for(const q of f.guide.P){const pq=toS(q[0],q[1]);ctx.beginPath();ctx.arc(pq[0],pq[1],5*d,0,7);ctx.fill();}}
   if(f&&f.kind==='text'&&chainOf(f)){const c=chainOf(f);const pc=toS(...pointAt(c,f.tc*c.L));
     ctx.fillStyle=COL.guide;ctx.beginPath();ctx.moveTo(pc[0],pc[1]-7*d);ctx.lineTo(pc[0]+6*d,pc[1]);ctx.lineTo(pc[0],pc[1]+7*d);ctx.lineTo(pc[0]-6*d,pc[1]);ctx.closePath();ctx.fill();}
+  ctx.globalAlpha=1;drawRulers();
 }
 /* zoom fluide : on glisse vers le zoom visé sur quelques images, en gardant le point sous la souris immobile */
 let zoomAnim=null;
@@ -1694,7 +1801,7 @@ function renderMsgs(m){const box=$('msgs');box.textContent='';for(const [t,x] of
 /* La liste et les onglets ne sont reconstruits que si leur structure change ; pendant la frappe on ne touche qu'au texte affiché. */
 let tabsSig='',tabRefs=[],cardRefs=[];
 function tabsSignature(){return fi+'#'+frises.length+'#'+frises.map(f=>{const F=f.kind==='text'?fontOf(f):null;
-  return [f.kind,f.layer,f.lastAuto,f.kind!=='text'&&f.guide?f.guide.len.toFixed(0):'',F?F.id+F.name:'',f.H,f.repsEff||0,f.kind!=='text'&&f.motif?f.motif.name:''].join(',');}).join(';');}
+  return [f.kind,f.layer,f.lastAuto,f.hidden?1:0,f.locked?1:0,f.kind!=='text'&&f.guide?f.guide.len.toFixed(0):'',F?F.id+F.name:'',f.H,f.repsEff||0,f.kind!=='text'&&f.motif?f.motif.name:''].join(',');}).join(';');}
 function patchTexts(){frises.forEach((f,i)=>{if(f.kind!=='text')return;const a=tabRefs[i],c=cardRefs[i];
   if(a){const v=' '+textLabel(f);if(a._raw!==v){a._raw=v;a.data=v;}}if(c){const v=String(f.text||'').trim()||'—';if(c._raw!==v){c._raw=v;c.textContent=v;}}});}
 function renderTabs(){const sig=tabsSignature();if(sig===tabsSig&&$('tabs').childElementCount===frises.length){patchTexts();$('btnDelFrise').disabled=frises.length<2;return;}
@@ -1719,7 +1826,7 @@ function syncAll(){const isT=state.kind==='text',isC=state.kind==='coin';documen
   $('cornerSoft').checked=state.cornerSoft!==false;$('flip').checked=state.flip;$('mirror').checked=state.mirror;$('slope').value=state.slope;$('slopeVal').textContent=state.slope;
   $('sideIn').setAttribute('aria-pressed',state.side==='in');$('sideOut').setAttribute('aria-pressed',state.side==='out');
   $('orH').setAttribute('aria-pressed',state.orient!=='v');$('orV').setAttribute('aria-pressed',state.orient==='v');
-  $('order').value=state.order||'AB';$('orderBox').hidden=true;renderMotifList();$('layerSel').value=state.layer;$('formeLayerSel').value=docOpts.formeLayer;$('units').value=docOpts.units;$('stackOpt').checked=docOpts.stack!==false;$('fuseOpt').checked=docOpts.fuse!==false;$('stackGap').value=docOpts.gap;$('stackGap').disabled=docOpts.stack===false;paintSwatches();}
+  $('order').value=state.order||'AB';$('orderBox').hidden=true;renderMotifList();$('layerSel').value=state.layer;$('formeLayerSel').value=docOpts.formeLayer;$('units').value=docOpts.units;$('stackOpt').checked=docOpts.stack!==false;$('fuseOpt').checked=docOpts.fuse!==false;$('stackGap').value=docOpts.gap;$('stackGap').disabled=docOpts.stack===false;paintSwatches();syncLock();}
 let toastT=null;function toast(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>e.hidden=true,2600);}
 
 /* ---------- historique (Précédent / Suivant) ---------- */
@@ -1727,7 +1834,7 @@ const hist=[];let hIdx=-1,hTimer=null,restoring=false;
 function snap(){return {s:JSON.stringify({fi,o:docOpts,fr:frises.map(f=>pick(f,KEYS))}),motifs:frises.flatMap(f=>[f.motif,f.motifB]),chains,formeName,formeText};}
 function same(a,b){return a&&b&&a.s===b.s&&a.chains===b.chains&&a.motifs.length===b.motifs.length&&a.motifs.every((m,i)=>m===b.motifs[i]);}
 function commit(){clearTimeout(hTimer);if(restoring||!state)return;const cur=snap();if(same(cur,hist[hIdx]))return;
-  hist.splice(hIdx+1);hist.push(cur);if(hist.length>150)hist.shift();hIdx=hist.length-1;histButtons();}
+  hist.splice(hIdx+1);hist.push(cur);if(hist.length>150)hist.shift();hIdx=hist.length-1;histButtons();autosaveSoon();}
 function scheduleCommit(){if(restoring)return;clearTimeout(hTimer);hTimer=setTimeout(commit,400);}
 function histButtons(){$('btnUndo').disabled=hIdx<=0;$('btnRedo').disabled=hIdx>=hist.length-1;}
 function restore(i){if(i<0||i>=hist.length)return;const h=hist[i];hIdx=i;restoring=true;
@@ -1800,7 +1907,7 @@ for(const id of ['incShape','svgMode','lbScope','lbPlace'])$(id).addEventListene
 const NEXT_DIR={bas:'haut',haut:'gauche',gauche:'droite',droite:'bas'};
 function addFrise(){commit();const used=new Set(frises.map(f=>f.lastAuto));let d=NEXT_DIR[state.lastAuto]||'bas';for(let k=0;k<4&&used.has(d);k++)d=NEXT_DIR[d];
   const freeL=freeLayer();const base=!isFr(state)?(frises.find(isFr)||null):state;
-  const f=base?newFrise(Object.assign(pick(base,KEYS),{lastAuto:d,layer:freeL}),base.motif,null):newFrise({ci:state.ci,lastAuto:d,layer:freeL},lastMotif,null);
+  const f=base?newFrise(Object.assign(pick(base,KEYS),{lastAuto:d,layer:freeL,hidden:false,locked:false}),base.motif,null):newFrise({ci:state.ci,lastAuto:d,layer:freeL},lastMotif,null);
   restack();const c=chains[f.ci],same=frises.filter(g=>isFr(g)&&g.ci===f.ci&&g.side===f.side);let ring=-1;
   if(c&&c.closed&&same.length){const top=Math.max(...same.map(g=>stackLevel(g)));if(coversLoop(same.filter(g=>stackLevel(g)===top)))ring=top;}
   if(ring>=0){const h=Math.max(...same.filter(g=>stackLevel(g)===ring).map(g=>g.guide&&g.guide.H||0));
@@ -1828,25 +1935,27 @@ const ptrs=new Map();let drag=null;
 const worldOf=e=>{const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;return toW((e.clientX-r.left)*d,(e.clientY-r.top)*d);};
 /* frise ou texte sous le pointeur (-1 si rien) */
 function hitTest(w){const d=window.devicePixelRatio||1,tol=8*d/view.k;let hit=-1,bd=Infinity;
-  frises.forEach((f,i)=>{if(!f.guide||!isFr(f))return;for(let k=0;k<f.guide.P.length;k+=4){const q=f.guide.P[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}});
-  frises.forEach((f,i)=>{for(const pl of f.warped){const P=pl.pts,st=f.kind==='text'?2:8;for(let k=0;k<P.length;k+=st){const q=P[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}}});
+  frises.forEach((f,i)=>{if(!f.guide||!isFr(f)||f.hidden||f.locked)return;for(let k=0;k<f.guide.P.length;k+=4){const q=f.guide.P[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}});
+  frises.forEach((f,i)=>{if(f.hidden||f.locked)return;for(const pl of f.warped){const P=pl.pts,st=f.kind==='text'?2:8;for(let k=0;k<P.length;k+=st){const q=P[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}}});
   if(hit<0)return -1;const g=frises[hit];const reach=!isFr(g)?Math.max(tol,g.H*0.6):Math.max(tol,(g.guide?g.guide.H||0:0)/2);return bd<reach?hit:-1;}
 cv.addEventListener('pointerdown',e=>{if(e.button===2)return;closeCtx();cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY});
   /* un texte se glisse directement : le long du bord, et en s'éloignant ou se rapprochant de la ligne */
-  if(ptrs.size===1&&!pickStep){const w=worldOf(e);const i=hitTest(w);const f=frises[i];
+  if(ptrs.size===1&&!pickStep){const hd=e.button===0?handleAt(e):null;if(hd){commit();drag={handle:hd,f:state,id:e.pointerId,moved:false};return;}
+    const w=worldOf(e);const i=hitTest(w);const f=frises[i];
     if(f&&f.kind==='text'&&f.free){if(i!==fi)selectFrise(i);commit();drag={f,id:e.pointerId,free:true,w0:w,c0:[f.cx,f.cy],moved:false};}
     else if(f&&f.kind==='text'&&chains[f.ci]){const n=nearestOnChain(w,f.ci);if(n){if(i!==fi)selectFrise(i);commit();const L=chains[f.ci].L;
       drag={f,id:e.pointerId,ds:n.s-f.tc*L,d0:n.d,off0:f.offset,moved:false};}}}});
 cv.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)return;const d=window.devicePixelRatio||1;
   if(drag&&drag.id===e.pointerId){if(!drag.moved&&Math.hypot(e.clientX-p.sx,e.clientY-p.sy)<4)return;drag.moved=true;cv.classList.add('dragging');
-    const f=drag.f;if(drag.free){const w=worldOf(e);f.cx=+(drag.c0[0]+w[0]-drag.w0[0]).toFixed(2);f.cy=+(drag.c0[1]+w[1]-drag.w0[1]).toFixed(2);syncTextUI();update();return;}
+    const f=drag.f;if(drag.handle){const c=chains[f.ci],n=nearestOnChain(worldOf(e),f.ci);if(c&&n){f[drag.handle]=n.s/c.L;syncInputs();update();}return;}
+    if(drag.free){const w=worldOf(e);f.cx=+(drag.c0[0]+w[0]-drag.w0[0]).toFixed(2);f.cy=+(drag.c0[1]+w[1]-drag.w0[1]).toFixed(2);syncTextUI();update();return;}
     const c=chains[f.ci],n=nearestOnChain(worldOf(e),f.ci);if(!n||!c)return;
     let tc=(n.s-drag.ds)/c.L;tc=c.closed?((tc%1)+1)%1:Math.min(1,Math.max(0,tc));f.tc=tc;
     f.offset=Math.round((drag.off0+(n.d-drag.d0))*10)/10;syncTextUI();update();return;}
   if(ptrs.size===2){const [a,b]=[...ptrs.values()];const before=Math.hypot(a.x-b.x,a.y-b.y);p.x=e.clientX;p.y=e.clientY;const after=Math.hypot(a.x-b.x,a.y-b.y);if(before>0){view.k*=after/before;draw();}return;}
   view.cx-=(e.clientX-p.x)*d/view.k;view.cy+=(e.clientY-p.y)*d/view.k;p.x=e.clientX;p.y=e.clientY;draw();});
 cv.addEventListener('pointerup',e=>{const p=ptrs.get(e.pointerId);ptrs.delete(e.pointerId);if(!p)return;
-  if(drag&&drag.id===e.pointerId){const dr=drag;drag=null;cv.classList.remove('dragging');if(dr.moved){autoUpright(dr.f);syncTextUI();update();commit();return;}}
+  if(drag&&drag.id===e.pointerId){const dr=drag;drag=null;cv.classList.remove('dragging');if(dr.moved&&dr.handle){syncInputs();update();commit();return;}if(dr.moved){autoUpright(dr.f);syncTextUI();update();commit();return;}}
   if(Math.hypot(e.clientX-p.sx,e.clientY-p.sy)>=6)return;
   const w=worldOf(e);
   if(pickStep){
@@ -1879,6 +1988,240 @@ function syncTheme(){const dark=document.documentElement.dataset.theme!=='light'
 $('themeBtn').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme!=='light';document.documentElement.dataset.theme=dark?'light':'dark';try{localStorage.setItem('courbeur.theme',dark?'light':'dark');}catch(e){}syncTheme();});
 syncTheme();
 
+
+/* ================= ergonomie (1.17) =================
+   objets façon calques, poignées sur le dessin, dépôt de fichiers, raccourcis, réglages rapides,
+   explications repliées, galerie (recherche, favoris, récents, aperçu), règles, enregistrement automatique */
+const ICON={
+  eye:'<svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  eyeOff:'<svg viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 5.1A10.6 10.6 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7c1.7 0 3.2-.4 4.5-1.1M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>',
+  lock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  unlock:'<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 7.5-2"/></svg>',
+  dup:'<svg viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>',
+  del:'<svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M6 6l1 15h10l1-15"/></svg>'};
+function iconBtn(cls,svg,title,fn){const b=document.createElement('button');b.type='button';b.className=cls;b.innerHTML=svg;b.title=title;b.setAttribute('aria-label',title);
+  b.addEventListener('click',e=>{e.stopPropagation();fn();});b.addEventListener('pointerdown',e=>e.stopPropagation());b.draggable=false;return b;}
+const kindName=f=>f.kind==='text'?'Texte':f.kind==='coin'?'Coins':'Frise';
+
+/* -- objets : masquer, verrouiller, dupliquer, réordonner -- */
+function afterObjChange(){for(const g of restack())requestWarp(g);syncAll();draw();renderStats();renderTabs();scheduleChecks();scheduleCommit();}
+function toggleHidden(i){const f=frises[i];if(!f)return;f.hidden=!f.hidden;afterObjChange();toast(f.hidden?'Élément masqué : il ne sera pas exporté':'Élément affiché');}
+function toggleLocked(i){const f=frises[i];if(!f)return;f.locked=!f.locked;afterObjChange();toast(f.locked?'Élément verrouillé':'Élément déverrouillé');}
+function duplicateFrise(i){const g=frises[i];if(!g)return;commit();const p=Object.assign(pick(g,KEYS),{hidden:false,locked:false});
+  if(g.kind==='text'&&g.free){p.cx=+(g.cx+5).toFixed(2);p.cy=+(g.cy-5).toFixed(2);}
+  else if(g.kind==='text'){p.tc=((g.tc+0.06)%1+1)%1;}
+  const n=newFrise(p,g.kind==='text'?null:g.motif,g.motifB);frises.splice(i+1,0,n);fi=i+1;state=n;syncAll();update();toast('Élément dupliqué');}
+function moveFrise(from,to){if(from===to||from<0||to<0||from>=frises.length||to>=frises.length)return;commit();
+  const [f]=frises.splice(from,1);frises.splice(to,0,f);fi=frises.indexOf(state);afterObjChange();commit();toast('Ordre changé');}
+function syncLock(){document.body.classList.toggle('is-locked',!!(state&&state.locked));}
+$('unlockBtn').addEventListener('click',()=>toggleLocked(fi));
+
+/* -- carte d'objet : en-tête avec icônes, et glisser pour changer l'ordre -- */
+function cardHeader(f,i,card){const h=document.createElement('div');h.className='mh';
+  const sw=document.createElement('i');sw.className='sw';sw.style.background=layerColor(f.layer);
+  const ttl=document.createElement('span');ttl.className='ttl';const sm=document.createElement('small');
+  if(f.kind==='text'){const F=fontOf(f);sm.textContent=F?' · '+F.name+' · '+(+f.H)+' mm':'';ttl.append('Texte',sm);}
+  else if(f.kind==='coin'){sm.textContent=' · '+(f.repsEff||0)+' coins · '+(+f.H)+' mm';ttl.append('Coins',sm);}
+  else{sm.textContent=f.guide?' · '+f.guide.len.toFixed(0)+' mm de bord':'';ttl.append('Frise '+(i+1),sm);}
+  const ic=document.createElement('span');ic.className='micons';
+  const eye=iconBtn('eye'+(f.hidden?' on':''),f.hidden?ICON.eyeOff:ICON.eye,f.hidden?'Afficher':'Masquer',()=>toggleHidden(i));
+  const lk=iconBtn('lk'+(f.locked?' on':''),f.locked?ICON.lock:ICON.unlock,f.locked?'Déverrouiller':'Verrouiller',()=>toggleLocked(i));
+  const dp=iconBtn('dup',ICON.dup,'Dupliquer',()=>duplicateFrise(i));ic.append(eye,lk,dp);
+  if(frises.length>1){const del=iconBtn('del mdel',ICON.del,'Supprimer',()=>{if(f.locked){toast('Objet verrouillé');return;}removeFrise(i);});ic.append(del);}
+  h.append(sw,ttl,ic);h.addEventListener('click',()=>selectFrise(i));
+  h.title='Glisser pour changer l\'ordre';h.draggable=true;
+  h.addEventListener('dragstart',e=>{e.dataTransfer.setData('application/x-courbeur',String(i));e.dataTransfer.effectAllowed='move';card.classList.add('dragging');});
+  h.addEventListener('dragend',()=>{card.classList.remove('dragging');for(const c of document.querySelectorAll('.mcard'))c.classList.remove('drop-before','drop-after');});
+  const isObj=e=>e.dataTransfer&&[...e.dataTransfer.types].includes('application/x-courbeur');
+  card.addEventListener('dragover',e=>{if(!isObj(e))return;e.preventDefault();e.dataTransfer.dropEffect='move';const r=card.getBoundingClientRect(),after=e.clientY>r.top+r.height/2;
+    card.classList.toggle('drop-after',after);card.classList.toggle('drop-before',!after);});
+  card.addEventListener('dragleave',()=>card.classList.remove('drop-before','drop-after'));
+  card.addEventListener('drop',e=>{if(!isObj(e))return;e.preventDefault();const from=+e.dataTransfer.getData('application/x-courbeur');const after=card.classList.contains('drop-after');
+    card.classList.remove('drop-before','drop-after');let to=after?i+1:i;if(from<to)to--;moveFrise(from,to);});
+  if(f.hidden)card.classList.add('is-hidden');if(f.locked)card.classList.add('is-locked');
+  return h;}
+
+/* -- poignées début / fin et position du curseur -- */
+let mouseW=null;
+function handleAt(e){const f=state;if(!f||!isFr(f)||!f.guide||f.locked||f.hidden)return null;const c=chains[f.ci];if(!c)return null;
+  const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1,sx=(e.clientX-r.left)*d,sy=(e.clientY-r.top)*d;
+  const pa=toS(...pointAt(c,f.a*c.L)),pb=toS(...pointAt(c,f.b*c.L));const da=Math.hypot(pa[0]-sx,pa[1]-sy),db=Math.hypot(pb[0]-sx,pb[1]-sy);
+  if(Math.min(da,db)>12*d)return null;return da<=db?'a':'b';}
+cv.addEventListener('pointermove',e=>{const w=worldOf(e);mouseW=w;$('cursorPos').textContent='X '+w[0].toFixed(1)+'   Y '+w[1].toFixed(1)+' mm';
+  if(!ptrs.size)cv.classList.toggle('onhandle',!!handleAt(e));draw();});
+cv.addEventListener('pointerleave',()=>{mouseW=null;$('cursorPos').textContent='';cv.classList.remove('onhandle');draw();});
+
+/* -- règles graduées en mm, en haut et à gauche du dessin -- */
+let RCOL=null;
+function drawRulers(){if(!RCOL)RCOL={bg:css('--panel'),fg:css('--muted'),ln:css('--line'),ac:css('--guide'),font:css('--f-mono')||'monospace'};
+  const W=cv.width,H=cv.height,d=window.devicePixelRatio||1,k=view.k,R=Math.round(18*d);
+  ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=RCOL.bg;ctx.fillRect(0,0,W,R);ctx.fillRect(0,0,R,H);
+  let st=1;for(const s of [1,2,5,10,20,50,100,200,500,1000,2000,5000,10000]){st=s;if(s*k>=64*d)break;}
+  const minor=st/5;ctx.strokeStyle=RCOL.fg;ctx.fillStyle=RCOL.fg;ctx.lineWidth=1;ctx.font=(9.5*d)+'px '+RCOL.font;ctx.textBaseline='top';
+  const p=new Path2D();
+  {const x0=view.cx-W/2/k,x1=view.cx+W/2/k;for(let n=Math.ceil(x0/minor);n<=Math.floor(x1/minor);n++){const g=n*minor,sx=Math.round((g-view.cx)*k+W/2)+.5;if(sx<R)continue;
+    const maj=n%5===0;p.moveTo(sx,R);p.lineTo(sx,R-(maj?R*.55:R*.25));if(maj)ctx.fillText(String(Math.round(g)),sx+2*d,2*d);}}
+  {const yT=view.cy+H/2/k,yB=view.cy-H/2/k;for(let n=Math.ceil(yB/minor);n<=Math.floor(yT/minor);n++){const g=n*minor,sy=Math.round(H/2-(g-view.cy)*k)+.5;if(sy<R)continue;
+    const maj=n%5===0;p.moveTo(R,sy);p.lineTo(R-(maj?R*.55:R*.25),sy);if(maj){ctx.save();ctx.translate(2*d,sy-2*d);ctx.rotate(-Math.PI/2);ctx.fillText(String(Math.round(g)),0,0);ctx.restore();}}}
+  ctx.globalAlpha=.75;ctx.stroke(p);ctx.globalAlpha=1;
+  ctx.strokeStyle=RCOL.ln;ctx.beginPath();ctx.moveTo(0,R+.5);ctx.lineTo(W,R+.5);ctx.moveTo(R+.5,0);ctx.lineTo(R+.5,H);ctx.stroke();
+  ctx.fillStyle=RCOL.bg;ctx.fillRect(0,0,R,R);ctx.fillStyle=RCOL.fg;ctx.textBaseline='middle';ctx.textAlign='center';ctx.font=(8*d)+'px '+RCOL.font;ctx.fillText('mm',R/2,R/2);ctx.textAlign='start';
+  if(mouseW){const [sx,sy]=toS(mouseW[0],mouseW[1]);ctx.strokeStyle=RCOL.ac;ctx.lineWidth=1.5*d;ctx.beginPath();
+    if(sx>R){ctx.moveTo(sx,0);ctx.lineTo(sx,R);}if(sy>R){ctx.moveTo(0,sy);ctx.lineTo(R,sy);}ctx.stroke();}}
+new MutationObserver(()=>{RCOL=null;}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{RCOL=null;});
+
+/* -- déposer des fichiers directement sur le dessin -- */
+const hasFiles=e=>e.dataTransfer&&[...e.dataTransfer.types].includes('Files');
+let dropDepth=0;const cvBoxEl=$('cvBox');
+cvBoxEl.addEventListener('dragenter',e=>{if(!hasFiles(e))return;e.preventDefault();dropDepth++;$('dropOv').hidden=false;});
+cvBoxEl.addEventListener('dragleave',e=>{if(!hasFiles(e))return;if(--dropDepth<=0){dropDepth=0;$('dropOv').hidden=true;}});
+cvBoxEl.addEventListener('dragover',e=>{if(!hasFiles(e))return;e.preventDefault();const z=e.target.closest&&e.target.closest('.dz');for(const x of document.querySelectorAll('#dropOv .dz'))x.classList.toggle('over',x===z);});
+cvBoxEl.addEventListener('drop',async e=>{if(!hasFiles(e))return;e.preventDefault();dropDepth=0;$('dropOv').hidden=true;
+  const z=e.target.closest&&e.target.closest('.dz');await openDropped([...e.dataTransfer.files],z?z.dataset.as:'forme');});
+document.addEventListener('dragover',e=>{if(hasFiles(e))e.preventDefault();});
+document.addEventListener('drop',e=>{if(hasFiles(e))e.preventDefault();});
+async function openDropped(files,as){for(const f of files){const n=f.name.toLowerCase();try{
+    if(/\.(ttf|otf|woff2?)$/.test(n)){await addFontFile(f);continue;}
+    const t=await f.text();
+    if(/\.courbeur$/.test(n)||/^\s*\{/.test(t)){await openProject(t);continue;}
+    if(/\.svg$/.test(n)&&as==='motif'){setMotif(fi,'A',parseMotif(t,f.name));toast('Motif chargé : '+f.name);continue;}
+    if(/\.(dxf|svg)$/.test(n)){setForme(t,f.name);syncAll();update();fit();toast('Forme chargée : '+f.name);continue;}
+    toast('Format non pris en charge : '+f.name);}catch(err){toast(err.message);}}}
+
+/* -- raccourcis clavier -- */
+function typingIn(t){if(!t||!t.tagName)return false;const g=t.tagName;return g==='TEXTAREA'||g==='SELECT'||t.isContentEditable||(g==='INPUT'&&!['checkbox','radio','range','button','file'].includes(t.type));}
+function nudge(e){const f=state;if(!f)return;if(f.locked){toast('Objet verrouillé');return;}e.preventDefault();
+  const s=e.shiftKey?5:0.5,dx=e.key==='ArrowLeft'?-s:e.key==='ArrowRight'?s:0,dy=e.key==='ArrowUp'?s:e.key==='ArrowDown'?-s:0;
+  if(f.kind==='text'&&f.free){f.cx=+(f.cx+dx).toFixed(2);f.cy=+(f.cy+dy).toFixed(2);syncTextUI();update();return;}
+  const c=chains[f.ci];if(dx&&c){const u=dx/c.L,wrap=v=>c.closed?((v%1)+1)%1:Math.min(1,Math.max(0,v));
+    if(f.kind==='text')f.tc=wrap(f.tc+u);else if(isFr(f)){f.a=wrap(f.a+u);f.b=wrap(f.b+u);}}
+  if(dy)f.offset=+((+f.offset||0)+dy).toFixed(2);
+  if(f.kind==='text')syncTextUI();else if(f.kind==='coin')syncCornerUI();else syncAll();update();}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&!$('helpBox').hidden){closeHelp();return;}
+  const mod=e.ctrlKey||e.metaKey,k=e.key.toLowerCase();
+  if(mod&&!e.altKey){
+    if(k==='s'){e.preventDefault();$('btnProjSave').click();}
+    else if(k==='o'){e.preventDefault();$('btnProjOpen').click();}
+    else if(k==='d'){e.preventDefault();duplicateFrise(fi);}
+    else if(k==='e'){e.preventDefault();(e.shiftKey?$('btnSvg'):$('btnDxf')).click();}
+    else if(e.key==='Enter'){e.preventDefault();if(!$('lbBox').hidden)$('btnLb').click();else toast('L\'envoi à LightBurn passe par le programme Windows');}
+    return;}
+  if(e.key==='Escape'&&typingIn(e.target)&&e.target.id!=='galSearch'){e.target.blur();return;}
+  if(typingIn(e.target)||!$('galBox').hidden||!$('helpBox').hidden)return;
+  if(e.altKey){if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();moveFrise(fi,fi+(e.key==='ArrowUp'?-1:1));}return;}
+  switch(e.key){
+    case 'Delete':case 'Backspace':e.preventDefault();if(state.locked){toast('Objet verrouillé');break;}if(frises.length<2){toast('Il faut garder au moins un élément');break;}removeFrise(fi);break;
+    case 'f':case 'F':fit();break;
+    case 't':case 'T':addTextAt(null);break;
+    case 'h':case 'H':toggleHidden(fi);break;
+    case 'l':case 'L':toggleLocked(fi);break;
+    case '[':if(fi>0)selectFrise(fi-1);break;
+    case ']':if(fi<frises.length-1)selectFrise(fi+1);break;
+    case '+':case '=':smoothZoom(1.4);break;
+    case '-':case '_':smoothZoom(1/1.4);break;
+    case '?':openHelp();break;
+    case 'F1':e.preventDefault();openHelp();break;
+    case 'Escape':if(pickStep)setPick(false);break;
+    case 'ArrowLeft':case 'ArrowRight':case 'ArrowUp':case 'ArrowDown':nudge(e);break;}});
+function openHelp(){$('hintsAll').checked=!document.body.classList.contains('hints-off');$('helpBox').hidden=false;$('helpClose').focus();}
+function closeHelp(){$('helpBox').hidden=true;}
+$('helpBtn').addEventListener('click',openHelp);$('helpClose').addEventListener('click',closeHelp);
+$('helpBox').addEventListener('click',e=>{if(e.target===$('helpBox'))closeHelp();});
+
+/* -- champs numériques : molette, flèches (Maj ×10, Alt ÷10), glisser sur le nom du réglage -- */
+const decOf=s=>{const t=String(s);const i=t.indexOf('.');return i<0?0:t.length-i-1;};
+function bump(inp,dir,mult){if(inp.disabled||inp.readOnly)return;const base=parseFloat(inp.step)>0?parseFloat(inp.step):1,st=base*mult;
+  let v=parseFloat(String(inp.value).replace(',','.'));if(isNaN(v))v=0;v+=dir*st;
+  const mn=inp.min!==''?parseFloat(inp.min):-Infinity,mx=inp.max!==''?parseFloat(inp.max):Infinity;v=Math.min(mx,Math.max(mn,v));
+  inp.value=+v.toFixed(Math.min(4,Math.max(decOf(base),decOf(st))));inp.dispatchEvent(new Event('input',{bubbles:true}));}
+document.addEventListener('wheel',e=>{const t=e.target;if(!(t instanceof HTMLInputElement)||t.type!=='number'||document.activeElement!==t)return;
+  e.preventDefault();const dl=e.deltaY||e.deltaX;if(!dl)return;bump(t,dl<0?1:-1,e.shiftKey?10:e.altKey?0.1:1);},{passive:false});
+document.addEventListener('keydown',e=>{const t=e.target;if(!(t instanceof HTMLInputElement)||t.type!=='number')return;
+  if((e.key==='ArrowUp'||e.key==='ArrowDown')&&(e.shiftKey||e.altKey)){e.preventDefault();bump(t,e.key==='ArrowUp'?1:-1,e.shiftKey?10:0.1);}});
+function setupScrub(){for(const lb of document.querySelectorAll('label[for]')){const inp=document.getElementById(lb.htmlFor);if(!inp||inp.type!=='number')continue;
+  lb.classList.add('scrub');
+  lb.addEventListener('pointerdown',e=>{if(e.button!==0||inp.disabled||e.target.closest('.info'))return;const s={x:e.clientX,acc:0,on:false};lb.setPointerCapture(e.pointerId);
+    const mv=ev=>{const dx=ev.clientX-s.x;if(!s.on&&Math.abs(dx)<4)return;if(!s.on){s.on=true;document.body.classList.add('scrubbing');}s.x=ev.clientX;s.acc+=dx;
+      const per=4;while(Math.abs(s.acc)>=per){const dd=Math.sign(s.acc);bump(inp,dd,ev.shiftKey?10:ev.altKey?0.1:1);s.acc-=dd*per;}};
+    const up=()=>{lb.removeEventListener('pointermove',mv);lb.removeEventListener('pointerup',up);lb.removeEventListener('pointercancel',up);document.body.classList.remove('scrubbing');
+      if(s.on){const stop=c=>{c.preventDefault();c.stopPropagation();};lb.addEventListener('click',stop,true);setTimeout(()=>lb.removeEventListener('click',stop,true),0);commit();}};
+    lb.addEventListener('pointermove',mv);lb.addEventListener('pointerup',up);lb.addEventListener('pointercancel',up);});}}
+
+/* -- explications : repliées derrière un petit « i », ou toutes visibles (réglage dans l'aide) -- */
+function setupHints(){for(const h of document.querySelectorAll('.dock .hint')){if(h.closest('.laser,#fallback,.inbox')||h.id==='fontHint'||h.hasAttribute('data-keep'))continue;h.classList.add('hx');
+    const fld=h.closest('.field');const lb=fld&&fld.querySelector('label');
+    if(lb&&!lb.querySelector('.info')){const b=document.createElement('button');b.type='button';b.className='info';b.textContent='i';b.title='Explication';b.setAttribute('aria-label','Explication');
+      b.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();const on=!b.classList.contains('on');b.classList.toggle('on',on);for(const x of fld.querySelectorAll('.hx'))x.classList.toggle('show',on);});lb.append(b);}}
+  let on=false;try{on=localStorage.getItem('courbeur.hints')==='on';}catch(e){}document.body.classList.toggle('hints-off',!on);}
+$('hintsAll').addEventListener('change',e=>{document.body.classList.toggle('hints-off',!e.target.checked);try{localStorage.setItem('courbeur.hints',e.target.checked?'on':'off');}catch(err){}});
+
+/* -- galerie : recherche, favoris, récents, aperçu en direct sur la frise -- */
+const lsGet=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v;}catch(e){return d;}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}};
+let galCtx=null,gPrev=null,gHoverT=null;
+const fold=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+function galLists(kind){return kind==='coins'?[['coins',null]]:[['frises',null],['illusions',"Illusions d'optique"]];}
+function galLabel(name){for(const k of ['frises','illusions','coins'])for(const [n,l] of (MOTIF_LIB.index[k]||[]))if(n===name)return l;return name;}
+function galKindOf(name){return (MOTIF_LIB.index.coins||[]).some(x=>x[0]===name)?'coins':'frises';}
+function galItem(name,label,kind){const cell=document.createElement('div');cell.className='galCell';
+  const b=document.createElement('button');b.type='button';b.className='galItem'+(kind==='coins'?' coin':'');b.dataset.name=name;
+  const img=document.createElement('img');img.alt='';img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(MOTIF_LIB.files[name]);
+  const t=document.createElement('span');t.textContent=label;b.append(img,t);
+  b.addEventListener('click',()=>pickGallery(name));
+  if(matchMedia('(hover:hover) and (min-width:1000px)').matches){b.addEventListener('pointerenter',()=>{clearTimeout(gHoverT);gHoverT=setTimeout(()=>previewOn(name),140);});
+    b.addEventListener('pointerleave',()=>{clearTimeout(gHoverT);gHoverT=setTimeout(previewOff,160);});}
+  const favs=lsGet('courbeur.favs',[]);const fv=document.createElement('button');fv.type='button';fv.className='galFav';fv.textContent='★';
+  const setFv=on=>{fv.setAttribute('aria-pressed',on);fv.title=on?'Retirer des favoris':'Ajouter aux favoris';fv.setAttribute('aria-label',fv.title);};setFv(favs.includes(name));
+  fv.addEventListener('click',e=>{e.stopPropagation();let l=lsGet('courbeur.favs',[]);const on=!l.includes(name);l=on?l.concat([name]):l.filter(x=>x!==name);lsSet('courbeur.favs',l);setFv(on);renderGallery();});
+  cell.append(b,fv);return cell;}
+function renderGallery(){if(!galCtx)return;const grid=$('galGrid'),kind=galCtx.kind,q=fold($('galSearch').value.trim());grid.textContent='';
+  const sec=t=>{const h=document.createElement('h3');h.className='galSec';h.textContent=t;grid.append(h);};
+  const all=galLists(kind).flatMap(([gk])=>MOTIF_LIB.index[gk]||[]);
+  if(q){const hits=all.filter(([n,l])=>fold(l).includes(q)||fold(n).includes(q)||fold(trOne(l)).includes(q));
+    if(!hits.length){const e=document.createElement('div');e.className='galEmpty';e.textContent='Aucun motif trouvé';grid.append(e);return;}
+    for(const [n,l] of hits)grid.append(galItem(n,l,kind));return;}
+  const ok=n=>all.some(x=>x[0]===n);
+  const favs=lsGet('courbeur.favs',[]).filter(ok),rec=lsGet('courbeur.recent',[]).filter(ok).slice(0,4);
+  if(favs.length){sec('Favoris');for(const n of favs)grid.append(galItem(n,galLabel(n),kind));}
+  if(rec.length){sec('Récents');for(const n of rec)grid.append(galItem(n,galLabel(n),kind));}
+  for(const [gk,gt] of galLists(kind)){const list=MOTIF_LIB.index[gk]||[];if(!list.length)continue;if(gt||favs.length||rec.length)sec(gt||(kind==='coins'?'Ornements':'Frises'));for(const [n,l] of list)grid.append(galItem(n,l,kind));}}
+function trOne(s){return LANG==='en'&&I18N_EXACT[s]?I18N_EXACT[s]:s;}
+function previewOn(name){const t=galCtx&&galCtx.target;if(!t)return;const f=frises[t.i];if(!f||f.kind==='text')return;const m=libMotif(name);if(!m)return;
+  if(!gPrev)gPrev={f,slot:t.slot,orig:t.slot==='B'?f.motifB:f.motif};if(t.slot==='B')f.motifB=m;else f.motif=m;restoring=true;try{update();}finally{restoring=false;}}
+function previewOff(){if(!gPrev)return;const p=gPrev;gPrev=null;if(p.slot==='B')p.f.motifB=p.orig;else p.f.motif=p.orig;restoring=true;try{update();}finally{restoring=false;}}
+function pickGallery(name){clearTimeout(gHoverT);previewOff();const cb=galCtx&&galCtx.onPick;closeGallery();
+  let r=lsGet('courbeur.recent',[]).filter(x=>x!==name);r.unshift(name);lsSet('courbeur.recent',r.slice(0,8));const m=libMotif(name);if(m&&cb)cb(m);}
+function openGallery(kind,onPick,target){galCtx={kind,onPick,target:target||null};$('galTitle').textContent=kind==='coins'?'Ornements de coin':'Motifs de frise';
+  $('galSearch').value='';$('galBox').classList.add('side');renderGallery();$('galBox').hidden=false;setTimeout(()=>$('galSearch').focus(),0);}
+function closeGallery(){clearTimeout(gHoverT);previewOff();$('galBox').hidden=true;galCtx=null;}
+$('galSearch').addEventListener('input',renderGallery);
+$('galSearch').addEventListener('keydown',e=>{if(e.key==='Enter'){const b=$('galGrid').querySelector('.galItem');if(b){e.preventDefault();b.click();}}});
+document.addEventListener('pointerdown',e=>{if($('galBox').hidden||!$('galBox').classList.contains('side'))return;if(!e.target.closest('.galIn'))closeGallery();},true);
+
+/* -- enregistrement automatique : le travail en cours est gardé dans le navigateur, et proposé au prochain démarrage -- */
+const AUTOSAVE='courbeur.autosave';let asT=null,asReady=false;
+function autosaveSoon(){if(!asReady)return;clearTimeout(asT);asT=setTimeout(autosaveNow,1200);}
+function autosaveNow(){if(!asReady||!chains.length||!state)return;const d=projectData();
+  try{localStorage.setItem(AUTOSAVE,JSON.stringify(d));}catch(e){try{d.fonts=[];localStorage.setItem(AUTOSAVE,JSON.stringify(d));}catch(e2){}}
+  $('restoreBar').hidden=true;}
+addEventListener('pagehide',autosaveNow);
+function offerRestore(){let s=null;try{s=localStorage.getItem(AUTOSAVE);}catch(e){}if(!s)return;let d;try{d=JSON.parse(s);}catch(e){return;}
+  if(!d||d.app!=='courbeur-de-frise'||!d.forme)return;
+  const when=d.saved?new Date(d.saved).toLocaleString(LANG==='en'?'en-GB':'fr-CH',{dateStyle:'short',timeStyle:'short'}):'';
+  const nb=(d.frises||[]).length;$('restoreInfo').textContent=(d.forme.name||'forme')+' · '+nb+(nb>1?' éléments':' élément')+' · '+when;$('restoreBar').hidden=false;
+  $('restoreGo').onclick=async()=>{$('restoreBar').hidden=true;try{await openProject(s);toast('Travail restauré');}catch(e){toast(e.message);}};
+  $('restoreNo').onclick=()=>{$('restoreBar').hidden=true;};}
+
+/* -- fichier de police ajouté par glisser-déposer ou par le bouton -- */
+async function addFontFile(file){if(/\.woff2$/i.test(file.name))throw new Error('Les polices .woff2 ne sont pas lues : prends la version .ttf ou .otf.');
+  const buf=await file.arrayBuffer();let font;try{font=opentype.parse(buf);}catch(e){font=null;}if(!font||!font.unitsPerEm||!font.glyphs||!font.glyphs.length)throw new Error('Cette police n\'est pas lisible.');
+  const nf=font.names&&(font.names.fullName||font.names.fontFamily);const nm=(nf&&(nf.fr||nf.en||Object.values(nf)[0]))||file.name.replace(/\.[^.]+$/,'');
+  const id='u'+(++userFontSeq);fontEntry(id,font,{name:nm,style:'Ta police · '+file.name,user:true,b64:ab2b64(buf)},null);
+  try{const ff=new FontFace('cf-'+id,buf);await ff.load();document.fonts.add(ff);}catch(e){}
+  fillFontSelect();lastText.font=id;if(state&&state.kind==='text'){state.font=id;syncTextUI();update();}else fillFontSelect();toast('Police ajoutée : '+nm);}
+
 /* ---------- export ---------- */
 function simplify(P,closed,eps){if(!closed||P.length<4)return rdp(P,eps);let far=0,fd=-1;for(let i=1;i<P.length;i++){const d=dist(P[0],P[i]);if(d>fd){fd=d;far=i;}}
   const a=rdp(P.slice(0,far+1),eps),b=rdp(P.slice(far).concat([P[0]]),eps);return a.concat(b.slice(1,-1));}
@@ -1902,10 +2245,10 @@ function fusePolys(list){const C=window.ClipperLib;if(!C)return null;
   let outer=0;for(const p of clean)if(p.length>2&&C.Clipper.Orientation(p))outer++;
   return {polys:out.concat(open),before:list.length,after:out.length+open.length,outer};}
 function fusedByLayer(){
-  const key=[docOpts.fuse].concat(frises.map(f=>[f.warped,f.layer])).flat();
+  const key=[docOpts.fuse].concat(frises.map(f=>[f.warped,f.layer,!!f.hidden])).flat();
   if(fuseCache.key&&fuseCache.key.length===key.length&&fuseCache.key.every((v,i)=>v===key[i]))return fuseCache.val;
   const byLayer=new Map();
-  frises.forEach((f,fi)=>{if(!f.warped.length)return;let L=byLayer.get(f.layer);if(!L){L={layer:f.layer,list:[],first:fi};byLayer.set(f.layer,L);}
+  frises.forEach((f,fi)=>{if(!f.warped.length||f.hidden)return;let L=byLayer.get(f.layer);if(!L){L={layer:f.layer,list:[],first:fi};byLayer.set(f.layer,L);}
     const nz=f.kind==='text';for(const w of f.warped)L.list.push({flat:w.flat,closed:w.closed,get pts(){return w.pts;},g:fi*1e7+(w.g||0),nz});});
   const t=performance.now();let before=0,after=0;const res=[];
   for(const L of byLayer.values()){const r=fusePolys(L.list);if(!r)return null;before+=r.before;after+=r.after;res.push({layer:L.layer,polys:r.polys});}
@@ -1915,7 +2258,7 @@ function outputGroups(inc){
   if(docOpts.fuse){const F=fusedByLayer();if(F){lastFuse=F;const many=F.groups.length>1;
     const onlyText=L=>frises.every(f=>f.layer!==L||!f.warped.length||f.kind==='text');const onlyCoin=L=>frises.every(f=>f.layer!==L||!f.warped.length||f.kind==='coin');
     groups=F.groups.map(g=>({name:(onlyText(g.layer)?'TEXTE':onlyCoin(g.layer)?'COINS':'MOTIF')+(many?'-C'+String(g.layer).padStart(2,'0'):''),layer:g.layer,motif:true,polys:simp(g.polys)}));}}
-  if(!groups)groups=frises.filter(f=>f.warped.length).map((f,i)=>{let polys=f.warped;
+  if(!groups)groups=frises.filter(f=>f.warped.length&&!f.hidden).map((f,i)=>{let polys=f.warped;
     /* sans fusion, les lettres sont quand même nettoyées une à une (certaines polices dessinent des contours qui se recouvrent) */
     if(f.kind==='text'){const r=fusePolys(f.warped.map(w=>({flat:w.flat,closed:w.closed,get pts(){return w.pts;},g:w.g,nz:true})));if(r)polys=r.polys;}
     return {name:(f.kind==='text'?'TEXTE':f.kind==='coin'?'COINS':'MOTIF')+(frises.length>1?(frises.indexOf(f)+1):''),layer:f.layer,motif:true,polys:simp(polys)};});
@@ -1955,7 +2298,7 @@ async function offer(filename,data){
 async function fuseNotice(){if(!docOpts.fuse||!hasOutput())return;toast('Fusion des formes…');await new Promise(r=>setTimeout(r,30));
   setTimeout(()=>{if(lastFuse)toast('Fusion : '+lastFuse.before+' tracés → '+lastFuse.after+' contours');},900);}
 function showFallback(){$('fallback').hidden=false;}
-const hasOutput=()=>frises.some(f=>f.warped.length);
+const hasOutput=()=>frises.some(f=>f.warped.length&&!f.hidden);
 $('btnDxf').addEventListener('click',async()=>{await whenIdle();await fuseNotice();if(!hasOutput()){toast('Rien à exporter');return;}const n=baseName();if(STANDALONE){blobSave(n+'.dxf',buildDXF());return;}offer(n+'.zip',zip([{name:n+'.dxf',data:new TextEncoder().encode(buildDXF())}]));});
 $('btnSvg').addEventListener('click',async()=>{await whenIdle();await fuseNotice();const r=buildSVG();if(!r){toast('Rien à exporter');return;}offer(baseName()+'.svg',r.svg);});
 $('btnCopy').addEventListener('click',()=>{const t=buildDXF();navigator.clipboard.writeText(t).then(()=>toast('DXF copié')).catch(()=>{const ta=$('fbText');ta.hidden=false;ta.value=t;ta.select();toast('Sélectionne le texte et copie-le');});});
@@ -2003,7 +2346,7 @@ function motifLine(i,slot){const f=frises[i],m=slot==='B'?f.motifB:f.motif;const
   const k=document.createElement('span');k.className='k';k.textContent='Motif';
   const n=document.createElement('span');n.className='n'+(m?'':' none');n.textContent=m?m.name.replace(/\.svg$/i,''):(slot==='B'?'aucun (pas d\'alternance)':'—');if(m)n.title=m.name;
   const acts=document.createElement('span');acts.className='acts';
-  const bL=document.createElement('button');bL.type='button';bL.textContent='Motifs';bL.title='Choisir dans la bibliothèque intégrée';bL.addEventListener('click',()=>openGallery(f.kind==='coin'?'coins':'frises',mm=>{setMotif(i,slot,mm);toast('Motif : '+mm.name.replace(/\.svg$/i,''));}));acts.append(bL);
+  const bL=document.createElement('button');bL.type='button';bL.textContent='Motifs';bL.title='Choisir dans la bibliothèque intégrée';bL.addEventListener('click',()=>openGallery(f.kind==='coin'?'coins':'frises',mm=>{setMotif(i,slot,mm);toast('Motif : '+mm.name.replace(/\.svg$/i,''));},{i,slot}));acts.append(bL);
   const bC=document.createElement('button');bC.type='button';bC.textContent=m?'Fichier':'Ajouter';bC.title='Charger un SVG depuis ton ordinateur';bC.addEventListener('click',()=>{fileTarget={i,slot};$('fileMotif').click();});acts.append(bC);
   if(slot==='B'&&m){const bX=document.createElement('button');bX.type='button';bX.textContent='Retirer';bX.title='Ne plus alterner';bX.addEventListener('click',()=>setMotif(i,'B',null));acts.append(bX);}
   if(HTTP&&m&&!libNames.includes(m.name)){const bS=document.createElement('button');bS.type='button';bS.textContent='Garder';bS.title='Ajouter à la bibliothèque';
@@ -2014,18 +2357,13 @@ function motifLine(i,slot){const f=frises[i],m=slot==='B'?f.motifB:f.motif;const
     for(const nm of libNames){const o=document.createElement('option');o.value=nm;o.textContent=nm.replace(/\.svg$/i,'');sel.append(o);}
     sel.value=m&&libNames.includes(m.name)?m.name:'';
     sel.addEventListener('change',async()=>{if(!sel.value)return;try{setMotif(i,slot,await fetchLibMotif(sel.value));}catch(e){toast(e.message);}});line.append(sel);}
-  line.addEventListener('dragover',e=>{e.preventDefault();line.classList.add('over');});line.addEventListener('dragleave',()=>line.classList.remove('over'));
-  line.addEventListener('drop',async e=>{e.preventDefault();line.classList.remove('over');const file=e.dataTransfer.files[0];if(!file)return;
+  line.addEventListener('dragover',e=>{if(!hasFiles(e))return;e.preventDefault();e.stopPropagation();line.classList.add('over');});line.addEventListener('dragleave',()=>line.classList.remove('over'));
+  line.addEventListener('drop',async e=>{if(!hasFiles(e))return;e.preventDefault();e.stopPropagation();line.classList.remove('over');const file=e.dataTransfer.files[0];if(!file)return;
     try{setMotif(i,slot,parseMotif(await file.text(),file.name));toast('Motif chargé : '+file.name);}catch(err){toast(err.message);}});
   return line;}
 function renderMotifList(){const box=$('mlist');if(!box)return;box.textContent='';cardRefs=[];tabsSig='';
   frises.forEach((f,i)=>{const card=document.createElement('div');card.className='mcard'+(i===fi?' active':'');
-    const h=document.createElement('div');h.className='mh';const sw=document.createElement('i');sw.className='sw';sw.style.background=layerColor(f.layer);
-    const sm=document.createElement('small');sm.textContent=f.guide?' · '+f.guide.len.toFixed(0)+' mm de bord':'';
-    if(f.kind==='text'){const F=fontOf(f);sm.textContent=F?' · '+F.name+' · '+(+f.H)+' mm':'';h.append(sw,'Texte',sm);}
-    else if(f.kind==='coin'){sm.textContent=' · '+(f.repsEff||0)+' coins · '+(+f.H)+' mm';h.append(sw,'Coins',sm);}else h.append(sw,'Frise '+(i+1),sm);h.addEventListener('click',()=>selectFrise(i));
-    if(frises.length>1){const del=document.createElement('button');del.type='button';del.className='mdel';del.textContent='Supprimer';del.title='Supprimer la frise '+(i+1);
-      del.addEventListener('click',e=>{e.stopPropagation();removeFrise(i);});h.append(del);}
+    const h=cardHeader(f,i,card);
     card.append(h,f.kind==='text'?textLine(i):motifLine(i,'A'));box.append(card);});
   const row=document.createElement('div');row.className='addrow';
   const add=document.createElement('button');add.type='button';add.className='madd';add.textContent='+ Ajouter une frise';add.addEventListener('click',addFrise);
@@ -2095,7 +2433,10 @@ function applyPrefsUI(p){if(typeof p.incShape==='boolean')$('incShape').checked=
   if(!STANDALONE)getDl();
   if(HTTP){setInterval(checkPageUpdate,120000);setTimeout(checkPageUpdate,5000);}
   {let keep=null;try{keep=sessionStorage.getItem('courbeur.reload');sessionStorage.removeItem('courbeur.reload');}catch(e){}
-    if(keep){try{await openProject(keep);toast('Mise à jour appliquée : ton travail est restauré');}catch(e){}}}
+    if(keep){try{await openProject(keep);toast('Mise à jour appliquée : ton travail est restauré');}catch(e){}}
+    else offerRestore();
+    asReady=true;}
+  setupScrub();setupHints();
   if(HTTP){lbStatus();setInterval(lbStatus,10000);pollInbox();setInterval(pollInbox,500);refreshLibrary();setInterval(refreshLibrary,15000);
 }
   {const e=document.createElement('span');e.className='mono';e.style.cssText='color:var(--muted);font-size:.75rem';e.textContent='V'+PAGE_VERSION+(POOL?' · calcul sur '+CORES+' cœurs':'');$('brandMeta').append(e);
