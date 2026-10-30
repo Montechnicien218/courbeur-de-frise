@@ -587,6 +587,7 @@ const $ = id => document.getElementById(id);
    créés en cours d'utilisation) passe par ce traducteur : une table de phrases exactes, puis des règles pour
    les phrases qui contiennent des nombres. On revient au français sans recharger la page. */
 const I18N_EXACT={
+"Dans LightBurn, les fichiers ne peuvent pas être téléchargés : installe le nouveau CourbeurDeFrise.exe, ou utilise l'outil dans ton navigateur":"In LightBurn, files cannot be downloaded: install the new CourbeurDeFrise.exe, or use the tool in your browser","Enregistrement impossible : relance CourbeurDeFrise.exe":"Saving failed: restart CourbeurDeFrise.exe",
 "Calcul…":"Computing…","Export…":"Exporting…","Image…":"Image…","Enregistrement…":"Saving…","Ouverture…":"Opening…","Envoi à LightBurn…":"Sending to LightBurn…",
 "Masquer":"Hide","Afficher":"Show","Verrouiller":"Lock","Déverrouiller":"Unlock","Dupliquer":"Duplicate","Glisser pour changer l'ordre":"Drag to change the order","Explication":"Explanation","Raccourcis et aide (?)":"Shortcuts and help (?)","Avancé":"Advanced","DXF, SVG ou projet .courbeur":"DXF, SVG or .courbeur project","Motif de la frise":"Frieze pattern","Cet élément est verrouillé.":"This item is locked.","Rechercher un motif":"Search patterns","Survole un motif pour le voir sur le dessin. ★ pour le garder en favori.":"Hover a pattern to see it on the drawing. ★ to keep it as a favourite.","Favoris":"Favourites","Récents":"Recent","Ornements":"Ornaments","Aucun motif trouvé":"No pattern found","Ajouter aux favoris":"Add to favourites","Retirer des favoris":"Remove from favourites","Travail non enregistré retrouvé :":"Unsaved work found:","Reprendre":"Resume","Ignorer":"Dismiss","Raccourcis clavier":"Keyboard shortcuts","Fichiers":"Files","Vue":"View","Réglages":"Settings","Enregistrer le projet":"Save the project","Ouvrir un projet":"Open a project","Télécharger le DXF":"Download the DXF","Télécharger le SVG":"Download the SVG","Glisser":"Drag","Déposer une forme, un motif, un projet ou une police sur le dessin":"Drop a shape, pattern, project or font on the drawing","Dupliquer l'élément":"Duplicate the item","Suppr":"Del","Supprimer l'élément":"Delete the item","Masquer · verrouiller l'élément":"Hide · lock the item","Élément précédent · suivant":"Previous · next item","Changer l'ordre d'empilement":"Change the stacking order","Déplacer l'élément de 0,5 mm (Maj : 5 mm)":"Move the item by 0.5 mm (Shift: 5 mm)","Zoomer · dézoomer":"Zoom in · out","Précédent · suivant":"Undo · redo","Glisser sur le nom d'un réglage en mm pour changer sa valeur":"Drag on the name of a mm setting to change its value","Molette":"Wheel","Dans un champ : changer la valeur (Maj : ×10, Alt : ÷10)":"In a field: change the value (Shift: ×10, Alt: ÷10)","Les poignées rondes du bord suivi règlent le début et la fin":"The round handles on the followed edge set the start and end","Afficher toutes les explications sous les réglages":"Show all explanations under the settings","Maj":"Shift","Entrée":"Enter","Élément masqué : il ne sera pas exporté":"Item hidden: it will not be exported","Élément affiché":"Item shown","Élément verrouillé":"Item locked","Élément déverrouillé":"Item unlocked","Élément dupliqué":"Item duplicated","Ordre changé":"Order changed","Objet verrouillé":"Item locked","Il faut garder au moins un élément":"At least one item must remain","L'envoi à LightBurn passe par le programme Windows":"Sending to LightBurn needs the Windows program","Travail restauré":"Work restored",
 "Objets":"Objects","Propriétés":"Properties","Empilement":"Stacking","Thème clair":"Light theme","Thème sombre":"Dark theme","Zoom":"Zoom",
@@ -792,6 +793,7 @@ const I18N_EXACT={
 "Avec empattements · classique":"Serif · classic"
 };
 const I18N_RULES=[
+[/^Fichier enregistré : Exports\\(.*)$/,"File saved: Exports\\$1"],
 [/^Forme chargée : (.*)$/,"Shape loaded: $1"],[/^Format non pris en charge : (.*)$/,"Unsupported format: $1"],[/^(.+) · (\d+) éléments? · (.+)$/,(m,a,n,c)=>a+" · "+n+(n==="1"?" item · ":" items · ")+c],
 [/^Frise (\d+)$/,"Frieze $1"],
 [/^Frise (\d+) ajoutée : choisis son bord et son motif$/,"Frieze $1 added: choose its edge and pattern"],
@@ -864,7 +866,7 @@ function setLang(l,save){LANG=l==='en'?'en':'fr';document.documentElement.lang=L
 function initialLang(){try{const s=localStorage.getItem('courbeur.lang');if(s==='fr'||s==='en')return s;}catch(e){}
   return /^fr\b/i.test(navigator.language||'')?'fr':'en';}
 
-const PAGE_VERSION = '1.18.0';
+const PAGE_VERSION = '1.18.1';
 
 /* ---------- geometry helpers ---------- */
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
@@ -1448,7 +1450,7 @@ function renderReal(g,W,H,k,vcx,vcy,key,d,exporting){const M=MATS[key]||MATS.boi
 $('renderSel').addEventListener('change',()=>{view.mode=$('renderSel').value;draw();savePrefsSoon();});
 $('btnPng').addEventListener('click',()=>busyRun('Image…',async()=>{await whenIdle();if(!chains.length)return;const key=view.mode&&view.mode!=='plan'?view.mode:'bois';
   const list=chains.map(c=>c.pts).concat(allWarped().map(w=>w.pts));const b=bboxOf(list),pad=8;
-  const ppm=Math.min(12,4000/Math.max(b.w+2*pad,b.h+2*pad));const W=Math.round((b.w+2*pad)*ppm),H=Math.round((b.h+2*pad)*ppm);
+  const ppm=Math.min(12,(IN_LB?2500:4000)/Math.max(b.w+2*pad,b.h+2*pad));   /* plus léger dans LightBurn */const W=Math.round((b.w+2*pad)*ppm),H=Math.round((b.h+2*pad)*ppm);
   const oc=document.createElement('canvas');oc.width=W;oc.height=H;renderReal(oc.getContext('2d'),W,H,ppm,(b.x0+b.x1)/2,(b.y0+b.y1)/2,key,ppm/4,true);
   await new Promise(res=>oc.toBlob(bl=>{if(bl)offer(baseName()+'_apercu.png',bl);res();},'image/png'));}));
 
@@ -2359,7 +2361,18 @@ const baseName=()=>(formeName||'forme').replace(/\.[^.]+$/,'')+'_frise';
 let dlP=null;function getDl(){if(!dlP)dlP=(window.claude&&window.claude.use)?window.claude.use('downloads').catch(()=>null):Promise.resolve(null);return dlP;}
 const STANDALONE=!(window.claude&&window.claude.use);
 const HTTP=location.protocol==='http:';
-function blobSave(filename,data){const b=data instanceof Blob?data:new Blob([data],{type:'application/octet-stream'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('Fichier enregistré : '+filename);}
+/* Dans le navigateur intégré de LightBurn, un téléchargement fait planter LightBurn : le fichier est alors confié
+   au programme CourbeurDeFrise.exe, qui l'enregistre dans Documents\Courbeur de frise\Exports et ouvre ce dossier. */
+const IN_LB=/QtWebEngine/i.test(navigator.userAgent);
+let srvSave=null;
+async function canServerSave(){if(srvSave!==null)return srvSave;try{const j=await (await fetch('/lb/version',{cache:'no-store'})).json();srvSave=(parseInt(String(j.version||'').replace(/\D/g,''),10)||0)>=4;}catch(e){srvSave=false;}return srvSave;}
+async function saveViaServer(filename,data){
+  if(!(await canServerSave())){toast('Dans LightBurn, les fichiers ne peuvent pas être téléchargés : installe le nouveau CourbeurDeFrise.exe, ou utilise l\'outil dans ton navigateur');return;}
+  try{const b=data instanceof Blob?data:new Blob([data]);
+    const r=await fetch('/lb/save?open=1&name='+encodeURIComponent(filename),{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:b});
+    const j=await r.json();const msg=j.ok?'Fichier enregistré : Exports\\'+j.name:j.message;toast(msg);if(j.ok)setTimeout(()=>toast(msg),1300);}   /* reste visible après le message de fusion */
+  catch(e){toast('Enregistrement impossible : relance CourbeurDeFrise.exe');}}
+function blobSave(filename,data){if(HTTP&&IN_LB){saveViaServer(filename,data);return;}const b=data instanceof Blob?data:new Blob([data],{type:'application/octet-stream'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('Fichier enregistré : '+filename);}
 async function offer(filename,data){
   if(STANDALONE){blobSave(filename,data);return;}
   const dl=await getDl();if(!dl){showFallback();return;}

@@ -1,5 +1,9 @@
 # Journal des versions · Changelog
 
+## 1.18.1 — 30.10.2026 — correctif LightBurn · LightBurn fix
+- Dans le navigateur intégré de LightBurn, les boutons Image, DXF, SVG et Enregistrer faisaient planter LightBurn (il ne sait pas télécharger de fichiers). Les fichiers sont maintenant enregistrés par CourbeurDeFrise.exe dans Documents\Courbeur de frise\Exports, et le dossier s'ouvre · In LightBurn's built-in browser, the Image, DXF, SVG and Save buttons crashed LightBurn (it cannot download files). Files are now saved by CourbeurDeFrise.exe to Documents\Courbeur de frise\Exports, and the folder opens.
+- Nécessite le nouveau CourbeurDeFrise.exe (lanceur-4) · Requires the new CourbeurDeFrise.exe (launcher-4).
+
 ## 1.18.0 — 30.10.2026 — affichage optimisé · faster display
 - Affichage en couches : bouger la souris ne redessine plus que les règles, les poignées et le curseur (environ 18 fois moins de travail par image) · Layered display: moving the mouse only redraws rulers, handles and cursor (about 18× less work per frame).
 - Aperçu réaliste mis en mémoire : déplacer la vue glisse une image au lieu de tout recalculer (environ 25 fois moins de travail), rendu net dès que le zoom s'arrête · Realistic preview cached: panning slides an image instead of recomputing everything (about 25× less work), sharp render as soon as zooming stops.

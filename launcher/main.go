@@ -29,7 +29,7 @@ import (
 var page []byte
 
 const appName = "Courbeur de frise"
-const appVersion = "lanceur-3"
+const appVersion = "lanceur-4"
 
 var trayActive bool
 
@@ -486,6 +486,52 @@ func main() {
 		w.Header().Set("Cache-Control", "no-store")
 		w.Write(b)
 	})
+	// Enregistrement d'un fichier exporté (image, DXF, SVG, projet) dans Documents\Courbeur de frise\Exports.
+	// Sert au navigateur intégré de LightBurn, qui ne sait pas télécharger de fichiers (il se ferme).
+	mux.HandleFunc("/lb/save", func(w http.ResponseWriter, r *http.Request) {
+		ping()
+		if r.Method != "POST" {
+			http.Error(w, "POST", 405)
+			return
+		}
+		if o := r.Header.Get("Origin"); o != "" && o != "http://"+r.Host {
+			http.Error(w, "origine refusée", 403)
+			return
+		}
+		name := filepath.Base(r.URL.Query().Get("name"))
+		ext := strings.ToLower(filepath.Ext(name))
+		if !map[string]bool{".png": true, ".svg": true, ".dxf": true, ".zip": true, ".courbeur": true}[ext] {
+			writeJSON(w, map[string]any{"ok": false, "message": "Type de fichier refusé."})
+			return
+		}
+		base := safeName(strings.TrimSuffix(name, filepath.Ext(name)))
+		if base == "" {
+			base = "export"
+		}
+		b, err := io.ReadAll(io.LimitReader(r.Body, 200<<20))
+		if err != nil || len(b) == 0 {
+			writeJSON(w, map[string]any{"ok": false, "message": "Fichier vide."})
+			return
+		}
+		os.MkdirAll(exportDir, 0o755)
+		fn := base + ext
+		for i := 2; ; i++ {
+			if _, err := os.Stat(filepath.Join(exportDir, fn)); err != nil {
+				break
+			}
+			fn = fmt.Sprintf("%s (%d)%s", base, i, ext)
+		}
+		p := filepath.Join(exportDir, fn)
+		if err := os.WriteFile(p, b, 0o644); err != nil {
+			writeJSON(w, map[string]any{"ok": false, "message": "Écriture impossible : " + err.Error()})
+			return
+		}
+		logf("fichier enregistré : %s", p)
+		if r.URL.Query().Get("open") == "1" {
+			go openFolder(exportDir)
+		}
+		writeJSON(w, map[string]any{"ok": true, "name": fn, "dir": exportDir})
+	})
 	mux.HandleFunc("/lb/library/save", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			http.Error(w, "POST", 405)
@@ -501,12 +547,7 @@ func main() {
 			return
 		}
 		base := strings.TrimSuffix(filepath.Base(r.URL.Query().Get("name")), filepath.Ext(r.URL.Query().Get("name")))
-		base = strings.Map(func(c rune) rune {
-			if strings.ContainsRune(`<>:"/\|?*`, c) || c < 32 {
-				return '_'
-			}
-			return c
-		}, base)
+		base = safeName(base)
 		if base == "" || base == "." {
 			base = "motif"
 		}
@@ -585,6 +626,7 @@ type inboxFile struct {
 var (
 	inboxMu     sync.Mutex
 	inboxDirs   = map[string]string{}
+	exportDir   string
 	inboxLatest = map[string]inboxFile{}
 )
 
@@ -607,6 +649,7 @@ func initInbox() {
 		os.MkdirAll(d, 0o755)
 		inboxDirs[k] = d
 	}
+	exportDir = filepath.Join(base, "Exports")
 	scanInbox()
 }
 
@@ -798,4 +841,15 @@ func L(fr, en string) string {
 		return fr
 	}
 	return en
+}
+
+// nom de fichier sans caractères interdits sous Windows
+func safeName(s string) string {
+	s = strings.Map(func(c rune) rune {
+		if strings.ContainsRune(`<>:"/\|?*`, c) || c < 32 {
+			return '_'
+		}
+		return c
+	}, s)
+	return strings.Trim(s, " .")
 }
