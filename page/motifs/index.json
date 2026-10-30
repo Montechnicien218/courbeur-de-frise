@@ -61,6 +61,32 @@
    "Pointillés"
   ]
  ],
+ "illusions": [
+  [
+   "illusion-cubes",
+   "Cubes 3D"
+  ],
+  [
+   "illusion-cafe",
+   "Mur du café"
+  ],
+  [
+   "illusion-vagues",
+   "Vagues op-art"
+  ],
+  [
+   "illusion-tunnel",
+   "Tunnel"
+  ],
+  [
+   "illusion-ruban",
+   "Ruban plié"
+  ],
+  [
+   "illusion-damier",
+   "Damier bombé"
+  ]
+ ],
  "coins": [
   [
    "coin-fleuron",

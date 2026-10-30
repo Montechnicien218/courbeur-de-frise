@@ -149,6 +149,100 @@ def fleurs(x):
 frieze('fleurs', 20, 16, fleurs)
 frieze('pointilles', 10, 4, lambda x: unary_union([circ(x + 2.2, 2, 1.4), line([(x + 5.6, 2), (x + 8.6, 2)], 1.6)]))
 
+
+# ---------- illusions d'optique ----------
+def cubes3d(x):
+    """cubes empilés (Necker / blocs basculants) : face gauche pleine, face droite hachurée, dessus vide"""
+    T = 14.0
+    sz = T / math.sqrt(3)
+    cx, cy = x + T / 2, sz + 0.2
+    w = T / 2
+    top, ur, lr, bot, ll, ul, c = (cx, cy - sz), (cx + w, cy - sz / 2), (cx + w, cy + sz / 2), (cx, cy + sz), (cx - w, cy + sz / 2), (cx - w, cy - sz / 2), (cx, cy)
+    left = Polygon([ul, c, bot, ll]).buffer(-0.28, join_style=2)
+    right = Polygon([c, ur, lr, bot]).buffer(-0.28, join_style=2)
+    bw = (w - 0.56) / 5
+    stripes = unary_union([box(cx + 0.28 + (2 * k) * bw, -1, cx + 0.28 + (2 * k + 1) * bw, 40) for k in range(3)]).intersection(right)
+    rim = Polygon([top, ur, c, ul]).exterior.buffer(0.25, join_style=2).intersection(Polygon([top, ur, c, ul]))
+    return unary_union([left, stripes, rim])
+frieze('illusion-cubes', 14, 14 / math.sqrt(3) * 2 + 0.4, cubes3d)
+
+
+def mur_cafe(x):
+    """mur du café (Gregory) : rangées de carreaux décalées d'un demi-carreau ; les joints parallèles paraissent penchés"""
+    s, m, g = 7.0, 0.7, 0.35
+    rows = [0.0, s / 2, 0.0]
+    g_ = []
+    for r, sh in enumerate(rows):
+        y0 = r * (s + m + 2 * g)
+        for k in (-1, 0, 1):
+            g_.append(box(x + sh + k * 2 * s, y0, x + sh + k * 2 * s + s, y0 + s))
+        if r < len(rows) - 1:
+            g_.append(box(x - 1, y0 + s + g, x + 2 * s + 1, y0 + s + g + m))
+    return unary_union(g_)
+frieze('illusion-cafe', 14, 3 * 7 + 2 * (0.7 + 0.7), mur_cafe)
+
+
+def vagues_op(x):
+    """vagues op-art : bandes dont l'épaisseur ondule, décalée d'une bande à l'autre : la frise semble bomber"""
+    T, H, n = 24.0, 16.0, 7
+    out = []
+    for k in range(n):
+        yc = (k + 0.5) * H / n
+        ph = k * math.pi / (n - 1)
+        top, bot = [], []
+        for i in range(97):
+            xx = x + T * i / 96
+            t = 0.35 + 0.95 * (0.5 + 0.5 * math.sin(2 * math.pi * i / 96 + ph))
+            top.append((xx, yc - t / 2))
+            bot.append((xx, yc + t / 2))
+        out.append(Polygon(top + bot[::-1]))
+    return unary_union(out)
+frieze('illusion-vagues', 24, 16, vagues_op)
+
+
+def tunnel(x):
+    """tunnel : carrés emboîtés dont le centre fuit vers la droite, effet de profondeur"""
+    T = 16.0
+    out = []
+    sizes, thick, off = [15.4, 11.0, 6.6], [1.0, 0.85, 0.7], 0.5
+    for j, (a, t) in enumerate(zip(sizes, thick)):
+        cx, cy = x + T / 2 + j * off, T / 2
+        outer = box(cx - a / 2, cy - a / 2, cx + a / 2, cy + a / 2)
+        out.append(outer.difference(outer.buffer(-t, join_style=2)))
+    cx = x + T / 2 + 3 * off
+    out.append(box(cx - 1.1, T / 2 - 1.1, cx + 1.1, T / 2 + 1.1))
+    return unary_union(out)
+frieze('illusion-tunnel', 16, 16, tunnel)
+
+
+def ruban(x):
+    """ruban plié en zigzag : montées pleines, descentes en traits, le ruban paraît en relief"""
+    T, H, b = 16.0, 14.0, 3.4
+    y0, y1 = 1.5, H - 1.5 - b
+    up = Polygon([(x, y1), (x + T / 2, y0), (x + T / 2, y0 + b), (x, y1 + b)])
+    dn = Polygon([(x + T / 2, y0), (x + T, y1), (x + T, y1 + b), (x + T / 2, y0 + b)])
+    lines = unary_union([line([(x + T / 2 - 1, y0 + d - 1 * (y1 - y0) / (T / 2)), (x + T + 1, y1 + d + 1 * (y1 - y0) / (T / 2))], 0.55, cap='flat') for d in (0.45, 1.7, 2.95)]).intersection(dn)
+    return unary_union([up.buffer(-0.15, join_style=2), lines])
+frieze('illusion-ruban', 16, 14, ruban)
+
+
+def damier_bombe(x):
+    """damier bombé : colonnes plus larges au milieu de chaque tuile, le damier semble gonfler"""
+    T, rows, rh = 24.0, 3, 5.0
+    n = 8
+    w = [1 + 0.55 * math.sin(math.pi * (i + 0.5) / n) for i in range(n)]
+    k = T / sum(w)
+    xs = [0.0]
+    for v in w:
+        xs.append(xs[-1] + v * k)
+    out = []
+    for r in range(rows):
+        for i in range(n):
+            if (i + r) % 2 == 0:
+                out.append(box(x + xs[i], r * rh, x + xs[i + 1], (r + 1) * rh))
+    return unary_union(out)
+frieze('illusion-damier', 24, 15, damier_bombe)
+
 # ---------- ornements de coin (pointe en bas, vers le coin) ----------
 corner('coin-fleuron', unary_union([
     ell(15, 13, 3.2, 9.5), ell(8.8, 18.5, 2.6, 7.5, -48), ell(21.2, 18.5, 2.6, 7.5, 48),
@@ -203,6 +297,8 @@ LIB = {
                ('grecque', 'Grecque'), ('entrelacs', 'Entrelacs'), ('festons', 'Festons'), ('dentelle', 'Dentelle'),
                ('coeurs', 'Cœurs'), ('etoiles', 'Étoiles'), ('fleurs', 'Fleurs'), ('epis', 'Épis de blé'),
                ('losanges', 'Losanges'), ('torsade', 'Torsade'), ('chevrons', 'Chevrons'), ('pointilles', 'Pointillés')],
+    'illusions': [('illusion-cubes', 'Cubes 3D'), ('illusion-cafe', 'Mur du café'), ('illusion-vagues', 'Vagues op-art'),
+                  ('illusion-tunnel', 'Tunnel'), ('illusion-ruban', 'Ruban plié'), ('illusion-damier', 'Damier bombé')],
     'coins': [('coin-fleuron', 'Fleuron'), ('coin-feuilles', 'Branches de feuilles'), ('coin-volute', 'Volutes'), ('coin-etoile', 'Étoile')],
 }
 (OUT / 'index.json').write_text(json.dumps(LIB, ensure_ascii=False, indent=1), encoding='utf-8')

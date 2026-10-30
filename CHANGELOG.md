@@ -1,5 +1,11 @@
 # Journal des versions · Changelog
 
+## 1.16.0 — 30.10.2026 — illusions d'optique · optical illusions
+- 6 frises d'illusion d'optique dans la bibliothèque : cubes 3D, mur du café, vagues op-art, tunnel, ruban plié, damier bombé · 6 optical-illusion friezes in the library: 3D cubes, café wall, op-art waves, tunnel, folded ribbon, bulging checkerboard.
+
+## 1.15.1 — 30.10.2026 — matériaux · materials
+- Aperçu réaliste : deux nouveaux matériaux, contreplaqué et métal brossé · Realistic preview: two new materials, plywood and brushed metal.
+
 ## 1.15.0 — 30.10.2026 — nouvelle interface · new interface
 - Interface façon logiciel laser : barre d'outils en haut, objets à gauche, dessin en grand au centre, propriétés à droite, barre d'état en bas · Laser-studio layout: toolbar on top, objects on the left, large drawing in the middle, properties on the right, status bar at the bottom.
 - Thème sombre par défaut, thème clair en un clic (mémorisé) · Dark theme by default, light theme one click away (remembered).

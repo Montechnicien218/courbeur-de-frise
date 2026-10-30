@@ -210,6 +210,7 @@ canvas.dragging{cursor:grabbing}
 .galItem img{width:100%;height:42px;object-fit:contain;object-position:left center;background:#fff;border-radius:5px;padding:4px}
 .galItem.coin img{height:90px;object-position:center}
 .galItem span{font-size:.8rem}
+.galSec{grid-column:1/-1;margin:8px 0 0;font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600;border-top:1px solid var(--line);padding-top:12px}
 .upd{position:fixed;left:50%;top:calc(var(--top) + 10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:35;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:var(--panel);border:1px solid var(--accent);border-radius:8px;box-shadow:var(--shadow);padding:8px 10px 8px 14px;max-width:calc(100% - 32px)}
 .upd-s{color:var(--muted);font-size:.82rem}
 .ctx{position:fixed;z-index:30;min-width:200px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:7px;box-shadow:var(--shadow);padding:4px;display:grid}
@@ -237,7 +238,7 @@ canvas.dragging{cursor:grabbing}
     </div>
     <div class="spacer"></div>
     <div class="tgrp">
-      <select id="renderSel" aria-label="Rendu de l'aperçu" title="Rendu de l'aperçu"><option value="plan">Plan</option><option value="bois">Bois clair</option><option value="noyer">Noyer</option><option value="ardoise">Ardoise</option><option value="acrylique">Acrylique noir</option></select>
+      <select id="renderSel" aria-label="Rendu de l'aperçu" title="Rendu de l'aperçu"><option value="plan">Plan</option><option value="bois">Bois clair</option><option value="contreplaque">Contreplaqué</option><option value="metal">Métal</option><option value="noyer">Noyer</option><option value="ardoise">Ardoise</option><option value="acrylique">Acrylique noir</option></select>
       <button id="btnPng" type="button" class="ibtn" title="Enregistrer une image de la pièce, comme sortie de la machine"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg><span class="lbl">Image</span></button>
     </div>
     <div class="tgrp end">
@@ -585,7 +586,7 @@ const I18N_EXACT={
 "Image":"Image",
 "Enregistrer une image de la pièce, comme sortie de la machine":"Save an image of the piece, as it comes out of the machine",
 "Plan":"Plan",
-"Bois clair":"Light wood",
+"Bois clair":"Light wood","Illusions d'optique":"Optical illusions","Cubes 3D":"3D cubes","Mur du café":"Café wall","Vagues op-art":"Op-art waves","Tunnel":"Tunnel","Ruban plié":"Folded ribbon","Damier bombé":"Bulging checkerboard","Contreplaqué":"Plywood","Métal":"Metal",
 "Noyer":"Walnut",
 "Ardoise":"Slate",
 "Acrylique noir":"Black acrylic",
@@ -731,7 +732,7 @@ function setLang(l,save){LANG=l==='en'?'en':'fr';document.documentElement.lang=L
 function initialLang(){try{const s=localStorage.getItem('courbeur.lang');if(s==='fr'||s==='en')return s;}catch(e){}
   return /^fr\b/i.test(navigator.language||'')?'fr':'en';}
 
-const PAGE_VERSION = '1.15.0';
+const PAGE_VERSION = '1.16.0';
 
 /* ---------- geometry helpers ---------- */
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
@@ -1157,14 +1158,17 @@ function chainOf(f){return f.free&&f._chain?f._chain:chains[f.ci];}
 /* -- bibliothèque intégrée -- */
 const LIBM=new Map();
 function libMotif(name){let m=LIBM.get(name);if(m)return m;const svg=MOTIF_LIB.files[name];if(!svg)return null;
-  const all=MOTIF_LIB.index.frises.concat(MOTIF_LIB.index.coins);const it=all.find(x=>x[0]===name);
+  const all=MOTIF_LIB.index.frises.concat(MOTIF_LIB.index.coins,MOTIF_LIB.index.illusions||[]);const it=all.find(x=>x[0]===name);
   m=parseMotif(svg,(it?it[1]:name)+'.svg');m.lib=name;LIBM.set(name,m);return m;}
 function openGallery(kind,onPick){const box=$('galBox'),grid=$('galGrid');grid.textContent='';
   $('galTitle').textContent=kind==='coins'?'Ornements de coin':'Motifs de frise';
-  for(const [name,label] of MOTIF_LIB.index[kind]){const b=document.createElement('button');b.type='button';b.className='galItem'+(kind==='coins'?' coin':'');
+  const groups=kind==='coins'?[['coins',null]]:[['frises',null],['illusions',"Illusions d'optique"]];
+  for(const [gk,gt] of groups){const list=MOTIF_LIB.index[gk]||[];if(!list.length)continue;
+  if(gt){const h=document.createElement('h3');h.className='galSec';h.textContent=gt;grid.append(h);}
+  for(const [name,label] of list){const b=document.createElement('button');b.type='button';b.className='galItem'+(kind==='coins'?' coin':'');
     const img=document.createElement('img');img.alt='';img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(MOTIF_LIB.files[name]);
     const t=document.createElement('span');t.textContent=label;b.append(img,t);
-    b.addEventListener('click',()=>{closeGallery();const m=libMotif(name);if(m)onPick(m);});grid.append(b);}
+    b.addEventListener('click',()=>{closeGallery();const m=libMotif(name);if(m)onPick(m);});grid.append(b);}}
   box.hidden=false;const f=grid.querySelector('button');if(f)f.focus();}
 function closeGallery(){$('galBox').hidden=true;}
 $('galClose').addEventListener('click',closeGallery);
@@ -1282,6 +1286,8 @@ $('fileProj').addEventListener('change',async()=>{const f=$('fileProj').files[0]
 /* -- aperçu réaliste : la pièce comme si elle sortait de la machine, et export en image -- */
 const MATS={
   bois:{base:'#d8b07c',a:'#c39461',b:'#ecd2a6',grain:1,engr:'#4a2a14',hi:'rgba(255,240,210,.55)',edge:'#5e3a1c'},
+  contreplaque:{base:'#e6cf9f',a:'#d2b47c',b:'#f3e3bf',grain:3,engr:'#3d2412',hi:'rgba(255,248,225,.6)',edge:'#7a5a33'},
+  metal:{base:'#b9bec4',a:'#9ea4ab',b:'#dde1e5',grain:4,engr:'#2b2e33',hi:'rgba(255,255,255,.45)',edge:'#6d737a'},
   noyer:{base:'#6e4a30',a:'#553621',b:'#8d6545',grain:1,engr:'#1f120a',hi:'rgba(190,150,110,.35)',edge:'#24160d'},
   ardoise:{base:'#3d4247',a:'#33373b',b:'#4b5157',grain:0,engr:'#dfe3e6',hi:'rgba(0,0,0,.35)',edge:'#1a1d20'},
   acrylique:{base:'#141414',a:'#0e0e0e',b:'#262626',grain:2,engr:'#eeeeee',hi:'rgba(0,0,0,.5)',edge:'#000000'}};
@@ -1296,6 +1302,10 @@ function matTexture(key){if(TEX[key])return TEX[key];const M=MATS[key],S=512,cv2
   const N=(x,y,dx,dy)=>vn(x/dx,y/dy,S/dx,S/dy);
   for(let y=0;y<S;y++)for(let x=0;x<S;x++){let v;
     if(M.grain===1){const w=N(x,y,128,32)*1.6+N(x,y,32,8)*0.35;v=0.5+0.5*Math.sin((y/S*20+w)*Math.PI*2);v=v*0.62+N(x,y,32,2)*0.28+N(x,y,4,1)*0.10;}
+    else if(M.grain===3){/* contreplaqué de bouleau : grandes veines ondulées du déroulage, fibres fines, peu contrastées */
+      const w=N(x,y,256,128)*2.4+N(x,y,64,32)*0.5;v=0.5+0.5*Math.sin((y/S*4+w)*Math.PI*2);v=v*0.45+N(x,y,64,2)*0.33+N(x,y,8,1)*0.12+0.08;}
+    else if(M.grain===4){/* métal brossé : stries horizontales et léger reflet */
+      v=0.38+N(x,y,512,1)*0.24+N(x,y,64,1)*0.16+N(x,y,8,1)*0.08+0.22*Math.sin(((x+y)/S)*Math.PI)**2;}
     else if(M.grain===2){v=0.55+0.25*(1-y/S)+N(x,y,64,64)*0.08;}
     else v=N(x,y,64,64)*0.55+N(x,y,8,8)*0.3+N(x,y,2,2)*0.15;
     const o=(y*S+x)*4,mix=(p,q,t)=>p+(q-p)*t,t=Math.max(0,Math.min(1,v));
