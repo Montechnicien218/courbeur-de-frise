@@ -1,5 +1,10 @@
 # Journal des versions · Changelog
 
+## 1.14.2 — 30.10.2026 — plus rapide · faster
+- Démarrage environ 6 fois plus rapide (2,8 s → 0,5 s) : les tracés SVG sont lus directement au lieu d'être mesurés point par point · About 6× faster start-up (2.8 s → 0.5 s): SVG paths are read directly instead of being measured point by point.
+- Les motifs et les formes SVG s'ouvrent beaucoup plus vite, surtout les fichiers détaillés · SVG patterns and shapes open much faster, especially detailed files.
+- Frappe d'un texte plus fluide : la liste des frises et la barre d'infos ne sont plus reconstruites à chaque touche · Smoother typing: the frieze list and info bar are no longer rebuilt on every keystroke.
+
 ## 1.14 — 30.10.2026 — projet, coins, aperçu · project, corners, preview
 - Mise à jour sans relancer le programme : quand courbeur.html est remplacé, un bandeau propose de recharger, en gardant le travail en cours · Update without restarting: when courbeur.html is replaced, a banner offers to reload, keeping the current work.
 - Projet : enregistrer et rouvrir tout un travail (fichier .courbeur, polices comprises) · Project: save and reopen a whole job (.courbeur file, fonts included).
