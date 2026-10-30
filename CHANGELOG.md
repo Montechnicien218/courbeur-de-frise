@@ -1,5 +1,9 @@
 # Journal des versions · Changelog
 
+## 1.18.2 — 30.10.2026 — Image vers LightBurn · Image to LightBurn
+- Dans LightBurn, Image, DXF et SVG partent directement dans LightBurn par son API (comme avant, mais sans téléchargement) ; le projet .courbeur va dans Exports · In LightBurn, Image, DXF and SVG go straight into LightBurn through its API (as before, without downloading); the .courbeur project goes to Exports.
+- L'image PNG porte sa vraie résolution : elle arrive à la bonne taille en mm, posée sur la pièce · The PNG image carries its true resolution: it arrives at the right size in mm, placed over the piece.
+
 ## 1.18.1 — 30.10.2026 — correctif LightBurn · LightBurn fix
 - Dans le navigateur intégré de LightBurn, les boutons Image, DXF, SVG et Enregistrer faisaient planter LightBurn (il ne sait pas télécharger de fichiers). Les fichiers sont maintenant enregistrés par CourbeurDeFrise.exe dans Documents\Courbeur de frise\Exports, et le dossier s'ouvre · In LightBurn's built-in browser, the Image, DXF, SVG and Save buttons crashed LightBurn (it cannot download files). Files are now saved by CourbeurDeFrise.exe to Documents\Courbeur de frise\Exports, and the folder opens.
 - Nécessite le nouveau CourbeurDeFrise.exe (lanceur-4) · Requires the new CourbeurDeFrise.exe (launcher-4).

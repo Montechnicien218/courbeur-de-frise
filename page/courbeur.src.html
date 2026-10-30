@@ -866,7 +866,7 @@ function setLang(l,save){LANG=l==='en'?'en':'fr';document.documentElement.lang=L
 function initialLang(){try{const s=localStorage.getItem('courbeur.lang');if(s==='fr'||s==='en')return s;}catch(e){}
   return /^fr\b/i.test(navigator.language||'')?'fr':'en';}
 
-const PAGE_VERSION = '1.18.1';
+const PAGE_VERSION = '1.18.2';
 
 /* ---------- geometry helpers ---------- */
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
@@ -1452,7 +1452,9 @@ $('btnPng').addEventListener('click',()=>busyRun('Image…',async()=>{await when
   const list=chains.map(c=>c.pts).concat(allWarped().map(w=>w.pts));const b=bboxOf(list),pad=8;
   const ppm=Math.min(12,(IN_LB?2500:4000)/Math.max(b.w+2*pad,b.h+2*pad));   /* plus léger dans LightBurn */const W=Math.round((b.w+2*pad)*ppm),H=Math.round((b.h+2*pad)*ppm);
   const oc=document.createElement('canvas');oc.width=W;oc.height=H;renderReal(oc.getContext('2d'),W,H,ppm,(b.x0+b.x1)/2,(b.y0+b.y1)/2,key,ppm/4,true);
-  await new Promise(res=>oc.toBlob(bl=>{if(bl)offer(baseName()+'_apercu.png',bl);res();},'image/png'));}));
+  let bl=await new Promise(res=>oc.toBlob(res,'image/png'));if(!bl)return;bl=await pngWithDpi(bl,ppm);const nm=baseName()+'_apercu.png';
+  if(HTTP&&IN_LB){const ok=await sendFileToLB(nm,bl,{x:b.x0-pad,y:b.y0-pad});if(!ok)await saveViaServer(nm,bl);return;}
+  offer(nm,bl);}));
 
 /* -- réglages des coins -- */
 $('cornH').addEventListener('input',e=>{const v=parseFloat(String(e.target.value).replace(',','.'));if(v>=1){state.H=v;update();}});
@@ -1737,7 +1739,7 @@ function css(n){return getComputedStyle(document.documentElement).getPropertyVal
    - le dessin (forme, frises) est sur le canevas principal, redessiné seulement quand la vue ou le contenu change ;
    - les repères (règles, poignées, curseur) sont sur un canevas transparent au-dessus, à faible latence :
      bouger la souris ne redessine que lui. */
-const ov=$('ov');let octx=null;try{octx=ov.getContext('2d',{desynchronized:true});}catch(e){}if(!octx)octx=ov.getContext('2d');
+const ov=$('ov');let octx=null;if(!/QtWebEngine/i.test(navigator.userAgent)){try{octx=ov.getContext('2d',{desynchronized:true});}catch(e){}}if(!octx)octx=ov.getContext('2d');
 function resize(){const r=$('cvBox').getBoundingClientRect(),d=window.devicePixelRatio||1;const W=Math.max(1,Math.round(r.width*d)),H=Math.max(1,Math.round(r.height*d));
   cv.width=W;cv.height=H;ov.width=W;ov.height=H;drawNow();}
 function fit(){if(anyBusy()){fitPending=true;return;}const list=chains.map(c=>c.pts).concat(allWarped().map(w=>w.pts));if(!list.length)return;const b=bboxOf(list);const W=cv.width,H=cv.height;
@@ -2372,6 +2374,18 @@ async function saveViaServer(filename,data){
     const r=await fetch('/lb/save?open=1&name='+encodeURIComponent(filename),{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:b});
     const j=await r.json();const msg=j.ok?'Fichier enregistré : Exports\\'+j.name:j.message;toast(msg);if(j.ok)setTimeout(()=>toast(msg),1300);}   /* reste visible après le message de fusion */
   catch(e){toast('Enregistrement impossible : relance CourbeurDeFrise.exe');}}
+/* depuis LightBurn : le fichier part directement dans LightBurn, par son API (comme « Envoyer à LightBurn ») */
+async function sendFileToLB(name,data,pl){try{const b=data instanceof Blob?data:new Blob([data]);let q='?name='+encodeURIComponent(name);if(pl)q+='&x='+f4(pl.x)+'&y='+f4(pl.y);
+    const r=await fetch('/lb/send'+q,{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:b});const j=await r.json();
+    toast(j.ok?'Envoyé à LightBurn':j.message);setTimeout(()=>toast(j.ok?'Envoyé à LightBurn':j.message),1300);return !!j.ok;}
+  catch(e){toast('Impossible de joindre l\'outil. Relance CourbeurDeFrise.exe.');return false;}}
+/* l'image PNG porte sa vraie résolution (bloc pHYs) : elle s'ouvre à la bonne taille en mm dans LightBurn et ailleurs */
+async function pngWithDpi(blob,ppm){try{const u=new Uint8Array(await blob.arrayBuffer());
+    if(u.length<41||u[12]!==0x49||u[13]!==0x48||u[14]!==0x44||u[15]!==0x52)return blob;
+    for(let i=33;i+8<u.length&&i<200000;){const len=(u[i]<<24|u[i+1]<<16|u[i+2]<<8|u[i+3])>>>0,t=String.fromCharCode(u[i+4],u[i+5],u[i+6],u[i+7]);if(t==='pHYs'||t==='IDAT'){if(t==='pHYs')return blob;break;}i+=12+len;}
+    const ppmM=Math.round(ppm*1000),c=new Uint8Array(21),dv=new DataView(c.buffer);dv.setUint32(0,9);c.set([0x70,0x48,0x59,0x73],4);dv.setUint32(8,ppmM);dv.setUint32(12,ppmM);c[16]=1;dv.setUint32(17,crc32(c.subarray(4,17)));
+    const out=new Uint8Array(u.length+21);out.set(u.subarray(0,33));out.set(c,33);out.set(u.subarray(33),54);return new Blob([out],{type:'image/png'});}
+  catch(e){return blob;}}
 function blobSave(filename,data){if(HTTP&&IN_LB){saveViaServer(filename,data);return;}const b=data instanceof Blob?data:new Blob([data],{type:'application/octet-stream'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=filename;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);toast('Fichier enregistré : '+filename);}
 async function offer(filename,data){
   if(STANDALONE){blobSave(filename,data);return;}
@@ -2382,8 +2396,8 @@ async function fuseNotice(){if(!docOpts.fuse||!hasOutput())return;toast('Fusion 
   setTimeout(()=>{if(lastFuse)toast('Fusion : '+lastFuse.before+' tracés → '+lastFuse.after+' contours');},900);}
 function showFallback(){$('fallback').hidden=false;}
 const hasOutput=()=>frises.some(f=>f.warped.length&&!f.hidden);
-$('btnDxf').addEventListener('click',()=>busyRun('Export…',async()=>{await whenIdle();await fuseNotice();if(!hasOutput()){toast('Rien à exporter');return;}const n=baseName();if(STANDALONE){blobSave(n+'.dxf',buildDXF());return;}offer(n+'.zip',zip([{name:n+'.dxf',data:new TextEncoder().encode(buildDXF())}]));}));
-$('btnSvg').addEventListener('click',()=>busyRun('Export…',async()=>{await whenIdle();await fuseNotice();const r=buildSVG();if(!r){toast('Rien à exporter');return;}offer(baseName()+'.svg',r.svg);}));
+$('btnDxf').addEventListener('click',()=>busyRun('Export…',async()=>{await whenIdle();await fuseNotice();if(!hasOutput()){toast('Rien à exporter');return;}const n=baseName();if(HTTP&&IN_LB){await sendFileToLB(n+'.dxf',buildDXF(),null);return;}if(STANDALONE){blobSave(n+'.dxf',buildDXF());return;}offer(n+'.zip',zip([{name:n+'.dxf',data:new TextEncoder().encode(buildDXF())}]));}));
+$('btnSvg').addEventListener('click',()=>busyRun('Export…',async()=>{await whenIdle();await fuseNotice();const r=buildSVG();if(!r){toast('Rien à exporter');return;}if(HTTP&&IN_LB){await sendFileToLB(baseName()+'.svg',r.svg,{x:r.bb.x0-r.pad,y:r.bb.y0-r.pad});return;}offer(baseName()+'.svg',r.svg);}));
 $('btnCopy').addEventListener('click',()=>{const t=buildDXF();navigator.clipboard.writeText(t).then(()=>toast('DXF copié')).catch(()=>{const ta=$('fbText');ta.hidden=false;ta.value=t;ta.select();toast('Sélectionne le texte et copie-le');});});
 
 /* ---------- LightBurn (via CourbeurDeFrise.exe) ---------- */
