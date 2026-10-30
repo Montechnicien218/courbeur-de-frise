@@ -1,5 +1,8 @@
 # Journal des versions · Changelog
 
+## 1.17.1 — 30.10.2026 — tâche en cours · busy indicator
+- Une roue tourne et le curseur passe en attente pendant les calculs, l'export, l'envoi à LightBurn et l'ouverture de fichiers · A spinner and a busy cursor show during computing, export, sending to LightBurn and opening files.
+
 ## 1.17.0 — 30.10.2026 — ergonomie · ergonomics
 - Poignées du début et de la fin du bord à glisser directement sur le dessin · Start and end handles of the edge can be dragged on the drawing.
 - Fichiers à déposer sur le dessin : forme, motif, projet ou police · Drop files onto the drawing: shape, pattern, project or font.

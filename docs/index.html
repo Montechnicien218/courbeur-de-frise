@@ -924,6 +924,13 @@ input[type=text].txt{width:100%;font-family:var(--f-body);font-size:.95rem;heigh
 canvas{display:block;width:100%;height:100%;cursor:grab}
 canvas.picking{cursor:crosshair}
 canvas.dragging{cursor:grabbing}
+/* ---- tâche en cours : roue qui tourne + curseur d'attente ---- */
+.busy{position:absolute;left:50%;top:28px;transform:translateX(-50%);display:flex;align-items:center;gap:8px;padding:5px 13px 5px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);font-size:.8rem;font-weight:500;z-index:7;pointer-events:none;white-space:nowrap}
+.spin{width:16px;height:16px;border-radius:50%;border:2.2px solid var(--line);border-top-color:var(--accent);border-right-color:var(--accent);animation:cf-spin .7s linear infinite;flex:none}
+.tspin{display:none;width:14px;height:14px;margin:0 4px}
+body.is-busy .tspin{display:block}
+@keyframes cf-spin{to{transform:rotate(360deg)}}
+body.is-busy,body.is-busy canvas,body.is-busy button,body.is-busy label{cursor:progress!important}
 /* ---- ergonomie (1.17) ---- */
 .legend{top:30px!important}
 .pickmsg{left:30px;top:30px}
@@ -1068,7 +1075,7 @@ kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--l
       <button id="btnUndo" type="button" class="ibtn" title="Annuler (Ctrl+Z)" disabled><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span class="lbl">Précédent</span></button>
       <button id="btnRedo" type="button" class="ibtn" title="Rétablir (Ctrl+Y)" disabled><span class="lbl">Suivant</span><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
     </div>
-    <div class="spacer"></div>
+    <div class="spacer"></div><span class="spin tspin" aria-hidden="true"></span>
     <div class="tgrp">
       <select id="renderSel" aria-label="Rendu de l'aperçu" title="Rendu de l'aperçu"><option value="plan">Plan</option><option value="bois">Bois clair</option><option value="contreplaque">Contreplaqué</option><option value="metal">Métal</option><option value="noyer">Noyer</option><option value="ardoise">Ardoise</option><option value="acrylique">Acrylique noir</option></select>
       <button id="btnPng" type="button" class="ibtn" title="Enregistrer une image de la pièce, comme sortie de la machine"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg><span class="lbl">Image</span></button>
@@ -1123,6 +1130,7 @@ kbd{display:inline-block;min-width:22px;padding:1px 6px;border:1px solid var(--l
 
   <main class="stage">
     <div class="cv" id="cvBox"><canvas id="cv"></canvas><div class="pickmsg" id="pickMsg" hidden></div>
+      <div class="busy" id="busyInd" role="status" aria-live="polite" hidden><span class="spin"></span><span id="busyTxt">Calcul…</span></div>
       <div class="dropov" id="dropOv" hidden>
         <div class="dz" data-as="forme"><svg viewBox="0 0 24 24"><path d="M4 18c3-9 13-9 16 0"/><path d="M12 3v9m-3-3 3 3 3-3"/></svg><b>Forme</b><span>DXF, SVG ou projet .courbeur</span></div>
         <div class="dz" data-as="motif"><svg viewBox="0 0 24 24"><path d="M3 15c3-4 6 4 9 0s6 4 9 0"/><path d="M12 3v7m-3-3 3 3 3-3"/></svg><b>Motif de la frise</b><span>SVG</span></div>
@@ -1416,6 +1424,7 @@ const $ = id => document.getElementById(id);
    créés en cours d'utilisation) passe par ce traducteur : une table de phrases exactes, puis des règles pour
    les phrases qui contiennent des nombres. On revient au français sans recharger la page. */
 const I18N_EXACT={
+"Calcul…":"Computing…","Export…":"Exporting…","Image…":"Image…","Enregistrement…":"Saving…","Ouverture…":"Opening…","Envoi à LightBurn…":"Sending to LightBurn…",
 "Masquer":"Hide","Afficher":"Show","Verrouiller":"Lock","Déverrouiller":"Unlock","Dupliquer":"Duplicate","Glisser pour changer l'ordre":"Drag to change the order","Explication":"Explanation","Raccourcis et aide (?)":"Shortcuts and help (?)","Avancé":"Advanced","DXF, SVG ou projet .courbeur":"DXF, SVG or .courbeur project","Motif de la frise":"Frieze pattern","Cet élément est verrouillé.":"This item is locked.","Rechercher un motif":"Search patterns","Survole un motif pour le voir sur le dessin. ★ pour le garder en favori.":"Hover a pattern to see it on the drawing. ★ to keep it as a favourite.","Favoris":"Favourites","Récents":"Recent","Ornements":"Ornaments","Aucun motif trouvé":"No pattern found","Ajouter aux favoris":"Add to favourites","Retirer des favoris":"Remove from favourites","Travail non enregistré retrouvé :":"Unsaved work found:","Reprendre":"Resume","Ignorer":"Dismiss","Raccourcis clavier":"Keyboard shortcuts","Fichiers":"Files","Vue":"View","Réglages":"Settings","Enregistrer le projet":"Save the project","Ouvrir un projet":"Open a project","Télécharger le DXF":"Download the DXF","Télécharger le SVG":"Download the SVG","Glisser":"Drag","Déposer une forme, un motif, un projet ou une police sur le dessin":"Drop a shape, pattern, project or font on the drawing","Dupliquer l'élément":"Duplicate the item","Suppr":"Del","Supprimer l'élément":"Delete the item","Masquer · verrouiller l'élément":"Hide · lock the item","Élément précédent · suivant":"Previous · next item","Changer l'ordre d'empilement":"Change the stacking order","Déplacer l'élément de 0,5 mm (Maj : 5 mm)":"Move the item by 0.5 mm (Shift: 5 mm)","Zoomer · dézoomer":"Zoom in · out","Précédent · suivant":"Undo · redo","Glisser sur le nom d'un réglage en mm pour changer sa valeur":"Drag on the name of a mm setting to change its value","Molette":"Wheel","Dans un champ : changer la valeur (Maj : ×10, Alt : ÷10)":"In a field: change the value (Shift: ×10, Alt: ÷10)","Les poignées rondes du bord suivi règlent le début et la fin":"The round handles on the followed edge set the start and end","Afficher toutes les explications sous les réglages":"Show all explanations under the settings","Maj":"Shift","Entrée":"Enter","Élément masqué : il ne sera pas exporté":"Item hidden: it will not be exported","Élément affiché":"Item shown","Élément verrouillé":"Item locked","Élément déverrouillé":"Item unlocked","Élément dupliqué":"Item duplicated","Ordre changé":"Order changed","Objet verrouillé":"Item locked","Il faut garder au moins un élément":"At least one item must remain","L'envoi à LightBurn passe par le programme Windows":"Sending to LightBurn needs the Windows program","Travail restauré":"Work restored",
 "Objets":"Objects","Propriétés":"Properties","Empilement":"Stacking","Thème clair":"Light theme","Thème sombre":"Dark theme","Zoom":"Zoom",
 "Ouvrir un projet .courbeur":"Open a .courbeur project","Enregistrer le projet .courbeur":"Save the .courbeur project",
@@ -1692,7 +1701,7 @@ function setLang(l,save){LANG=l==='en'?'en':'fr';document.documentElement.lang=L
 function initialLang(){try{const s=localStorage.getItem('courbeur.lang');if(s==='fr'||s==='en')return s;}catch(e){}
   return /^fr\b/i.test(navigator.language||'')?'fr':'en';}
 
-const PAGE_VERSION = '1.17.0';
+const PAGE_VERSION = '1.17.1';
 
 /* ---------- geometry helpers ---------- */
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
@@ -2091,8 +2100,8 @@ $('txtPos').addEventListener('input',e=>{state.tc=e.target.value/100;syncTextUI(
 $('txtPos').addEventListener('change',()=>{autoUpright(state);syncTextUI();update();});
 $('txtRot').addEventListener('change',e=>{state.rot180=e.target.checked;state.rotAuto=false;update();});
 $('btnFontAdd').addEventListener('click',()=>$('fileFont').click());
-$('fileFont').addEventListener('change',async()=>{const file=$('fileFont').files[0];$('fileFont').value='';if(!file)return;
-  try{await addFontFile(file);}catch(e){toast(e&&e.message?e.message:'Cette police n\'est pas lisible.');}});
+$('fileFont').addEventListener('change',()=>{const file=$('fileFont').files[0];$('fileFont').value='';if(!file)return;
+  busyRun('Ouverture…',async()=>{try{await addFontFile(file);}catch(e){toast(e&&e.message?e.message:'Cette police n\'est pas lisible.');}});});
 /* menu du clic droit sur le dessin */
 const ctxMenu=$('ctxMenu');
 function closeCtx(){ctxMenu.hidden=true;}
@@ -2198,7 +2207,8 @@ function projectData(){const usedFonts=new Set(frises.filter(f=>f.kind==='text')
       motifB:f.motifB?{name:f.motifB.name,lib:f.motifB.lib||'',text:f.motifB.lib?'':f.motifB.text}:null})),
     fonts:[...FONTS.values()].filter(F=>F.user&&F.b64&&usedFonts.has(F.id)).map(F=>({id:F.id,name:F.name,style:F.style,data:F.b64}))};}
 function motifFrom(r){if(!r)return null;if(r.lib){const m=libMotif(r.lib);if(m)return m;}return r.text?parseMotif(r.text,r.name||'motif.svg'):null;}
-async function openProject(text){let d;try{d=JSON.parse(text);}catch(e){throw new Error('Ce fichier n\'est pas un projet du Courbeur de frise.');}
+function openProject(text){return busyRun('Ouverture…',()=>openProjectRaw(text));}
+async function openProjectRaw(text){let d;try{d=JSON.parse(text);}catch(e){throw new Error('Ce fichier n\'est pas un projet du Courbeur de frise.');}
   if(!d||d.app!=='courbeur-de-frise'||!Array.isArray(d.frises)||!d.forme)throw new Error('Ce fichier n\'est pas un projet du Courbeur de frise.');
   commit();const remap={};
   for(const u of d.fonts||[]){try{const buf=b64buf(u.data);const font=opentype.parse(buf);const id='u'+(++userFontSeq);
@@ -2212,8 +2222,8 @@ async function openProject(text){let d;try{d=JSON.parse(text);}catch(e){throw ne
   fi=Math.min(Math.max(0,d.fi|0),frises.length-1);state=frises[fi];
   fillChainSelect();fillFontSelect();computeAll();syncAll();renderTabs();fit();renderStats();scheduleChecks();commit();savePrefsSoon();
   toast('Projet ouvert : '+formeName);}
-$('btnProjSave').addEventListener('click',async()=>{await whenIdle();const name=(formeName||'projet').replace(/\.[^.]+$/,'')+'.courbeur';
-  offer(name,new Blob([JSON.stringify(projectData())],{type:'application/json'}));});
+$('btnProjSave').addEventListener('click',()=>busyRun('Enregistrement…',async()=>{await whenIdle();const name=(formeName||'projet').replace(/\.[^.]+$/,'')+'.courbeur';
+  offer(name,new Blob([JSON.stringify(projectData())],{type:'application/json'}));}));
 $('btnProjOpen').addEventListener('click',()=>$('fileProj').click());
 /* -- mise à jour de la page : quand courbeur.html est remplacé à côté du programme, un bandeau propose de recharger,
       et le travail en cours est gardé pendant le rechargement (pas besoin de quitter ni relancer le programme) -- */
@@ -2273,11 +2283,11 @@ function renderReal(g,W,H,k,vcx,vcy,key,d,exporting){const M=MATS[key]||MATS.boi
   g.save();g.setTransform(...T);g.lineJoin='round';g.strokeStyle=M.edge;g.lineWidth=Math.max(0.45,1.4*d/k);for(const c of chains)g.stroke(chainPath(c));
   g.restore();}
 $('renderSel').addEventListener('change',()=>{view.mode=$('renderSel').value;draw();savePrefsSoon();});
-$('btnPng').addEventListener('click',async()=>{await whenIdle();if(!chains.length)return;const key=view.mode&&view.mode!=='plan'?view.mode:'bois';
+$('btnPng').addEventListener('click',()=>busyRun('Image…',async()=>{await whenIdle();if(!chains.length)return;const key=view.mode&&view.mode!=='plan'?view.mode:'bois';
   const list=chains.map(c=>c.pts).concat(allWarped().map(w=>w.pts));const b=bboxOf(list),pad=8;
   const ppm=Math.min(12,4000/Math.max(b.w+2*pad,b.h+2*pad));const W=Math.round((b.w+2*pad)*ppm),H=Math.round((b.h+2*pad)*ppm);
   const oc=document.createElement('canvas');oc.width=W;oc.height=H;renderReal(oc.getContext('2d'),W,H,ppm,(b.x0+b.x1)/2,(b.y0+b.y1)/2,key,ppm/4,true);
-  oc.toBlob(bl=>{if(bl)offer(baseName()+'_apercu.png',bl);},'image/png');});
+  await new Promise(res=>oc.toBlob(bl=>{if(bl)offer(baseName()+'_apercu.png',bl);res();},'image/png'));}));
 
 /* -- réglages des coins -- */
 $('cornH').addEventListener('input',e=>{const v=parseFloat(String(e.target.value).replace(',','.'));if(v>=1){state.H=v;update();}});
@@ -2766,7 +2776,7 @@ function wireDrop(box,input,handler){
 }
 function useMotif(m){setMotif(fi,'A',m);}
 
-wireDrop($('dropForme'),$('fileForme'),async f=>{try{const t=await f.text();if(/\.courbeur$/i.test(f.name)||/^\s*\{/.test(t)){await openProject(t);return;}setForme(t,f.name);syncAll();update();fit();toast('Forme chargée');}catch(e){toast(e.message);}});
+wireDrop($('dropForme'),$('fileForme'),f=>busyRun('Ouverture…',async()=>{try{const t=await f.text();if(/\.courbeur$/i.test(f.name)||/^\s*\{/.test(t)){await openProject(t);return;}setForme(t,f.name);syncAll();update();fit();toast('Forme chargée');}catch(e){toast(e.message);}}));
 
 /* interactions avec l'aperçu */
 const ptrs=new Map();let drag=null;
@@ -2826,6 +2836,18 @@ function syncTheme(){const dark=document.documentElement.dataset.theme!=='light'
 $('themeBtn').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme!=='light';document.documentElement.dataset.theme=dark?'light':'dark';try{localStorage.setItem('courbeur.theme',dark?'light':'dark');}catch(e){}syncTheme();});
 syncTheme();
 
+
+/* ---- tâche en cours : la roue tourne et le curseur passe en attente ----
+   calculs des frises (fils de calcul), export, envoi à LightBurn, ouverture de fichiers, image */
+let busyN=0,busyLbl='',busyT=null;
+function busyUI(){const on=busyN>0||anyBusy();
+  if(on){$('busyTxt').textContent=busyN>0?busyLbl:'Calcul…';document.body.classList.add('is-busy');
+    if($('busyInd').hidden&&!busyT)busyT=setTimeout(()=>{busyT=null;if(busyN>0||anyBusy())$('busyInd').hidden=false;},busyN>0?0:180);}
+  else{clearTimeout(busyT);busyT=null;$('busyInd').hidden=true;document.body.classList.remove('is-busy');}}
+async function busyRun(lbl,fn){busyN++;busyLbl=lbl;$('busyTxt').textContent=lbl;$('busyInd').hidden=false;document.body.classList.add('is-busy');
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));   /* la roue s'affiche avant un calcul qui bloque la page */
+  try{return await fn();}finally{busyN--;busyUI();}}
+setInterval(busyUI,100);
 
 /* ================= ergonomie (1.17) =================
    objets façon calques, poignées sur le dessin, dépôt de fichiers, raccourcis, réglages rapides,
@@ -2919,10 +2941,11 @@ cvBoxEl.addEventListener('drop',async e=>{if(!hasFiles(e))return;e.preventDefaul
   const z=e.target.closest&&e.target.closest('.dz');await openDropped([...e.dataTransfer.files],z?z.dataset.as:'forme');});
 document.addEventListener('dragover',e=>{if(hasFiles(e))e.preventDefault();});
 document.addEventListener('drop',e=>{if(hasFiles(e))e.preventDefault();});
-async function openDropped(files,as){for(const f of files){const n=f.name.toLowerCase();try{
+function openDropped(files,as){return busyRun('Ouverture…',()=>openDroppedRaw(files,as));}
+async function openDroppedRaw(files,as){for(const f of files){const n=f.name.toLowerCase();try{
     if(/\.(ttf|otf|woff2?)$/.test(n)){await addFontFile(f);continue;}
     const t=await f.text();
-    if(/\.courbeur$/.test(n)||/^\s*\{/.test(t)){await openProject(t);continue;}
+    if(/\.courbeur$/.test(n)||/^\s*\{/.test(t)){await openProjectRaw(t);continue;}
     if(/\.svg$/.test(n)&&as==='motif'){setMotif(fi,'A',parseMotif(t,f.name));toast('Motif chargé : '+f.name);continue;}
     if(/\.(dxf|svg)$/.test(n)){setForme(t,f.name);syncAll();update();fit();toast('Forme chargée : '+f.name);continue;}
     toast('Format non pris en charge : '+f.name);}catch(err){toast(err.message);}}}
@@ -3137,8 +3160,8 @@ async function fuseNotice(){if(!docOpts.fuse||!hasOutput())return;toast('Fusion 
   setTimeout(()=>{if(lastFuse)toast('Fusion : '+lastFuse.before+' tracés → '+lastFuse.after+' contours');},900);}
 function showFallback(){$('fallback').hidden=false;}
 const hasOutput=()=>frises.some(f=>f.warped.length&&!f.hidden);
-$('btnDxf').addEventListener('click',async()=>{await whenIdle();await fuseNotice();if(!hasOutput()){toast('Rien à exporter');return;}const n=baseName();if(STANDALONE){blobSave(n+'.dxf',buildDXF());return;}offer(n+'.zip',zip([{name:n+'.dxf',data:new TextEncoder().encode(buildDXF())}]));});
-$('btnSvg').addEventListener('click',async()=>{await whenIdle();await fuseNotice();const r=buildSVG();if(!r){toast('Rien à exporter');return;}offer(baseName()+'.svg',r.svg);});
+$('btnDxf').addEventListener('click',()=>busyRun('Export…',async()=>{await whenIdle();await fuseNotice();if(!hasOutput()){toast('Rien à exporter');return;}const n=baseName();if(STANDALONE){blobSave(n+'.dxf',buildDXF());return;}offer(n+'.zip',zip([{name:n+'.dxf',data:new TextEncoder().encode(buildDXF())}]));}));
+$('btnSvg').addEventListener('click',()=>busyRun('Export…',async()=>{await whenIdle();await fuseNotice();const r=buildSVG();if(!r){toast('Rien à exporter');return;}offer(baseName()+'.svg',r.svg);}));
 $('btnCopy').addEventListener('click',()=>{const t=buildDXF();navigator.clipboard.writeText(t).then(()=>toast('DXF copié')).catch(()=>{const ta=$('fbText');ta.hidden=false;ta.value=t;ta.select();toast('Sélectionne le texte et copie-le');});});
 
 /* ---------- LightBurn (via CourbeurDeFrise.exe) ---------- */
@@ -3150,7 +3173,8 @@ async function lbStatus(){try{const r=await fetch('/lb/status',{cache:'no-store'
   catch(e){if(lbAvail){const p=$('lbPill');p.className='pill off';p.textContent='Outil fermé';}}}
 async function loadLayers(){try{const j=await (await fetch('/lb/layers',{cache:'no-store'})).json();
     if(j.ok&&Array.isArray(j.layers)&&j.layers.length){layers=j.layers.filter(l=>l.type!=='tool'&&/^#[0-9a-f]{6}$/i.test(l.color)).map(l=>({index:l.index,color:l.color.toUpperCase(),name:l.name||'',in_use:!!l.in_use}));layersFromLB=true;fillLayerSelects();renderTabs();}}catch(e){}}
-$('btnLb').addEventListener('click',async()=>{if(lbBusy)return;if(!hasOutput()){toast('Rien à envoyer');return;}
+$('btnLb').addEventListener('click',()=>{if(lbBusy)return;busyRun('Envoi à LightBurn…',lbSend);});
+async function lbSend(){if(lbBusy)return;if(!hasOutput()){toast('Rien à envoyer');return;}
   lbBusy=true;$('btnLb').disabled=true;await whenIdle();
   const st=await fetch('/lb/status',{cache:'no-store'}).then(r=>r.json()).catch(()=>null);
   if(st&&st.lightburn&&!st.paired)lbMsg('info','Une fenêtre s\'ouvre dans LightBurn : clique « Autoriser » (30 secondes max).');else lbMsg('info','Envoi en cours…');
@@ -3160,7 +3184,7 @@ $('btnLb').addEventListener('click',async()=>{if(lbBusy)return;if(!hasOutput()){
     const r=await fetch('/lb/send'+q,{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:r0.svg});
     const j=await r.json();lbMsg(j.ok?'ok':'warn',j.message);if(j.ok){toast('Envoyé à LightBurn');loadLayers();}}
   catch(e){lbMsg('warn','Impossible de joindre l\'outil. Relance CourbeurDeFrise.exe.');}
-  finally{lbBusy=false;$('btnLb').disabled=false;lbStatus();}});
+  finally{lbBusy=false;$('btnLb').disabled=false;lbStatus();}}
 $('btnLbForget').addEventListener('click',async()=>{await fetch('/lb/forget',{method:'POST'}).catch(()=>{});layersFromLB=false;lbMsg('info','Appairage oublié. Le prochain envoi redemandera l\'autorisation dans LightBurn.');lbStatus();});
 
 /* ---------- bibliothèque de motifs (dossier Motif) ---------- */
@@ -3178,8 +3202,8 @@ function setMotif(i,slot,m){let f=frises[i];if(!f)return;if(f.kind==='text'){i=f
   if(m&&slot!=='B')lastMotif=m;if(i!==fi){commit();fi=i;state=f;}
   if(slot==='B')f.motifB=m;else f.motif=m;syncAll();update();}
 let fileTarget={i:0,slot:'A'};
-$('fileMotif').addEventListener('change',async()=>{const file=$('fileMotif').files[0];$('fileMotif').value='';if(!file)return;
-  try{setMotif(fileTarget.i,fileTarget.slot,parseMotif(await file.text(),file.name));toast('Motif chargé : '+file.name);}catch(e){toast(e.message);}});
+$('fileMotif').addEventListener('change',()=>{const file=$('fileMotif').files[0];$('fileMotif').value='';if(!file)return;
+  busyRun('Ouverture…',async()=>{try{setMotif(fileTarget.i,fileTarget.slot,parseMotif(await file.text(),file.name));toast('Motif chargé : '+file.name);}catch(e){toast(e.message);}});});
 function motifLine(i,slot){const f=frises[i],m=slot==='B'?f.motifB:f.motif;const line=document.createElement('div');line.className='mline';
   const k=document.createElement('span');k.className='k';k.textContent='Motif';
   const n=document.createElement('span');n.className='n'+(m?'':' none');n.textContent=m?m.name.replace(/\.svg$/i,''):(slot==='B'?'aucun (pas d\'alternance)':'—');if(m)n.title=m.name;
