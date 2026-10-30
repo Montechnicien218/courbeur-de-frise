@@ -3,340 +3,439 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&display=swap">
+<script>try{const t=localStorage.getItem('courbeur.theme');document.documentElement.dataset.theme=(t==='light'||t==='dark')?t:'dark';}catch(e){document.documentElement.dataset.theme='dark';}</script>
 <style>
-/* Layout: atelier — panneau de réglages à gauche, tapis de découpe quadrillé à droite (empilés sur mobile) */
+/* Interface « atelier laser » : barre d'outils en haut, objets à gauche, dessin au centre, propriétés à droite, barre d'état en bas.
+   Laser-studio layout: toolbar on top, objects on the left, drawing in the middle, properties on the right, status bar at the bottom. */
 :root{
-  --bg:#e9ede9; --panel:#f7f9f7; --fg:#18211d; --muted:#57665e; --line:#c7d1ca;
-  --accent:#16795a; --accent-fg:#ffffff; --guide:#e0561c; --ink:#26302b; --shape:#2c5bb5;
-  --mat:#dfe7e1; --grid:rgba(22,121,90,.10); --grid-major:rgba(22,121,90,.24);
-  --warn-bg:#fff2e6; --warn-fg:#8a3a0c; --ok-bg:#e5f3ec; --ok-fg:#155e45;
+  --bg:#e3e5e9; --panel:#f3f4f6; --panel2:#ffffff; --fg:#1b1f26; --muted:#626a77; --line:#cdd2da; --line2:#dde1e7;
+  --accent:#17805f; --accent-fg:#ffffff; --accent-soft:rgba(23,128,95,.12); --guide:#e8641f; --ink:#262c35; --shape:#2d63c8;
+  --mat:#eceef1; --grid:rgba(30,40,55,.07); --grid-major:rgba(30,40,55,.18);
+  --warn-bg:#fff1e3; --warn-fg:#8a3a0c; --ok-bg:#e3f3ec; --ok-fg:#135b43;
+  --shadow:0 10px 30px -12px rgba(0,0,0,.35);
   --f-display:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
   --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --top:46px; --dock:300px; --dock2:340px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#101513; --panel:#171e1b; --fg:#e2eae5; --muted:#93a39a; --line:#2b3732;
-  --accent:#3fbf8f; --accent-fg:#06140e; --guide:#ff7d42; --ink:#dfe7e2; --shape:#86a9f0;
-  --mat:#131a17; --grid:rgba(63,191,143,.08); --grid-major:rgba(63,191,143,.20);
-  --warn-bg:#3a2210; --warn-fg:#ffc59e; --ok-bg:#12302a; --ok-fg:#9fe3c6; color-scheme:dark}}
+  --bg:#121417; --panel:#1b1e23; --panel2:#23272e; --fg:#e7e9ee; --muted:#8f97a4; --line:#2d323a; --line2:#262a31;
+  --accent:#36b58d; --accent-fg:#06140e; --accent-soft:rgba(54,181,141,.14); --guide:#ff8a3d; --ink:#e3e7ee; --shape:#7ea4ff;
+  --mat:#0f1114; --grid:rgba(160,175,195,.07); --grid-major:rgba(160,175,195,.17);
+  --warn-bg:#3a2210; --warn-fg:#ffc59e; --ok-bg:#12302a; --ok-fg:#9fe3c6; --shadow:0 12px 34px -12px rgba(0,0,0,.7); color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#101513; --panel:#171e1b; --fg:#e2eae5; --muted:#93a39a; --line:#2b3732;
-  --accent:#3fbf8f; --accent-fg:#06140e; --guide:#ff7d42; --ink:#dfe7e2; --shape:#86a9f0;
-  --mat:#131a17; --grid:rgba(63,191,143,.08); --grid-major:rgba(63,191,143,.20);
-  --warn-bg:#3a2210; --warn-fg:#ffc59e; --ok-bg:#12302a; --ok-fg:#9fe3c6; color-scheme:dark}
-html,body{background:var(--bg);color:var(--fg)}
-body{font-family:var(--f-body);font-size:14px;line-height:1.45}
-.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px 24px;max-width:1500px;margin:0 auto;display:grid;gap:14px}
-header{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
-h1{font-family:var(--f-display);font-weight:600;font-size:1.7rem;letter-spacing:.01em;margin:0;text-wrap:balance}
-header p{margin:0;color:var(--muted);max-width:65ch}
-.app{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
-@media (min-width:900px){.app{grid-template-columns:340px minmax(0,1fr);align-items:start}}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;display:grid}
-section.grp{display:grid;gap:10px;padding:14px 16px;border-top:1px solid var(--line)}
-section.grp:first-child{border-top:0}
+  --bg:#121417; --panel:#1b1e23; --panel2:#23272e; --fg:#e7e9ee; --muted:#8f97a4; --line:#2d323a; --line2:#262a31;
+  --accent:#36b58d; --accent-fg:#06140e; --accent-soft:rgba(54,181,141,.14); --guide:#ff8a3d; --ink:#e3e7ee; --shape:#7ea4ff;
+  --mat:#0f1114; --grid:rgba(160,175,195,.07); --grid-major:rgba(160,175,195,.17);
+  --warn-bg:#3a2210; --warn-fg:#ffc59e; --ok-bg:#12302a; --ok-fg:#9fe3c6; --shadow:0 12px 34px -12px rgba(0,0,0,.7); color-scheme:dark}
+*{box-sizing:border-box}
+html,body{background:var(--bg);color:var(--fg);margin:0}
+body{font-family:var(--f-body);font-size:13px;line-height:1.4;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+
+/* ---- squelette ---- */
+.shell{display:grid;min-height:100vh;grid-template-rows:auto auto auto auto;grid-template-areas:"top" "stage" "left" "right";padding-top:env(safe-area-inset-top,0px)}
+.topbar{grid-area:top}.dock.left{grid-area:left}.dock.right{grid-area:right}.stage{grid-area:stage}
+@media (min-width:1000px){
+  .shell{height:100vh;height:100dvh;overflow:hidden;grid-template-columns:var(--dock) minmax(0,1fr) var(--dock2);grid-template-rows:var(--top) minmax(0,1fr);grid-template-areas:"top top top" "left stage right"}
+  .dock{overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+}
+@media (min-width:1500px){:root{--dock:320px;--dock2:360px}}
+
+/* ---- barre du haut ---- */
+.topbar{display:flex;align-items:center;gap:6px;height:var(--top);padding:0 10px 0 max(10px,env(safe-area-inset-left,0px));background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:9;min-width:0}
+.brand{display:flex;align-items:center;gap:9px;padding-right:10px;margin-right:2px;border-right:1px solid var(--line);height:100%}
+.brand .logo{width:24px;height:24px;flex:none}
+.brand h1{font-family:var(--f-display);font-weight:600;font-size:1.05rem;letter-spacing:.02em;margin:0;white-space:nowrap;line-height:1}
+.brand .meta{font-family:var(--f-mono);font-size:.68rem;color:var(--muted);white-space:nowrap}
+.brand p{display:none;margin:0}
+.tgrp{display:flex;align-items:center;gap:4px;padding:0 6px;border-right:1px solid var(--line);height:100%}
+.tgrp:last-child,.tgrp.end{border-right:0}
+.tgrp .cap{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-right:2px}
+.spacer{flex:1}
+.ibtn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:30px;min-width:30px;padding:0 8px;border-radius:6px;border:1px solid transparent;background:transparent;color:var(--fg)}
+.ibtn:hover{background:var(--panel2);border-color:var(--line)}
+.ibtn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ibtn:disabled{opacity:.35}
+.ibtn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);font-weight:600}
+.ibtn.primary:hover{filter:brightness(1.08)}
+.hist{display:inline-flex;gap:2px}
+.hist button{display:inline-flex;align-items:center;gap:5px}
+.hist button:disabled{opacity:.35;cursor:default}
+.hist svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.lang{display:inline-flex}
+.lang button{padding:3px 9px;font-size:.74rem;font-weight:600}
+#renderSel{height:30px;padding:0 6px;font-size:.8rem}
+@media (max-width:999px){.topbar{flex-wrap:wrap;height:auto;min-height:var(--top);padding-block:4px;position:static}.laser{position:static}.brand{border-right:0;padding-right:4px;height:auto}.tgrp{border-right:0;padding:0 2px;height:auto}.ibtn .lbl,.hist .lbl{display:none}}
+@media (max-width:600px){.brand .meta{display:none}}
+
+/* ---- panneaux latéraux ---- */
+.dock{background:var(--panel);min-width:0;display:flex;flex-direction:column}
+.dock.left{border-right:1px solid var(--line)}
+.dock.right{border-left:1px solid var(--line)}
+@media (max-width:999px){.dock{border:0;border-top:1px solid var(--line)}}
+.dockTitle{display:flex;align-items:center;gap:8px;height:30px;padding:0 12px;font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);background:var(--panel);position:sticky;top:0;z-index:3}
+.dockTitle svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.grp{display:grid;gap:9px;padding:11px 12px 13px;border-bottom:1px solid var(--line)}
+details.grp{padding:0;gap:0;display:block}
+details.grp>summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:9px 12px;user-select:none}
+details.grp>summary::-webkit-details-marker{display:none}
+details.grp>summary::before{content:"";width:6px;height:6px;border-right:1.6px solid var(--muted);border-bottom:1.6px solid var(--muted);transform:rotate(-45deg);transition:transform .15s;margin-left:2px;flex:none}
+details.grp[open]>summary::before{transform:rotate(45deg)}
+details.grp>summary:hover h2{color:var(--fg)}
+details.grp>.body{display:grid;gap:9px;padding:2px 12px 14px}
 h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:0;font-weight:600}
-.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.field{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
-.field label{color:var(--fg)}
-.field .hint{grid-column:1/-1;color:var(--muted);font-size:.8rem}
-input[type=number],select{font:inherit;font-family:var(--f-mono);font-size:.85rem;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:5px 7px}
-input[type=number]{width:84px;text-align:right;font-variant-numeric:tabular-nums}
-select{font-family:var(--f-body);max-width:100%}
-input[type=range]{width:100%;accent-color:var(--accent)}
+.row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.field{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;min-height:24px}
+.field label{color:var(--fg);font-size:.82rem}
+.field .hint,.hint{grid-column:1/-1;color:var(--muted);font-size:.72rem;line-height:1.35}
+label>input[type=checkbox]{margin:0 6px 0 0;vertical-align:-2px}
+input[type=number],select,input[type=text].txt,textarea{font:inherit;font-family:var(--f-mono);font-size:.8rem;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:5px;padding:4px 7px;height:26px}
+input[type=number]{width:76px;text-align:right;font-variant-numeric:tabular-nums}
+input[type=number]:focus,select:focus,input[type=text].txt:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-soft)}
+select{font-family:var(--f-body);max-width:100%;padding-right:22px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%238f97a4' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
+input[type=range]{width:100%;height:18px;margin:0;appearance:none;-webkit-appearance:none;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:var(--line)}
+input[type=range]::-moz-range-track{height:3px;border-radius:2px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--accent);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--accent);margin-top:-5px}
+input[type=range]::-moz-range-thumb{width:11px;height:11px;border-radius:50%;background:var(--accent);border:2px solid var(--panel);box-shadow:0 0 0 1px var(--accent)}
 input[type=checkbox],input[type=radio]{accent-color:var(--accent)}
-button{font:inherit;font-weight:500;border-radius:7px;border:1px solid var(--line);background:var(--bg);color:var(--fg);padding:6px 11px;cursor:pointer}
+button{font:inherit;font-size:.8rem;font-weight:500;border-radius:5px;border:1px solid var(--line);background:var(--panel2);color:var(--fg);padding:4px 10px;cursor:pointer;line-height:1.3}
 button:hover{border-color:var(--accent)}
-button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+button.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent);font-weight:600}
 button.primary:hover{filter:brightness(1.07)}
 button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
-button:focus-visible,input:focus-visible,select:focus-visible,.drop:focus-visible{outline:2px solid var(--guide);outline-offset:2px}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
-.seg button{border:0;border-radius:0;border-left:1px solid var(--line);padding:5px 10px}
+button:focus-visible,input:focus-visible,select:focus-visible,.drop:focus-visible,summary:focus-visible{outline:2px solid var(--guide);outline-offset:2px}
+button:disabled{opacity:.45;cursor:default}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:5px;overflow:hidden;background:var(--panel2)}
+.seg button{border:0;border-radius:0;border-left:1px solid var(--line);padding:4px 9px;background:transparent}
 .seg button:first-child{border-left:0}
-.drop{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;align-items:center;border:1px dashed var(--line);border-radius:8px;padding:8px 10px;cursor:pointer}
-.drop.over{border-color:var(--accent);background:var(--ok-bg)}
-.drop .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.drop .n{font-family:var(--f-mono);font-size:.82rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.drop .c{color:var(--accent);font-size:.82rem;font-weight:500}
-.stage{background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:grid;grid-template-rows:auto 1fr auto;min-width:0}
-.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:8px 10px;border-bottom:1px solid var(--line)}
-.legend{display:flex;flex-wrap:wrap;gap:12px;color:var(--muted);font-size:.8rem}
-.legend i{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
-.cv{position:relative;height:clamp(220px,38vh,420px);background:var(--mat);touch-action:none}
-/* aperçu flottant : il reste visible pendant qu'on fait défiler les réglages */
-.stage{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;order:-1;box-shadow:0 6px 18px -10px rgba(0,0,0,.35)}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
-@media (min-width:900px){
-  .stage{top:calc(12px + env(safe-area-inset-top,0px));order:0;box-shadow:none}
-  .cv{height:calc(100vh - 190px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));min-height:320px}
-}
-.hist{display:inline-flex;gap:6px}
-.hist button{display:inline-flex;align-items:center;gap:5px}
-.hist button:disabled{opacity:.4;cursor:default;border-color:var(--line)}
-.hist svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-@media (max-width:600px){.legend{display:none}.hist .lbl{display:none}.toolbar{flex-wrap:nowrap}}
-.pos{display:inline-flex;align-items:center;gap:4px;font-family:var(--f-mono);font-size:.85rem}
-.pos input{width:74px}
-.pos small{color:var(--muted);font-size:.72rem;min-width:62px;text-align:right}
-.lang{margin-left:auto;align-self:center}
-.lang button{padding:3px 10px;font-size:.8rem}
-.kbd{font-family:var(--f-mono);font-size:.72rem;color:var(--muted)}
-canvas{display:block;width:100%;height:100%;cursor:grab}
-canvas.picking{cursor:crosshair}
-.pickmsg{position:absolute;left:10px;top:10px;background:var(--guide);color:#fff;font-weight:500;padding:5px 10px;border-radius:6px;font-size:.85rem}
-.stats{display:flex;flex-wrap:wrap;gap:6px 18px;padding:9px 12px;border-top:1px solid var(--line);font-family:var(--f-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
-.stats b{color:var(--fg);font-weight:500}
-.msgs{display:grid;gap:6px}
-.msg{border-radius:7px;padding:7px 10px;font-size:.84rem}
-.msg.warn{background:var(--warn-bg);color:var(--warn-fg)}
-.msg.ok{background:var(--ok-bg);color:var(--ok-fg)}
-.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.88rem;z-index:20;max-width:calc(100% - 32px)}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+.drop{display:grid;grid-template-columns:auto 1fr auto;gap:2px 10px;align-items:center;border:1px dashed var(--line);border-radius:6px;padding:7px 10px;cursor:pointer;background:var(--panel2)}
+.drop:hover{border-color:var(--accent)}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop .k{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.drop .n{font-family:var(--f-mono);font-size:.78rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.drop .c{color:var(--accent);font-size:.78rem;font-weight:600}
+.pos{display:inline-flex;align-items:center;gap:4px;font-family:var(--f-mono);font-size:.8rem}
+.pos input{width:70px}
+.pos small{color:var(--muted);font-size:.68rem;min-width:58px;text-align:right}
+.kbd{font-family:var(--f-mono);font-size:.7rem;color:var(--muted)}
 .mono{font-family:var(--f-mono)}
-.inbox{display:grid;gap:6px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:var(--bg)}
-.inbox .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.inbox .hint{color:var(--muted);font-size:.8rem}
-.ib{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:8px;align-items:center}
-.ib .p{font-size:.72rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:rtl;text-align:left}
-.ib button{padding:3px 9px;font-size:.8rem}
-.lb{display:grid;gap:10px;border-top:1px dashed var(--line);padding-top:12px}
-.pill{font-size:.75rem;font-weight:500;padding:2px 9px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.inbox{display:grid;gap:6px;border:1px solid var(--line);border-radius:6px;padding:8px 10px;background:var(--panel2)}
+.inbox .k{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.ib{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:8px;align-items:center}
+.ib .p{font-size:.7rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;direction:rtl;text-align:left}
+.ib button{padding:2px 8px;font-size:.75rem}
+.lb{display:grid;gap:9px;border-top:1px dashed var(--line);padding-top:10px}
+.pill{font-size:.7rem;font-weight:600;padding:1px 8px;border-radius:999px;background:var(--panel2);color:var(--muted);border:1px solid var(--line)}
 .pill.on{background:var(--ok-bg);color:var(--ok-fg);border-color:transparent}
 .pill.off{background:var(--warn-bg);color:var(--warn-fg);border-color:transparent}
-.msg.info{background:var(--bg);color:var(--fg);border:1px solid var(--line)}
-#svgHost{position:absolute;left:-10000px;top:0;width:10px;height:10px;overflow:hidden;visibility:hidden}
-textarea{width:100%;min-height:120px;font-family:var(--f-mono);font-size:.75rem;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px}
+textarea{width:100%;min-height:120px;height:auto;font-size:.72rem}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-.tabs{display:flex;flex-wrap:wrap;gap:6px}
-.tabs button{display:inline-flex;align-items:center;gap:6px;padding:5px 10px}
-.tabs button small{color:var(--muted);font-size:.75rem}
-.tabs button[aria-selected="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);background:var(--ok-bg)}
-.sw{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--line);flex:none}
-button:disabled{opacity:.45;cursor:default}
-.mlist{display:grid;gap:8px}
-.mcard{border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:grid;gap:6px;background:var(--bg)}
-.mcard.active{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-.mcard .mh{display:flex;align-items:center;gap:6px;font-weight:600;font-size:.85rem;cursor:pointer}
-.mcard .mh small{font-weight:400;color:var(--muted)}
-.mline{display:grid;grid-template-columns:58px minmax(0,1fr) auto;gap:4px 8px;align-items:center;border-radius:6px}
+
+/* objets : onglets et cartes */
+.tabs{display:none}
+.sw{display:inline-block;width:11px;height:11px;border-radius:3px;border:1px solid rgba(0,0,0,.25);flex:none}
+.mlist{display:grid;gap:6px}
+.mcard{border:1px solid var(--line);border-left:3px solid var(--line);border-radius:6px;padding:7px 9px 8px;display:grid;gap:5px;background:var(--panel2);cursor:default}
+.mcard:hover{border-color:var(--muted)}
+.mcard.active{border-color:var(--accent);background:var(--accent-soft)}
+.mcard .mh{display:flex;align-items:center;gap:6px;font-weight:600;font-size:.82rem;cursor:pointer}
+.mcard .mh small{font-weight:400;color:var(--muted);font-size:.72rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mline{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:4px 8px;align-items:center;border-radius:5px}
 .mline.over{background:var(--ok-bg)}
-.mline .k{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-.mline .n{font-family:var(--f-mono);font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mline .k{font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.mline .n{font-family:var(--f-mono);font-size:.76rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mline .n.none{color:var(--muted);font-family:var(--f-body);font-style:italic}
+.mline .n.tx{font-family:inherit;font-size:.88rem}
 .mline .acts{display:flex;gap:4px}
-.mline .acts button{padding:3px 8px;font-size:.78rem}
-.mline select{grid-column:2/-1;font-size:.78rem;padding:3px 6px}
-.mcard .mh .mdel{margin-left:auto;padding:2px 8px;font-size:.75rem;font-weight:500}
-.madd{border-style:dashed;color:var(--accent);font-weight:600}
-.addrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.mline .acts button{padding:2px 7px;font-size:.74rem}
+.mline select{grid-column:2/-1;font-size:.76rem;padding:2px 6px;height:24px}
+.mcard .mh .mdel{margin-left:auto;padding:1px 7px;font-size:.72rem;font-weight:500;background:transparent}
+.madd{border-style:dashed;color:var(--accent);font-weight:600;background:transparent;padding:6px 4px;font-size:.78rem}
+.addrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
 /* textes : un « texte » est une frise spéciale, faite des lettres d'une police */
 body:not(.is-text):not(.is-coin) [data-only]:not([data-only~="frise"]),body.is-text [data-only]:not([data-only~="text"]),body.is-coin [data-only]:not([data-only~="coin"]){display:none!important}
 body:not(.is-free) [data-free]:not([data-free~="edge"]),body.free-line [data-free]:not([data-free~="line"]):not([data-free~="any"]),body.free-circle [data-free]:not([data-free~="circle"]):not([data-free~="any"]),body.is-free [data-free-hide],body:not(.is-text) [data-free]{display:none!important}
-.gal{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.45);display:grid;place-items:center;padding:16px}
-.galIn{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:760px;width:100%;max-height:86vh;overflow:auto;padding:14px 16px;display:grid;gap:12px}
-.galGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
-.galItem{display:grid;gap:6px;justify-items:start;text-align:left;padding:10px;background:var(--bg)}
-.galItem img{width:100%;height:42px;object-fit:contain;object-position:left center;background:#fff;border-radius:6px;padding:4px}
-.galItem.coin img{height:90px;object-position:center}
-.galItem span{font-size:.85rem}
-#renderSel{padding:5px 6px}
-.upd{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:35;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:var(--panel);border:1px solid var(--accent);border-radius:10px;box-shadow:0 10px 28px -10px rgba(0,0,0,.45);padding:8px 10px 8px 14px;max-width:calc(100% - 32px)}
-.upd-s{color:var(--muted);font-size:.85rem}
-input[type=text].txt{box-sizing:border-box;font:inherit;font-size:1rem;width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
-.fprev{grid-column:1/-1;font-size:1.5rem;line-height:1.2;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:2.1em}
-.mline .n.tx{font-family:inherit;font-size:.9rem}
-.ctx{position:fixed;z-index:30;min-width:190px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:8px;box-shadow:0 10px 28px -8px rgba(0,0,0,.4);padding:4px;display:grid}
-.ctx button{border:0;background:transparent;text-align:left;padding:7px 10px;border-radius:5px}
-.ctx button:hover,.ctx button:focus-visible{background:var(--ok-bg);color:var(--ok-fg);outline:none}
-.ctx hr{border:0;border-top:1px solid var(--line);margin:3px 2px}
+input[type=text].txt{width:100%;font-family:var(--f-body);font-size:.95rem;height:30px}
+.fprev{grid-column:1/-1;font-size:1.45rem;line-height:1.2;padding:5px 10px;border:1px solid var(--line);border-radius:5px;background:var(--panel2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:2.1em}
+
+/* ---- zone de dessin ---- */
+.stage{display:grid;grid-template-rows:minmax(0,1fr) auto;min-width:0;background:var(--mat);position:relative}
+.cv{position:relative;height:clamp(220px,38vh,420px);background:var(--mat);touch-action:none;overflow:hidden}
+@media (max-width:999px){.stage{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;box-shadow:0 6px 18px -10px rgba(0,0,0,.45)}}
+@media (min-width:1000px){.cv{height:auto;min-height:0}}
+canvas{display:block;width:100%;height:100%;cursor:grab}
+canvas.picking{cursor:crosshair}
 canvas.dragging{cursor:grabbing}
+.pickmsg{position:absolute;left:12px;top:12px;background:var(--guide);color:#fff;font-weight:600;padding:5px 10px;border-radius:6px;font-size:.82rem;box-shadow:var(--shadow)}
+.legend{position:absolute;right:12px;top:12px;display:flex;gap:10px;color:var(--muted);font-size:.72rem;background:color-mix(in srgb,var(--panel) 85%,transparent);border:1px solid var(--line);border-radius:6px;padding:4px 9px;pointer-events:none;backdrop-filter:blur(6px)}
+.legend i{display:inline-block;width:12px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}
+.zoom{position:absolute;right:12px;bottom:12px;display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:7px;box-shadow:var(--shadow);overflow:hidden}
+.zoom button{border:0;border-radius:0;border-left:1px solid var(--line);background:transparent;height:32px;min-width:32px;padding:0 10px;font-size:.9rem;display:inline-flex;align-items:center;gap:6px}
+.zoom button:first-child{border-left:0}
+.zoom button:hover{background:var(--panel2)}
+.zoom svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:600px){.legend{display:none}}
+.statusbar{background:var(--panel);border-top:1px solid var(--line);display:grid}
+.sbrow{display:flex;align-items:center;gap:10px;padding-right:12px}
+.sbrow .stats{flex:1;min-width:0}
+:root[data-theme="dark"] #themeBtn .moon,:root:not([data-theme="dark"]) #themeBtn .sun{display:none}
+.stats{display:flex;flex-wrap:wrap;gap:4px 16px;padding:5px 12px;font-family:var(--f-mono);font-size:.74rem;color:var(--muted);font-variant-numeric:tabular-nums;min-height:28px;align-items:center}
+.stats b{color:var(--fg);font-weight:500}
+.stats:empty::before{content:"—";opacity:.4}
+.msgs{display:grid;gap:4px;padding:0 10px 8px}
+.msgs:empty{display:none}
+.msg{border-radius:5px;padding:5px 10px;font-size:.78rem;border-left:3px solid transparent}
+.msg.warn{background:var(--warn-bg);color:var(--warn-fg);border-left-color:var(--guide)}
+.msg.ok{background:var(--ok-bg);color:var(--ok-fg);border-left-color:var(--accent)}
+.msg.info{background:var(--panel2);color:var(--fg);border:1px solid var(--line)}
+.copy{margin-left:auto;font-family:var(--f-mono);font-size:.68rem;color:var(--muted);white-space:nowrap}
+@media (max-width:600px){.copy{display:none}}
+
+/* ---- export / laser ---- */
+.laser{display:grid;gap:9px;padding:11px 12px 13px;border-top:1px solid var(--line);background:var(--panel);position:sticky;bottom:0;z-index:2}
+.laser .big{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.laser .big button{height:34px;font-size:.84rem}
+
+/* ---- surcouches ---- */
+.toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.85rem;z-index:20;max-width:calc(100% - 32px);box-shadow:var(--shadow)}
+#svgHost{position:absolute;left:-10000px;top:0;width:10px;height:10px;overflow:hidden;visibility:hidden}
+.gal{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.55);display:grid;place-items:center;padding:16px;backdrop-filter:blur(3px)}
+.galIn{background:var(--panel);border:1px solid var(--line);border-radius:10px;max-width:760px;width:100%;max-height:86vh;overflow:auto;padding:14px 16px;display:grid;gap:12px;box-shadow:var(--shadow)}
+.galGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.galItem{display:grid;gap:6px;justify-items:start;text-align:left;padding:8px;background:var(--panel2)}
+.galItem:hover{border-color:var(--accent)}
+.galItem img{width:100%;height:42px;object-fit:contain;object-position:left center;background:#fff;border-radius:5px;padding:4px}
+.galItem.coin img{height:90px;object-position:center}
+.galItem span{font-size:.8rem}
+.upd{position:fixed;left:50%;top:calc(var(--top) + 10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:35;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:var(--panel);border:1px solid var(--accent);border-radius:8px;box-shadow:var(--shadow);padding:8px 10px 8px 14px;max-width:calc(100% - 32px)}
+.upd-s{color:var(--muted);font-size:.82rem}
+.ctx{position:fixed;z-index:30;min-width:200px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:7px;box-shadow:var(--shadow);padding:4px;display:grid}
+.ctx button{border:0;background:transparent;text-align:left;padding:6px 10px;border-radius:4px}
+.ctx button:hover,.ctx button:focus-visible{background:var(--accent-soft);color:var(--fg);outline:none}
+.ctx hr{border:0;border-top:1px solid var(--line);margin:3px 2px}
 </style>
 
-<div class="wrap">
-  <header>
-    <h1>Courbeur de frise</h1>
-    <p>Fait suivre un motif SVG le long d'un bord de ta forme, puis exporte pour LightBurn.</p>
+<div class="shell">
+  <header class="topbar toolbar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 17c4-9 14-9 18 0" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round"/><path d="M6.5 13.5c3-5 8-5 11 0" fill="none" stroke="var(--guide)" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="19.5" r="1.6" fill="var(--fg)"/></svg>
+      <div><h1>Courbeur de frise</h1><span class="meta" id="brandMeta"></span></div>
+      <p>Fait suivre un motif SVG le long d'un bord de ta forme, puis exporte pour LightBurn.</p>
+    </div>
+    <div class="tgrp">
+      <span class="cap">Projet</span>
+      <button type="button" class="ibtn" id="btnProjOpen" title="Ouvrir un projet .courbeur"><svg viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span class="lbl">Ouvrir…</span></button>
+      <button type="button" class="ibtn" id="btnProjSave" title="Enregistrer le projet .courbeur"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/></svg><span class="lbl">Enregistrer</span></button>
+      <input type="file" id="fileProj" accept=".courbeur,application/json" hidden>
+    </div>
+    <div class="tgrp hist" role="group" aria-label="Historique">
+      <button id="btnUndo" type="button" class="ibtn" title="Annuler (Ctrl+Z)" disabled><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span class="lbl">Précédent</span></button>
+      <button id="btnRedo" type="button" class="ibtn" title="Rétablir (Ctrl+Y)" disabled><span class="lbl">Suivant</span><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
+    </div>
+    <div class="spacer"></div>
+    <div class="tgrp">
+      <select id="renderSel" aria-label="Rendu de l'aperçu" title="Rendu de l'aperçu"><option value="plan">Plan</option><option value="bois">Bois clair</option><option value="noyer">Noyer</option><option value="ardoise">Ardoise</option><option value="acrylique">Acrylique noir</option></select>
+      <button id="btnPng" type="button" class="ibtn" title="Enregistrer une image de la pièce, comme sortie de la machine"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m21 16-5-5-8 8"/></svg><span class="lbl">Image</span></button>
+    </div>
+    <div class="tgrp end">
       <div class="seg lang" id="langSel" role="group" aria-label="Langue"><button type="button" data-lang="fr" aria-pressed="true">FR</button><button type="button" data-lang="en" aria-pressed="false">EN</button></div>
+      <button type="button" class="ibtn" id="themeBtn" title="Thème clair" aria-label="Thème clair"><svg viewBox="0 0 24 24" class="sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg viewBox="0 0 24 24" class="moon"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
+    </div>
   </header>
 
-  <div class="app">
-    <div class="panel">
-      <section class="grp">
-        <div class="row" style="justify-content:space-between"><h2>Projet</h2>
-          <div class="row"><button type="button" id="btnProjOpen">Ouvrir…</button><button type="button" id="btnProjSave">Enregistrer</button></div></div>
-        <input type="file" id="fileProj" accept=".courbeur,application/json" hidden>
-        <span class="hint" style="color:var(--muted);font-size:.8rem">Un fichier .courbeur garde tout : la forme, les frises, les motifs, les textes et tes polices.</span>
-      </section>
-
-      <section class="grp">
-        <h2>Forme</h2>
-        <div class="drop" id="dropForme" tabindex="0" role="button" aria-label="Choisir la forme DXF ou SVG">
-          <span class="k">Fichier</span><span class="n" id="nameForme">—</span><span class="c">Changer</span>
-        </div>
-        <input type="file" id="fileForme" accept=".dxf,.svg,.courbeur" hidden>
-        <div class="field"><label for="units">Unités du fichier</label>
-          <select id="units"><option value="auto">Auto (lues dans le fichier)</option><option value="mm">Millimètres</option><option value="in">Pouces</option><option value="px">Pixels (96 ppp)</option></select>
-          <span class="hint">Si la taille ci-dessous ne correspond pas à LightBurn, force l'unité ici.</span></div>
-        <div id="inboxBox" class="inbox" hidden>
-          <span class="k">Dossiers d'échange</span>
-          <div class="ib"><span>Forme</span><span class="p mono" id="ibForme">—</span><button type="button" id="ibOpenForme">Ouvrir</button></div>
-          <div class="ib"><span>Motif</span><span class="p mono" id="ibMotif">—</span><button type="button" id="ibOpenMotif">Ouvrir</button></div>
-          <span class="hint">Exporte depuis LightBurn (Fichier › Exporter) dans un de ces dossiers : le fichier se charge tout seul ici.</span>
-        </div>
-      </section>
-
-      <section class="grp">
-        <div class="row" style="justify-content:space-between"><h2>Frises</h2>
-          <div class="row"><button type="button" id="btnAddFrise">+ Ajouter</button><button type="button" id="btnDelFrise">Supprimer</button></div></div>
-        <div class="tabs" id="tabs" role="tablist" aria-label="Frises"></div>
-        <div class="mlist" id="mlist"></div>
-        <input type="file" id="fileMotif" accept=".svg,image/svg+xml" hidden>
-        <div class="field"><span class="hint">Chaque frise suit son propre bord avec son propre motif. Clique une frise pour la régler, ou glisse un SVG sur sa ligne pour changer son motif.</span></div>
-        <div class="field"><label for="stackOpt"><input type="checkbox" id="stackOpt" checked> Empiler les frises au lieu de les superposer</label><span></span>
-          <span class="hint">Deux frises qui partagent une partie du même bord se placent l'une au-dessus de l'autre. Des frises jointes bout à bout ne bougent pas.</span></div>
-        <div class="field"><label for="stackGap">Espace entre frises empilées (mm)</label><input type="number" id="stackGap" min="0" step="0.5" value="1"></div>
-      </section>
-
-      <section class="grp" data-only="text">
-        <h2>Texte</h2>
-        <div class="field"><label for="txtMode">Ligne du texte</label>
-          <select id="txtMode"><option value="">Le long d'un bord</option><option value="line">Droit, n'importe où</option><option value="circle">En cercle, n'importe où</option></select></div>
-        <div class="field"><label for="txtVal" style="grid-column:1/-1">Texte à graver ou découper</label>
-          <input type="text" id="txtVal" class="txt" maxlength="200" spellcheck="false" style="grid-column:1/-1" placeholder="Ton texte"></div>
-        <div class="field"><label for="fontSel">Police</label><select id="fontSel"></select>
-          <div class="fprev" id="fontPrev" aria-hidden="true"></div>
-          <span class="hint" id="fontHint"></span></div>
-        <div class="row"><button type="button" id="btnFontAdd">Ajouter une police…</button><span class="kbd">.ttf · .otf · .woff</span></div>
-        <input type="file" id="fileFont" accept=".ttf,.otf,.woff,font/ttf,font/otf,font/woff" hidden>
-        <div class="field"><label for="txtH">Hauteur des lettres (mm)</label><input type="number" id="txtH" min="0.5" step="0.5" value="10">
-          <span class="hint">Hauteur d'une majuscule, comme le « H ».</span></div>
-        <div class="field"><label for="txtOff">Distance à la ligne suivie (mm)</label><input type="number" id="txtOff" step="0.5" value="2">
-          <span class="hint">Écart entre le bord et le pied des lettres. Négatif : les lettres passent de l'autre côté de la ligne.</span></div>
-        <div class="field"><label for="txtTrack">Espacement des lettres (mm)</label><input type="number" id="txtTrack" step="0.1" value="0"></div>
-        <div class="field" data-free="any"><label>Centre (mm)</label><span class="pos">X <input type="number" id="txtCx" step="0.5" aria-label="Centre X en mm"> Y <input type="number" id="txtCy" step="0.5" aria-label="Centre Y en mm"></span>
-          <span class="hint" data-free="line">Le texte se centre sur ce point. Glisse-le sur le dessin pour le déplacer.</span><span class="hint" data-free="circle">Centre du cercle. Glisse le texte sur le dessin pour déplacer le cercle.</span></div>
-        <div class="field" data-free="circle"><label for="txtRadius">Rayon du cercle (mm)</label><input type="number" id="txtRadius" min="1" step="0.5" value="40"></div>
-        <div class="field" data-free="line"><label for="txtAngle">Angle (°)</label><input type="number" id="txtAngle" step="1" value="0"></div>
-        <div class="field" data-free="edge circle"><label for="txtPos">Position le long du bord</label><span class="pos"><input type="number" id="txtPosVal" min="0" max="100" step="0.1" value="50" aria-label="Position du centre du texte en %"> %<small id="txtPosMm"></small></span>
-          <input type="range" id="txtPos" min="0" max="100" step="0.1" value="50" style="grid-column:1/-1">
-          <span class="hint">Centre du texte. Tu peux aussi glisser le texte directement sur le dessin.</span></div>
-        <div class="field"><label for="txtRot"><input type="checkbox" id="txtRot"> Tourner de 180°</label><span></span>
-          <span class="hint">Pour lire le texte dans l'autre sens, par exemple sur le haut d'une forme.</span></div>
-      </section>
-
-      <section class="grp" data-only="coin">
-        <h2>Ornements de coin</h2>
-        <div class="field"><span class="hint" style="grid-column:1/-1">Un ornement se pose dans chaque coin du contour choisi, pointe vers le coin. Choisis le motif dans la carte « Coins » ci-dessus.</span></div>
-        <div class="field"><label for="cornH">Taille (mm)</label><input type="number" id="cornH" min="1" step="0.5" value="18"></div>
-        <div class="field"><label for="cornOff">Distance au coin (mm)</label><input type="number" id="cornOff" step="0.5" value="2"></div>
-        <div class="field"><label for="cornSens">Sensibilité des coins</label><span class="mono"><span id="cornSensVal">40</span>°</span>
-          <input type="range" id="cornSens" min="15" max="120" step="1" value="40" style="grid-column:1/-1">
-          <span class="hint">Un coin est repéré quand le bord tourne de plus que cet angle. Plus petit = plus de coins.</span></div>
-        <div class="field"><label for="cornRot"><input type="checkbox" id="cornRot"> Retourner les ornements</label><span></span></div>
-      </section>
-
-      <section class="grp" data-free-hide="1">
-        <h2>Bord à suivre</h2>
-        <div class="field"><label for="selChain">Contour</label><select id="selChain"></select></div>
-        <div class="row" role="group" aria-label="Partie automatique" data-only="frise">
-          <span style="color:var(--muted)">Auto :</span>
-          <div class="seg">
-            <button id="autoBas" type="button">Bas</button><button id="autoHaut" type="button">Haut</button><button id="autoGauche" type="button">Gauche</button><button id="autoDroite" type="button">Droite</button>
-          </div>
-        </div>
-        <div class="field" data-only="frise"><label for="slope">Pente max (auto)</label><span class="mono"><span id="slopeVal">30</span>°</span>
-          <input type="range" id="slope" min="5" max="85" step="1" value="30" style="grid-column:1/-1"></div>
-        <div class="field" data-only="frise"><label for="posA">Début</label><span class="pos"><input type="number" id="aVal" min="0" max="100" step="0.1" value="0" aria-label="Début en %"> %<small id="aMm"></small></span>
-          <input type="range" id="posA" min="0" max="100" step="0.1" value="0" style="grid-column:1/-1"></div>
-        <div class="field" data-only="frise"><label for="posB">Fin</label><span class="pos"><input type="number" id="bVal" min="0" max="100" step="0.1" value="100" aria-label="Fin en %"> %<small id="bMm"></small></span>
-          <input type="range" id="posB" min="0" max="100" step="0.1" value="100" style="grid-column:1/-1"></div>
-        <div class="row">
-          <button id="btnPick" type="button" aria-pressed="false" data-only="frise text">Choisir sur le dessin</button>
-          <button id="btnSwap" type="button" data-only="frise">Prendre l'autre partie</button>
-          <button id="btnJoin" type="button" data-only="frise" title="Colle le début et la fin de cette frise aux frises voisines du même contour (ou fait tout le tour s'il n'y en a pas)">Joindre les bordures</button>
-        </div>
-      </section>
-
-      <section class="grp">
-        <h2 id="setTitle">Réglages du motif</h2>
-        <div class="field"><label>Côté</label>
-          <div class="seg" role="group" aria-label="Côté du motif"><button id="sideIn" type="button" aria-pressed="true">Intérieur</button><button id="sideOut" type="button" aria-pressed="false">Extérieur</button></div></div>
-        <div class="field" data-only="frise"><label>Orientation</label>
-          <div class="seg" role="group" aria-label="Orientation du motif"><button id="orH" type="button" aria-pressed="true" title="La longueur du motif suit le bord">Horizontale</button><button id="orV" type="button" aria-pressed="false" title="Le motif tourne d'un quart de tour et se répète debout le long du bord">Verticale</button></div></div>
-        <div class="field" id="orderBox" hidden><label for="order">Ordre d'alternance</label><input type="text" id="order" value="AB" maxlength="24" spellcheck="false" style="width:84px;font-family:var(--f-mono);text-align:center;text-transform:uppercase">
-          <span class="hint">A = motif 1, B = motif 2. Par exemple AB, ABB ou AAB. L'ordre se répète tout le long du bord.</span></div>
-        <div class="field" data-only="frise"><label for="reps">Répétitions du motif</label><input type="number" id="reps" min="1" max="200" step="1" value="1">
-          <span class="hint" id="repsHint">Le motif entier est répété puis ajusté pour remplir le bord.</span></div>
-        <div class="field" data-only="frise"><label for="autoReps"><input type="checkbox" id="autoReps"> Répéter automatiquement pour garder la taille</label><span></span>
-          <span class="hint" id="autoRepsHint" hidden>Le motif garde la hauteur visée : il est dupliqué autant de fois que nécessaire pour remplir le bord, sans être étiré ni écrasé.<span id="tileHint"></span></span></div>
-        <div class="field" data-only="frise"><label for="autoH"><input type="checkbox" id="autoH" checked> <span id="autoHLbl">Hauteur auto (proportions gardées)</span></label><span></span></div>
-        <div class="field" data-only="frise"><label for="height" id="heightLbl">Hauteur (mm)</label><input type="number" id="height" min="0.5" step="0.5" value="20" disabled></div>
-        <div class="field" data-only="frise"><label for="offset">Écart au bord (mm)</label><input type="number" id="offset" step="0.5" value="0"></div>
-        <div class="field" data-only="frise"><label for="margin">Marge aux extrémités (mm)</label><input type="number" id="margin" min="0" step="0.5" value="0"></div>
-        <div class="field" data-only="frise"><label for="cornerSoft"><input type="checkbox" id="cornerSoft" checked> Adoucir les coins</label><span></span>
-          <span class="hint">Le motif ne se replie plus sur lui-même dans les virages serrés : sa base suit le bord, son haut tourne en douceur.</span></div>
-        <div class="field"><label for="smooth">Lissage de la courbe (mm)</label><input type="number" id="smooth" min="0" step="0.5" value="3">
-          <span class="hint">Plus grand = le motif ondule moins dans les petites irrégularités du bord.</span></div>
-        <div class="row" data-only="frise">
-          <label><input type="checkbox" id="flip"> Retourner</label>
-          <label><input type="checkbox" id="mirror"> Miroir</label>
-        </div>
-        <div class="field"><label for="layerSel">Calque LightBurn</label>
-          <span class="row" style="gap:6px;flex-wrap:nowrap"><i class="sw" id="layerSw"></i><select id="layerSel"></select></span></div>
-      </section>
-
-      <section class="grp">
-        <h2>Export pour LightBurn</h2>
-        <div class="row">
-          <label><input type="checkbox" id="incShape" checked> Inclure la forme dans les fichiers</label>
-        </div>
-        <div class="field"><label for="fuseOpt"><input type="checkbox" id="fuseOpt" checked> Fusionner les formes</label><span></span>
-          <span class="hint">Sur chaque calque, tout ce qui se touche ou se recouvre devient un seul contour propre : pas de trait en double à la découpe, pas de trou dans la gravure. Mets des frises jointes sur le même calque pour qu'elles forment un seul contour.</span></div>
-        <div class="row" hidden>
-        </div>
-        <div class="field"><label for="formeLayerSel">Calque de la forme</label>
-          <span class="row" style="gap:6px;flex-wrap:nowrap"><i class="sw" id="formeLayerSw"></i><select id="formeLayerSel"></select></span></div>
-        <div class="field"><label for="svgMode">Rendu du motif</label>
-          <select id="svgMode"><option value="fill">Plein (gravure)</option><option value="line">Contour (découpe)</option></select></div>
-        <div class="row">
-          <button class="primary" id="btnDxf" type="button">Télécharger DXF</button>
-          <button id="btnSvg" type="button">Télécharger SVG</button>
-        </div>
-        <div class="field"><span class="hint" data-zipnote>Le DXF arrive dans un .zip et garde les coordonnées d'origine. Le SVG est en millimètres, avec les couleurs des calques LightBurn choisis.</span></div>
-        <div id="lbBox" class="lb" hidden>
-          <div class="row" style="justify-content:space-between"><h2 style="margin:0">Envoyer à LightBurn</h2><span class="pill" id="lbPill">…</span></div>
-          <div class="field"><label for="lbScope">Contenu</label>
-            <select id="lbScope"><option value="motif">Frises seules</option><option value="all">Frises + forme</option></select></div>
-          <div class="field"><label for="lbPlace">Position</label>
-            <select id="lbPlace"><option value="origin">Sur la forme (position d'origine)</option><option value="view">Centre de la vue</option></select></div>
-          <div class="row"><button class="primary" id="btnLb" type="button">Envoyer à LightBurn</button><button id="btnLbForget" type="button">Oublier l'appairage</button></div>
-          <div class="msg" id="lbMsg" hidden></div>
-        </div>
-        <div id="fallback" hidden>
-          <div class="field"><span class="hint">Le téléchargement n'est pas disponible ici. Copie le DXF puis colle-le dans un fichier texte nommé <span class="mono">frise.dxf</span>.</span></div>
-          <div class="row"><button id="btnCopy" type="button">Copier le DXF</button></div>
-          <textarea id="fbText" readonly hidden aria-label="Contenu DXF"></textarea>
-        </div>
-      </section>
-    </div>
-
-    <div class="stage">
-      <div class="toolbar">
-        <div class="legend"><span><i style="background:var(--shape)"></i>Forme</span><span><i style="background:var(--guide)"></i>Bord suivi</span><span><i style="background:var(--ink)"></i>Frise active</span></div>
-        <div class="hist" role="group" aria-label="Historique">
-          <button id="btnUndo" type="button" title="Annuler (Ctrl+Z)" disabled><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span class="lbl">Précédent</span></button>
-          <button id="btnRedo" type="button" title="Rétablir (Ctrl+Y)" disabled><span class="lbl">Suivant</span><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
-        </div>
-        <div class="row"><select id="renderSel" aria-label="Rendu de l'aperçu" title="Rendu de l'aperçu"><option value="plan">Plan</option><option value="bois">Bois clair</option><option value="noyer">Noyer</option><option value="ardoise">Ardoise</option><option value="acrylique">Acrylique noir</option></select><button id="btnPng" type="button" title="Enregistrer une image de la pièce, comme sortie de la machine">Image</button></div>
-        <div class="row"><button id="zIn" type="button" aria-label="Zoomer">+</button><button id="zOut" type="button" aria-label="Dézoomer">−</button><button id="zFit" type="button">Recadrer</button></div>
+  <aside class="dock left">
+    <div class="dockTitle"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Objets</div>
+    <section class="grp">
+      <h2>Forme</h2>
+      <div class="drop" id="dropForme" tabindex="0" role="button" aria-label="Choisir la forme DXF ou SVG">
+        <span class="k">Fichier</span><span class="n" id="nameForme">—</span><span class="c">Changer</span>
       </div>
-      <div class="cv" id="cvBox"><canvas id="cv"></canvas><div class="pickmsg" id="pickMsg" hidden></div></div>
-      <div>
-        <div class="stats" id="stats"></div>
-        <div class="msgs" id="msgs" style="padding:0 12px 12px"></div>
+      <input type="file" id="fileForme" accept=".dxf,.svg,.courbeur" hidden>
+      <div class="field"><label for="units">Unités du fichier</label>
+        <select id="units"><option value="auto">Auto (lues dans le fichier)</option><option value="mm">Millimètres</option><option value="in">Pouces</option><option value="px">Pixels (96 ppp)</option></select>
+        <span class="hint">Si la taille ci-dessous ne correspond pas à LightBurn, force l'unité ici.</span></div>
+      <div id="inboxBox" class="inbox" hidden>
+        <span class="k">Dossiers d'échange</span>
+        <div class="ib"><span>Forme</span><span class="p mono" id="ibForme">—</span><button type="button" id="ibOpenForme">Ouvrir</button></div>
+        <div class="ib"><span>Motif</span><span class="p mono" id="ibMotif">—</span><button type="button" id="ibOpenMotif">Ouvrir</button></div>
+        <span class="hint">Exporte depuis LightBurn (Fichier › Exporter) dans un de ces dossiers : le fichier se charge tout seul ici.</span>
+      </div>
+    </section>
+
+    <section class="grp">
+      <div class="row" style="justify-content:space-between"><h2>Frises</h2>
+        <div class="row"><button type="button" id="btnAddFrise">+ Ajouter</button><button type="button" id="btnDelFrise">Supprimer</button></div></div>
+      <div class="tabs" id="tabs" role="tablist" aria-label="Frises"></div>
+      <div class="mlist" id="mlist"></div>
+      <input type="file" id="fileMotif" accept=".svg,image/svg+xml" hidden>
+      <div class="field"><span class="hint">Chaque frise suit son propre bord avec son propre motif. Clique une frise pour la régler, ou glisse un SVG sur sa ligne pour changer son motif.</span></div>
+    </section>
+
+    <details class="grp" open>
+      <summary><h2>Empilement</h2></summary>
+      <div class="body">
+      <div class="field"><label for="stackOpt"><input type="checkbox" id="stackOpt" checked> Empiler les frises au lieu de les superposer</label><span></span>
+        <span class="hint">Deux frises qui partagent une partie du même bord se placent l'une au-dessus de l'autre. Des frises jointes bout à bout ne bougent pas.</span></div>
+      <div class="field"><label for="stackGap">Espace entre frises empilées (mm)</label><input type="number" id="stackGap" min="0" step="0.5" value="1"></div>
+      </div>
+    </details>
+    <section class="grp" style="border-bottom:0">
+      <span class="hint">Un fichier .courbeur garde tout : la forme, les frises, les motifs, les textes et tes polices.</span>
+    </section>
+  </aside>
+
+  <main class="stage">
+    <div class="cv" id="cvBox"><canvas id="cv"></canvas><div class="pickmsg" id="pickMsg" hidden></div>
+      <div class="legend"><span><i style="background:var(--shape)"></i>Forme</span><span><i style="background:var(--guide)"></i>Bord suivi</span><span><i style="background:var(--ink)"></i>Frise active</span></div>
+      <div class="zoom" role="group" aria-label="Zoom"><button id="zIn" type="button" aria-label="Zoomer" title="Zoomer">+</button><button id="zOut" type="button" aria-label="Dézoomer" title="Dézoomer">−</button><button id="zFit" type="button" title="Recadrer"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg><span class="lbl">Recadrer</span></button></div>
+    </div>
+    <div class="statusbar">
+      <div class="sbrow"><div class="stats" id="stats"></div><span class="copy" id="copyTag"></span></div>
+      <div class="msgs" id="msgs"></div>
+    </div>
+  </main>
+
+  <aside class="dock right">
+    <div class="dockTitle"><svg viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>Propriétés</div>
+
+    <details class="grp" open data-only="text">
+      <summary><h2>Texte</h2></summary>
+      <div class="body">
+      <div class="field"><label for="txtVal" style="grid-column:1/-1">Texte à graver ou découper</label>
+        <input type="text" id="txtVal" class="txt" maxlength="200" spellcheck="false" style="grid-column:1/-1" placeholder="Ton texte"></div>
+      <div class="field"><label for="txtMode">Ligne du texte</label>
+        <select id="txtMode"><option value="">Le long d'un bord</option><option value="line">Droit, n'importe où</option><option value="circle">En cercle, n'importe où</option></select></div>
+      <div class="field"><label for="fontSel">Police</label><select id="fontSel"></select>
+        <div class="fprev" id="fontPrev" aria-hidden="true"></div>
+        <span class="hint" id="fontHint"></span></div>
+      <div class="row"><button type="button" id="btnFontAdd">Ajouter une police…</button><span class="kbd">.ttf · .otf · .woff</span></div>
+      <input type="file" id="fileFont" accept=".ttf,.otf,.woff,font/ttf,font/otf,font/woff" hidden>
+      <div class="field"><label for="txtH">Hauteur des lettres (mm)</label><input type="number" id="txtH" min="0.5" step="0.5" value="10">
+        <span class="hint">Hauteur d'une majuscule, comme le « H ».</span></div>
+      <div class="field"><label for="txtOff">Distance à la ligne suivie (mm)</label><input type="number" id="txtOff" step="0.5" value="2">
+        <span class="hint">Écart entre le bord et le pied des lettres. Négatif : les lettres passent de l'autre côté de la ligne.</span></div>
+      <div class="field"><label for="txtTrack">Espacement des lettres (mm)</label><input type="number" id="txtTrack" step="0.1" value="0"></div>
+      <div class="field" data-free="any"><label>Centre (mm)</label><span class="pos">X <input type="number" id="txtCx" step="0.5" aria-label="Centre X en mm"> Y <input type="number" id="txtCy" step="0.5" aria-label="Centre Y en mm"></span>
+        <span class="hint" data-free="line">Le texte se centre sur ce point. Glisse-le sur le dessin pour le déplacer.</span><span class="hint" data-free="circle">Centre du cercle. Glisse le texte sur le dessin pour déplacer le cercle.</span></div>
+      <div class="field" data-free="circle"><label for="txtRadius">Rayon du cercle (mm)</label><input type="number" id="txtRadius" min="1" step="0.5" value="40"></div>
+      <div class="field" data-free="line"><label for="txtAngle">Angle (°)</label><input type="number" id="txtAngle" step="1" value="0"></div>
+      <div class="field" data-free="edge circle"><label for="txtPos">Position le long du bord</label><span class="pos"><input type="number" id="txtPosVal" min="0" max="100" step="0.1" value="50" aria-label="Position du centre du texte en %"> %<small id="txtPosMm"></small></span>
+        <input type="range" id="txtPos" min="0" max="100" step="0.1" value="50" style="grid-column:1/-1">
+        <span class="hint">Centre du texte. Tu peux aussi glisser le texte directement sur le dessin.</span></div>
+      <div class="field"><label for="txtRot"><input type="checkbox" id="txtRot"> Tourner de 180°</label><span></span>
+        <span class="hint">Pour lire le texte dans l'autre sens, par exemple sur le haut d'une forme.</span></div>
+      </div>
+    </details>
+
+    <details class="grp" open data-only="coin">
+      <summary><h2>Ornements de coin</h2></summary>
+      <div class="body">
+      <div class="field"><span class="hint" style="grid-column:1/-1">Un ornement se pose dans chaque coin du contour choisi, pointe vers le coin. Choisis le motif dans la carte « Coins » ci-dessus.</span></div>
+      <div class="field"><label for="cornH">Taille (mm)</label><input type="number" id="cornH" min="1" step="0.5" value="18"></div>
+      <div class="field"><label for="cornOff">Distance au coin (mm)</label><input type="number" id="cornOff" step="0.5" value="2"></div>
+      <div class="field"><label for="cornSens">Sensibilité des coins</label><span class="mono"><span id="cornSensVal">40</span>°</span>
+        <input type="range" id="cornSens" min="15" max="120" step="1" value="40" style="grid-column:1/-1">
+        <span class="hint">Un coin est repéré quand le bord tourne de plus que cet angle. Plus petit = plus de coins.</span></div>
+      <div class="field"><label for="cornRot"><input type="checkbox" id="cornRot"> Retourner les ornements</label><span></span></div>
+      </div>
+    </details>
+
+    <details class="grp" open data-free-hide="1">
+      <summary><h2>Bord à suivre</h2></summary>
+      <div class="body">
+      <div class="field"><label for="selChain">Contour</label><select id="selChain"></select></div>
+      <div class="row" role="group" aria-label="Partie automatique" data-only="frise">
+        <span style="color:var(--muted)">Auto :</span>
+        <div class="seg">
+          <button id="autoBas" type="button">Bas</button><button id="autoHaut" type="button">Haut</button><button id="autoGauche" type="button">Gauche</button><button id="autoDroite" type="button">Droite</button>
+        </div>
+      </div>
+      <div class="field" data-only="frise"><label for="slope">Pente max (auto)</label><span class="mono"><span id="slopeVal">30</span>°</span>
+        <input type="range" id="slope" min="5" max="85" step="1" value="30" style="grid-column:1/-1"></div>
+      <div class="field" data-only="frise"><label for="posA">Début</label><span class="pos"><input type="number" id="aVal" min="0" max="100" step="0.1" value="0" aria-label="Début en %"> %<small id="aMm"></small></span>
+        <input type="range" id="posA" min="0" max="100" step="0.1" value="0" style="grid-column:1/-1"></div>
+      <div class="field" data-only="frise"><label for="posB">Fin</label><span class="pos"><input type="number" id="bVal" min="0" max="100" step="0.1" value="100" aria-label="Fin en %"> %<small id="bMm"></small></span>
+        <input type="range" id="posB" min="0" max="100" step="0.1" value="100" style="grid-column:1/-1"></div>
+      <div class="row">
+        <button id="btnPick" type="button" aria-pressed="false" data-only="frise text">Choisir sur le dessin</button>
+        <button id="btnSwap" type="button" data-only="frise">Prendre l'autre partie</button>
+        <button id="btnJoin" type="button" data-only="frise" title="Colle le début et la fin de cette frise aux frises voisines du même contour (ou fait tout le tour s'il n'y en a pas)">Joindre les bordures</button>
+      </div>
+      </div>
+    </details>
+
+    <details class="grp" open>
+      <summary><h2 id="setTitle">Réglages du motif</h2></summary>
+      <div class="body">
+      <div class="field"><label>Côté</label>
+        <div class="seg" role="group" aria-label="Côté du motif"><button id="sideIn" type="button" aria-pressed="true">Intérieur</button><button id="sideOut" type="button" aria-pressed="false">Extérieur</button></div></div>
+      <div class="field" data-only="frise"><label>Orientation</label>
+        <div class="seg" role="group" aria-label="Orientation du motif"><button id="orH" type="button" aria-pressed="true" title="La longueur du motif suit le bord">Horizontale</button><button id="orV" type="button" aria-pressed="false" title="Le motif tourne d'un quart de tour et se répète debout le long du bord">Verticale</button></div></div>
+      <div class="field" id="orderBox" hidden><label for="order">Ordre d'alternance</label><input type="text" id="order" value="AB" maxlength="24" spellcheck="false" style="width:84px;font-family:var(--f-mono);text-align:center;text-transform:uppercase;height:26px;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:5px">
+        <span class="hint">A = motif 1, B = motif 2. Par exemple AB, ABB ou AAB. L'ordre se répète tout le long du bord.</span></div>
+      <div class="field" data-only="frise"><label for="reps">Répétitions du motif</label><input type="number" id="reps" min="1" max="200" step="1" value="1">
+        <span class="hint" id="repsHint">Le motif entier est répété puis ajusté pour remplir le bord.</span></div>
+      <div class="field" data-only="frise"><label for="autoReps"><input type="checkbox" id="autoReps"> Répéter automatiquement pour garder la taille</label><span></span>
+        <span class="hint" id="autoRepsHint" hidden>Le motif garde la hauteur visée : il est dupliqué autant de fois que nécessaire pour remplir le bord, sans être étiré ni écrasé.<span id="tileHint"></span></span></div>
+      <div class="field" data-only="frise"><label for="autoH"><input type="checkbox" id="autoH" checked> <span id="autoHLbl">Hauteur auto (proportions gardées)</span></label><span></span></div>
+      <div class="field" data-only="frise"><label for="height" id="heightLbl">Hauteur (mm)</label><input type="number" id="height" min="0.5" step="0.5" value="20" disabled></div>
+      <div class="field" data-only="frise"><label for="offset">Écart au bord (mm)</label><input type="number" id="offset" step="0.5" value="0"></div>
+      <div class="field" data-only="frise"><label for="margin">Marge aux extrémités (mm)</label><input type="number" id="margin" min="0" step="0.5" value="0"></div>
+      <div class="field" data-only="frise"><label for="cornerSoft"><input type="checkbox" id="cornerSoft" checked> Adoucir les coins</label><span></span>
+        <span class="hint">Le motif ne se replie plus sur lui-même dans les virages serrés : sa base suit le bord, son haut tourne en douceur.</span></div>
+      <div class="field"><label for="smooth">Lissage de la courbe (mm)</label><input type="number" id="smooth" min="0" step="0.5" value="3">
+        <span class="hint">Plus grand = le motif ondule moins dans les petites irrégularités du bord.</span></div>
+      <div class="row" data-only="frise">
+        <label><input type="checkbox" id="flip"> Retourner</label>
+        <label><input type="checkbox" id="mirror"> Miroir</label>
+      </div>
+      <div class="field"><label for="layerSel">Calque LightBurn</label>
+        <span class="row" style="gap:6px;flex-wrap:nowrap"><i class="sw" id="layerSw"></i><select id="layerSel"></select></span></div>
+      </div>
+    </details>
+
+    <details class="grp" open>
+      <summary><h2>Export pour LightBurn</h2></summary>
+      <div class="body">
+      <div class="row">
+        <label><input type="checkbox" id="incShape" checked> Inclure la forme dans les fichiers</label>
+      </div>
+      <div class="field"><label for="fuseOpt"><input type="checkbox" id="fuseOpt" checked> Fusionner les formes</label><span></span>
+        <span class="hint">Sur chaque calque, tout ce qui se touche ou se recouvre devient un seul contour propre : pas de trait en double à la découpe, pas de trou dans la gravure. Mets des frises jointes sur le même calque pour qu'elles forment un seul contour.</span></div>
+      <div class="row" hidden>
+      </div>
+      <div class="field"><label for="formeLayerSel">Calque de la forme</label>
+        <span class="row" style="gap:6px;flex-wrap:nowrap"><i class="sw" id="formeLayerSw"></i><select id="formeLayerSel"></select></span></div>
+      <div class="field"><label for="svgMode">Rendu du motif</label>
+        <select id="svgMode"><option value="fill">Plein (gravure)</option><option value="line">Contour (découpe)</option></select></div>
+      <div class="field"><span class="hint" data-zipnote>Le DXF arrive dans un .zip et garde les coordonnées d'origine. Le SVG est en millimètres, avec les couleurs des calques LightBurn choisis.</span></div>
+      <div id="fallback" hidden>
+        <div class="field"><span class="hint">Le téléchargement n'est pas disponible ici. Copie le DXF puis colle-le dans un fichier texte nommé <span class="mono">frise.dxf</span>.</span></div>
+        <div class="row"><button id="btnCopy" type="button">Copier le DXF</button></div>
+        <textarea id="fbText" readonly hidden aria-label="Contenu DXF"></textarea>
+      </div>
+      </div>
+    </details>
+    <div class="spacer"></div>
+    <div class="laser">
+      <div class="big">
+        <button class="primary" id="btnDxf" type="button">Télécharger DXF</button>
+        <button id="btnSvg" type="button">Télécharger SVG</button>
+      </div>
+      <div id="lbBox" class="lb" hidden>
+        <div class="row" style="justify-content:space-between"><h2 style="margin:0">Envoyer à LightBurn</h2><span class="pill" id="lbPill">…</span></div>
+        <div class="field"><label for="lbScope">Contenu</label>
+          <select id="lbScope"><option value="motif">Frises seules</option><option value="all">Frises + forme</option></select></div>
+        <div class="field"><label for="lbPlace">Position</label>
+          <select id="lbPlace"><option value="origin">Sur la forme (position d'origine)</option><option value="view">Centre de la vue</option></select></div>
+        <div class="big"><button class="primary" id="btnLb" type="button">Envoyer à LightBurn</button><button id="btnLbForget" type="button">Oublier l'appairage</button></div>
+        <div class="msg" id="lbMsg" hidden></div>
       </div>
     </div>
-  </div>
+  </aside>
 </div>
 <div id="svgHost" aria-hidden="true"></div>
 <div class="toast" id="toast" hidden></div>
@@ -345,7 +444,6 @@ canvas.dragging{cursor:grabbing}
 <div class="gal" id="galBox" hidden><div class="galIn" role="dialog" aria-modal="true" aria-labelledby="galTitle">
   <div class="row" style="justify-content:space-between"><h2 id="galTitle">Motifs</h2><button type="button" id="galClose" aria-label="Fermer">✕</button></div>
   <div class="galGrid" id="galGrid"></div></div></div>
-
 <script>__CLIPPER__</script>
 <script>const MOTIF_LIB = __MOTIFS__;const SL_FONTS = __LINEFONTS__;</script>
 <script>__OPENTYPE__</script>
@@ -359,6 +457,8 @@ const $ = id => document.getElementById(id);
    créés en cours d'utilisation) passe par ce traducteur : une table de phrases exactes, puis des règles pour
    les phrases qui contiennent des nombres. On revient au français sans recharger la page. */
 const I18N_EXACT={
+"Objets":"Objects","Propriétés":"Properties","Empilement":"Stacking","Thème clair":"Light theme","Thème sombre":"Dark theme","Zoom":"Zoom",
+"Ouvrir un projet .courbeur":"Open a .courbeur project","Enregistrer le projet .courbeur":"Save the .courbeur project",
 "Courbeur de frise":"Frieze Bender",
 "Fait suivre un motif SVG le long d'un bord de ta forme, puis exporte pour LightBurn.":"Bends an SVG pattern along an edge of your shape, then exports it for LightBurn.",
 "Forme":"Shape","Fichier":"File","Changer":"Change","Unités du fichier":"File units","Auto (lues dans le fichier)":"Auto (read from the file)",
@@ -631,7 +731,7 @@ function setLang(l,save){LANG=l==='en'?'en':'fr';document.documentElement.lang=L
 function initialLang(){try{const s=localStorage.getItem('courbeur.lang');if(s==='fr'||s==='en')return s;}catch(e){}
   return /^fr\b/i.test(navigator.language||'')?'fr':'en';}
 
-const PAGE_VERSION = '1.14.2';
+const PAGE_VERSION = '1.15.0';
 
 /* ---------- geometry helpers ---------- */
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
@@ -1764,6 +1864,10 @@ $('zIn').addEventListener('click',()=>smoothZoom(1.4));$('zOut').addEventListene
 new ResizeObserver(resize).observe($('cvBox'));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{COL=null;draw();});
 new MutationObserver(()=>{COL=null;draw();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+/* thème clair / sombre : mémorisé dans le navigateur */
+function syncTheme(){const dark=document.documentElement.dataset.theme!=='light';const t=dark?'Thème clair':'Thème sombre';$('themeBtn').title=t;$('themeBtn').setAttribute('aria-label',t);}
+$('themeBtn').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme!=='light';document.documentElement.dataset.theme=dark?'light':'dark';try{localStorage.setItem('courbeur.theme',dark?'light':'dark');}catch(e){}syncTheme();});
+syncTheme();
 
 /* ---------- export ---------- */
 function simplify(P,closed,eps){if(!closed||P.length<4)return rdp(P,eps);let far=0,fd=-1;for(let i=1;i<P.length;i++){const d=dist(P[0],P[i]);if(d>fd){fd=d;far=i;}}
@@ -1984,8 +2088,8 @@ function applyPrefsUI(p){if(typeof p.incShape==='boolean')$('incShape').checked=
     if(keep){try{await openProject(keep);toast('Mise à jour appliquée : ton travail est restauré');}catch(e){}}}
   if(HTTP){lbStatus();setInterval(lbStatus,10000);pollInbox();setInterval(pollInbox,500);refreshLibrary();setInterval(refreshLibrary,15000);
 }
-  {const e=document.createElement('span');e.className='mono';e.style.cssText='color:var(--muted);font-size:.75rem';e.textContent='V'+PAGE_VERSION+(POOL?' · calcul sur '+CORES+' cœurs':'');document.querySelector('header').append(e);
-    const c=document.createElement('span');c.className='mono';c.style.cssText='color:var(--muted);font-size:.75rem';c.textContent='© 2026 Christophe Tanniou · tous droits réservés';c.title='Utilisation gratuite. Modification et redistribution interdites sans accord.';document.querySelector('header').append(c);}
+  {const e=document.createElement('span');e.className='mono';e.style.cssText='color:var(--muted);font-size:.75rem';e.textContent='V'+PAGE_VERSION+(POOL?' · calcul sur '+CORES+' cœurs':'');$('brandMeta').append(e);
+    const c=document.createElement('span');c.className='mono';c.style.cssText='color:var(--muted);font-size:.75rem';c.textContent='© 2026 Christophe Tanniou · tous droits réservés';c.title='Utilisation gratuite. Modification et redistribution interdites sans accord.';$('copyTag').append(c);}
 })();
 </script>
 

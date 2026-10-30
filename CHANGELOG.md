@@ -1,5 +1,11 @@
 # Journal des versions · Changelog
 
+## 1.15.0 — 30.10.2026 — nouvelle interface · new interface
+- Interface façon logiciel laser : barre d'outils en haut, objets à gauche, dessin en grand au centre, propriétés à droite, barre d'état en bas · Laser-studio layout: toolbar on top, objects on the left, large drawing in the middle, properties on the right, status bar at the bottom.
+- Thème sombre par défaut, thème clair en un clic (mémorisé) · Dark theme by default, light theme one click away (remembered).
+- Sections repliables, zoom flottant sur le dessin, légende et messages intégrés · Collapsible sections, floating zoom on the drawing, built-in legend and messages.
+- Export et envoi à LightBurn toujours à portée de main, en bas du panneau de droite · Export and send-to-LightBurn always at hand, at the bottom of the right panel.
+
 ## 1.14.2 — 30.10.2026 — plus rapide · faster
 - Démarrage environ 6 fois plus rapide (2,8 s → 0,5 s) : les tracés SVG sont lus directement au lieu d'être mesurés point par point · About 6× faster start-up (2.8 s → 0.5 s): SVG paths are read directly instead of being measured point by point.
 - Les motifs et les formes SVG s'ouvrent beaucoup plus vite, surtout les fichiers détaillés · SVG patterns and shapes open much faster, especially detailed files.
