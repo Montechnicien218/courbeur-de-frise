@@ -895,6 +895,8 @@ body:not(.is-free) [data-free]:not([data-free~="edge"]),body.free-line [data-fre
 .galItem.coin img{height:90px;object-position:center}
 .galItem span{font-size:.85rem}
 #renderSel{padding:5px 6px}
+.upd{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top,0px));transform:translateX(-50%);z-index:35;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;background:var(--panel);border:1px solid var(--accent);border-radius:10px;box-shadow:0 10px 28px -10px rgba(0,0,0,.45);padding:8px 10px 8px 14px;max-width:calc(100% - 32px)}
+.upd-s{color:var(--muted);font-size:.85rem}
 input[type=text].txt{box-sizing:border-box;font:inherit;font-size:1rem;width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
 .fprev{grid-column:1/-1;font-size:1.5rem;line-height:1.2;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:2.1em}
 .mline .n.tx{font-family:inherit;font-size:.9rem}
@@ -1094,6 +1096,7 @@ canvas.dragging{cursor:grabbing}
 <div id="svgHost" aria-hidden="true"></div>
 <div class="toast" id="toast" hidden></div>
 <div class="ctx" id="ctxMenu" role="menu" hidden></div>
+<div class="upd" id="updBar" role="status" hidden><span id="updTxt">Nouvelle version disponible.</span> <span class="upd-s">Ton travail en cours est gardé.</span><button type="button" class="primary" id="updGo">Recharger</button><button type="button" id="updLater" aria-label="Plus tard">✕</button></div>
 <div class="gal" id="galBox" hidden><div class="galIn" role="dialog" aria-modal="true" aria-labelledby="galTitle">
   <div class="row" style="justify-content:space-between"><h2 id="galTitle">Motifs</h2><button type="button" id="galClose" aria-label="Fermer">✕</button></div>
   <div class="galGrid" id="galGrid"></div></div></div>
@@ -1302,7 +1305,7 @@ const I18N_EXACT={
 "Distance à la ligne":"Distance from the line",
 "tape ton texte":"type your text",
 "agrandis la forme ou réduis le texte":"enlarge the shape or shorten the text",
-"Mon texte":"My text",
+"Mon texte":"My text","Ton travail en cours est gardé.":"Your current work is kept.","Recharger":"Reload","Plus tard":"Later","Mise à jour appliquée : ton travail est restauré":"Update applied: your work is restored","Nouvelle version disponible.":"New version available.",
 /* V1.14 */
 "Projet":"Project",
 "Ouvrir…":"Open…",
@@ -1430,7 +1433,7 @@ const I18N_RULES=[
 [/^LightBurn a refusé l'appairage \(code (\d+)\)\.$/,"LightBurn refused pairing (code $1)."],
 [/^LightBurn n'a pas pu importer le fichier\. (.*)$/,"LightBurn couldn't import the file. $1"],
 [/^Écriture impossible : (.*)$/,"Can't write: $1"],
-[/^« (.*) »$/,"“$1”"],
+[/^« (.*) »$/,"“$1”"],[/^Nouvelle version ([\d.]+) disponible\.$/,"New version $1 available."],
 [/^(\d+) coins décorés$/,"$1 corners decorated"],[/^· (\d+) coins · ([\d.]+) mm$/,"· $1 corners · $2 mm"],[/^Projet ouvert : (.*)$/,"Project opened: $1"],
 [/^Environ ([\d.]+) % de ce texte sort de la forme\. Déplace-le ou réduis sa hauteur\.$/,"About $1 % of this text goes outside the shape. Move it or reduce its height."],
 [/^(Ce texte|Cette frise) touche (le texte|la frise) (\d+)\.$/,(m,a,b,n)=>(a==='Ce texte'?'This text':'This frieze')+' touches '+(b==='le texte'?'text ':'frieze ')+n+'.'],
@@ -1466,7 +1469,7 @@ function setLang(l,save){LANG=l==='en'?'en':'fr';document.documentElement.lang=L
 function initialLang(){try{const s=localStorage.getItem('courbeur.lang');if(s==='fr'||s==='en')return s;}catch(e){}
   return /^fr\b/i.test(navigator.language||'')?'fr':'en';}
 
-const PAGE_VERSION = '1.14';
+const PAGE_VERSION = '1.14.1';
 
 /* ---------- geometry helpers ---------- */
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
@@ -1933,6 +1936,16 @@ async function openProject(text){let d;try{d=JSON.parse(text);}catch(e){throw ne
 $('btnProjSave').addEventListener('click',async()=>{await whenIdle();const name=(formeName||'projet').replace(/\.[^.]+$/,'')+'.courbeur';
   offer(name,new Blob([JSON.stringify(projectData())],{type:'application/json'}));});
 $('btnProjOpen').addEventListener('click',()=>$('fileProj').click());
+/* -- mise à jour de la page : quand courbeur.html est remplacé à côté du programme, un bandeau propose de recharger,
+      et le travail en cours est gardé pendant le rechargement (pas besoin de quitter ni relancer le programme) -- */
+let updBusy=false,updSeen='';
+async function checkPageUpdate(){if(!HTTP||updBusy||document.hidden)return;updBusy=true;
+  try{const t=await (await fetch('/?ici=1',{cache:'no-store'})).text();const m=t.match(/const PAGE_VERSION = '([^']+)'/);
+    if(m&&m[1]!==PAGE_VERSION&&m[1]!==updSeen){$('updTxt').textContent='Nouvelle version '+m[1]+' disponible.';$('updBar').hidden=false;}}catch(e){}finally{updBusy=false;}}
+function reloadKeepingWork(){try{sessionStorage.setItem('courbeur.reload',JSON.stringify(projectData()));}catch(e){}location.reload();}
+$('updGo').addEventListener('click',reloadKeepingWork);
+$('updLater').addEventListener('click',()=>{$('updBar').hidden=true;const m=$('updTxt').textContent.match(/([\d.]+)/);updSeen=m?m[1]:'';});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkPageUpdate();});addEventListener('focus',checkPageUpdate);
 $('fileProj').addEventListener('change',async()=>{const f=$('fileProj').files[0];$('fileProj').value='';if(!f)return;try{await openProject(await f.text());}catch(e){toast(e.message);}});
 
 /* -- aperçu réaliste : la pièce comme si elle sortait de la machine, et export en image -- */
@@ -2725,6 +2738,9 @@ function applyPrefsUI(p){if(typeof p.incShape==='boolean')$('incShape').checked=
   if(STANDALONE)document.querySelector('[data-zipnote]').textContent='Le DXF garde les coordonnées d\'origine. Le SVG est en millimètres, avec les couleurs des calques LightBurn choisis.';
   startPool();syncAll();renderTabs();resize();computeAll();fit();renderStats();scheduleChecks();commit();
   if(!STANDALONE)getDl();
+  if(HTTP){setInterval(checkPageUpdate,120000);setTimeout(checkPageUpdate,5000);}
+  {let keep=null;try{keep=sessionStorage.getItem('courbeur.reload');sessionStorage.removeItem('courbeur.reload');}catch(e){}
+    if(keep){try{await openProject(keep);toast('Mise à jour appliquée : ton travail est restauré');}catch(e){}}}
   if(HTTP){lbStatus();setInterval(lbStatus,10000);pollInbox();setInterval(pollInbox,500);refreshLibrary();setInterval(refreshLibrary,15000);
 }
   {const e=document.createElement('span');e.className='mono';e.style.cssText='color:var(--muted);font-size:.75rem';e.textContent='V'+PAGE_VERSION+(POOL?' · calcul sur '+CORES+' cœurs':'');document.querySelector('header').append(e);

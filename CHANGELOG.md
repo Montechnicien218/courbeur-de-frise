@@ -1,6 +1,7 @@
 # Journal des versions · Changelog
 
 ## 1.14 — 30.10.2026 — projet, coins, aperçu · project, corners, preview
+- Mise à jour sans relancer le programme : quand courbeur.html est remplacé, un bandeau propose de recharger, en gardant le travail en cours · Update without restarting: when courbeur.html is replaced, a banner offers to reload, keeping the current work.
 - Projet : enregistrer et rouvrir tout un travail (fichier .courbeur, polices comprises) · Project: save and reopen a whole job (.courbeur file, fonts included).
 - Bibliothèque intégrée : 15 frises et 4 ornements de coin, à choisir en un clic · Built-in library: 15 friezes and 4 corner ornaments, one click away.
 - Ornements de coin : un motif dans chaque coin de la forme, pointe vers le coin · Corner ornaments: a pattern in every corner of the shape.
