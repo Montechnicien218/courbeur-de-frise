@@ -11,6 +11,7 @@
 | [Great Vibes](https://github.com/googlefonts/great-vibes) | Fontsource 5.3 | SIL OFL 1.1 | Police intégrée / built-in font |
 | [Cinzel](https://github.com/NDISCOVER/Cinzel) Bold | Fontsource 5.3 | SIL OFL 1.1 | Police intégrée / built-in font |
 | [Playfair Display](https://github.com/clauseggers/Playfair-Display) Bold | Fontsource 5.3 | SIL OFL 1.1 (Reserved Font Name « Playfair Display ») | Police intégrée / built-in font |
+| EMS Readability, EMS Allure, EMS Felix, EMS Tech — Sheldon B. Michaels, conversion SVG Windell H. Oskay ([Evil Mad Scientist](https://gitlab.com/oskay/svg-fonts)) ; dérivées de Source Sans Pro, Allura, Felipa, Architects Daughter | 2019 | SIL OFL 1.1 | Polices monotrait / single-line fonts |
 | [Go](https://go.dev) standard library | 1.24 | BSD-3-Clause | Lanceur Windows / Windows launcher |
 
 Les textes complets des licences sont dans [`page/vendor/`](page/vendor/) et [`page/vendor/fonts/`](page/vendor/fonts/), et recopiés à la fin de ce fichier, inclus dans chaque version téléchargeable. Les polices sont intégrées sans modification (fichiers `.woff` de [Fontsource](https://fontsource.org), jeu de caractères latin) ; l'approche des lettres est lue à part par `tools/make_kerning.py`.

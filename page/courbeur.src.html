@@ -128,9 +128,18 @@ button:disabled{opacity:.45;cursor:default}
 .mline select{grid-column:2/-1;font-size:.78rem;padding:3px 6px}
 .mcard .mh .mdel{margin-left:auto;padding:2px 8px;font-size:.75rem;font-weight:500}
 .madd{border-style:dashed;color:var(--accent);font-weight:600}
-.addrow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.addrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 /* textes : un « texte » est une frise spéciale, faite des lettres d'une police */
-body.is-text [data-only="frise"],body:not(.is-text) [data-only="text"]{display:none!important}
+body:not(.is-text):not(.is-coin) [data-only]:not([data-only~="frise"]),body.is-text [data-only]:not([data-only~="text"]),body.is-coin [data-only]:not([data-only~="coin"]){display:none!important}
+body:not(.is-free) [data-free]:not([data-free~="edge"]),body.free-line [data-free]:not([data-free~="line"]):not([data-free~="any"]),body.free-circle [data-free]:not([data-free~="circle"]):not([data-free~="any"]),body.is-free [data-free-hide],body:not(.is-text) [data-free]{display:none!important}
+.gal{position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.45);display:grid;place-items:center;padding:16px}
+.galIn{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:760px;width:100%;max-height:86vh;overflow:auto;padding:14px 16px;display:grid;gap:12px}
+.galGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.galItem{display:grid;gap:6px;justify-items:start;text-align:left;padding:10px;background:var(--bg)}
+.galItem img{width:100%;height:42px;object-fit:contain;object-position:left center;background:#fff;border-radius:6px;padding:4px}
+.galItem.coin img{height:90px;object-position:center}
+.galItem span{font-size:.85rem}
+#renderSel{padding:5px 6px}
 input[type=text].txt{box-sizing:border-box;font:inherit;font-size:1rem;width:100%;background:var(--bg);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
 .fprev{grid-column:1/-1;font-size:1.5rem;line-height:1.2;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:2.1em}
 .mline .n.tx{font-family:inherit;font-size:.9rem}
@@ -151,11 +160,18 @@ canvas.dragging{cursor:grabbing}
   <div class="app">
     <div class="panel">
       <section class="grp">
+        <div class="row" style="justify-content:space-between"><h2>Projet</h2>
+          <div class="row"><button type="button" id="btnProjOpen">Ouvrir…</button><button type="button" id="btnProjSave">Enregistrer</button></div></div>
+        <input type="file" id="fileProj" accept=".courbeur,application/json" hidden>
+        <span class="hint" style="color:var(--muted);font-size:.8rem">Un fichier .courbeur garde tout : la forme, les frises, les motifs, les textes et tes polices.</span>
+      </section>
+
+      <section class="grp">
         <h2>Forme</h2>
         <div class="drop" id="dropForme" tabindex="0" role="button" aria-label="Choisir la forme DXF ou SVG">
           <span class="k">Fichier</span><span class="n" id="nameForme">—</span><span class="c">Changer</span>
         </div>
-        <input type="file" id="fileForme" accept=".dxf,.svg" hidden>
+        <input type="file" id="fileForme" accept=".dxf,.svg,.courbeur" hidden>
         <div class="field"><label for="units">Unités du fichier</label>
           <select id="units"><option value="auto">Auto (lues dans le fichier)</option><option value="mm">Millimètres</option><option value="in">Pouces</option><option value="px">Pixels (96 ppp)</option></select>
           <span class="hint">Si la taille ci-dessous ne correspond pas à LightBurn, force l'unité ici.</span></div>
@@ -181,6 +197,8 @@ canvas.dragging{cursor:grabbing}
 
       <section class="grp" data-only="text">
         <h2>Texte</h2>
+        <div class="field"><label for="txtMode">Ligne du texte</label>
+          <select id="txtMode"><option value="">Le long d'un bord</option><option value="line">Droit, n'importe où</option><option value="circle">En cercle, n'importe où</option></select></div>
         <div class="field"><label for="txtVal" style="grid-column:1/-1">Texte à graver ou découper</label>
           <input type="text" id="txtVal" class="txt" maxlength="200" spellcheck="false" style="grid-column:1/-1" placeholder="Ton texte"></div>
         <div class="field"><label for="fontSel">Police</label><select id="fontSel"></select>
@@ -193,14 +211,29 @@ canvas.dragging{cursor:grabbing}
         <div class="field"><label for="txtOff">Distance à la ligne suivie (mm)</label><input type="number" id="txtOff" step="0.5" value="2">
           <span class="hint">Écart entre le bord et le pied des lettres. Négatif : les lettres passent de l'autre côté de la ligne.</span></div>
         <div class="field"><label for="txtTrack">Espacement des lettres (mm)</label><input type="number" id="txtTrack" step="0.1" value="0"></div>
-        <div class="field"><label for="txtPos">Position le long du bord</label><span class="pos"><input type="number" id="txtPosVal" min="0" max="100" step="0.1" value="50" aria-label="Position du centre du texte en %"> %<small id="txtPosMm"></small></span>
+        <div class="field" data-free="any"><label>Centre (mm)</label><span class="pos">X <input type="number" id="txtCx" step="0.5" aria-label="Centre X en mm"> Y <input type="number" id="txtCy" step="0.5" aria-label="Centre Y en mm"></span>
+          <span class="hint" data-free="line">Le texte se centre sur ce point. Glisse-le sur le dessin pour le déplacer.</span><span class="hint" data-free="circle">Centre du cercle. Glisse le texte sur le dessin pour déplacer le cercle.</span></div>
+        <div class="field" data-free="circle"><label for="txtRadius">Rayon du cercle (mm)</label><input type="number" id="txtRadius" min="1" step="0.5" value="40"></div>
+        <div class="field" data-free="line"><label for="txtAngle">Angle (°)</label><input type="number" id="txtAngle" step="1" value="0"></div>
+        <div class="field" data-free="edge circle"><label for="txtPos">Position le long du bord</label><span class="pos"><input type="number" id="txtPosVal" min="0" max="100" step="0.1" value="50" aria-label="Position du centre du texte en %"> %<small id="txtPosMm"></small></span>
           <input type="range" id="txtPos" min="0" max="100" step="0.1" value="50" style="grid-column:1/-1">
           <span class="hint">Centre du texte. Tu peux aussi glisser le texte directement sur le dessin.</span></div>
         <div class="field"><label for="txtRot"><input type="checkbox" id="txtRot"> Tourner de 180°</label><span></span>
           <span class="hint">Pour lire le texte dans l'autre sens, par exemple sur le haut d'une forme.</span></div>
       </section>
 
-      <section class="grp">
+      <section class="grp" data-only="coin">
+        <h2>Ornements de coin</h2>
+        <div class="field"><span class="hint" style="grid-column:1/-1">Un ornement se pose dans chaque coin du contour choisi, pointe vers le coin. Choisis le motif dans la carte « Coins » ci-dessus.</span></div>
+        <div class="field"><label for="cornH">Taille (mm)</label><input type="number" id="cornH" min="1" step="0.5" value="18"></div>
+        <div class="field"><label for="cornOff">Distance au coin (mm)</label><input type="number" id="cornOff" step="0.5" value="2"></div>
+        <div class="field"><label for="cornSens">Sensibilité des coins</label><span class="mono"><span id="cornSensVal">40</span>°</span>
+          <input type="range" id="cornSens" min="15" max="120" step="1" value="40" style="grid-column:1/-1">
+          <span class="hint">Un coin est repéré quand le bord tourne de plus que cet angle. Plus petit = plus de coins.</span></div>
+        <div class="field"><label for="cornRot"><input type="checkbox" id="cornRot"> Retourner les ornements</label><span></span></div>
+      </section>
+
+      <section class="grp" data-free-hide="1">
         <h2>Bord à suivre</h2>
         <div class="field"><label for="selChain">Contour</label><select id="selChain"></select></div>
         <div class="row" role="group" aria-label="Partie automatique" data-only="frise">
@@ -216,7 +249,7 @@ canvas.dragging{cursor:grabbing}
         <div class="field" data-only="frise"><label for="posB">Fin</label><span class="pos"><input type="number" id="bVal" min="0" max="100" step="0.1" value="100" aria-label="Fin en %"> %<small id="bMm"></small></span>
           <input type="range" id="posB" min="0" max="100" step="0.1" value="100" style="grid-column:1/-1"></div>
         <div class="row">
-          <button id="btnPick" type="button" aria-pressed="false">Choisir sur le dessin</button>
+          <button id="btnPick" type="button" aria-pressed="false" data-only="frise text">Choisir sur le dessin</button>
           <button id="btnSwap" type="button" data-only="frise">Prendre l'autre partie</button>
           <button id="btnJoin" type="button" data-only="frise" title="Colle le début et la fin de cette frise aux frises voisines du même contour (ou fait tout le tour s'il n'y en a pas)">Joindre les bordures</button>
         </div>
@@ -292,6 +325,7 @@ canvas.dragging{cursor:grabbing}
           <button id="btnUndo" type="button" title="Annuler (Ctrl+Z)" disabled><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg><span class="lbl">Précédent</span></button>
           <button id="btnRedo" type="button" title="Rétablir (Ctrl+Y)" disabled><span class="lbl">Suivant</span><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
         </div>
+        <div class="row"><select id="renderSel" aria-label="Rendu de l'aperçu" title="Rendu de l'aperçu"><option value="plan">Plan</option><option value="bois">Bois clair</option><option value="noyer">Noyer</option><option value="ardoise">Ardoise</option><option value="acrylique">Acrylique noir</option></select><button id="btnPng" type="button" title="Enregistrer une image de la pièce, comme sortie de la machine">Image</button></div>
         <div class="row"><button id="zIn" type="button" aria-label="Zoomer">+</button><button id="zOut" type="button" aria-label="Dézoomer">−</button><button id="zFit" type="button">Recadrer</button></div>
       </div>
       <div class="cv" id="cvBox"><canvas id="cv"></canvas><div class="pickmsg" id="pickMsg" hidden></div></div>
@@ -305,8 +339,12 @@ canvas.dragging{cursor:grabbing}
 <div id="svgHost" aria-hidden="true"></div>
 <div class="toast" id="toast" hidden></div>
 <div class="ctx" id="ctxMenu" role="menu" hidden></div>
+<div class="gal" id="galBox" hidden><div class="galIn" role="dialog" aria-modal="true" aria-labelledby="galTitle">
+  <div class="row" style="justify-content:space-between"><h2 id="galTitle">Motifs</h2><button type="button" id="galClose" aria-label="Fermer">✕</button></div>
+  <div class="galGrid" id="galGrid"></div></div></div>
 
 <script>__CLIPPER__</script>
+<script>const MOTIF_LIB = __MOTIFS__;const SL_FONTS = __LINEFONTS__;</script>
 <script>__OPENTYPE__</script>
 <script>
 const SAMPLE_MOTIF = __SAMPLE_MOTIF__;
@@ -426,7 +464,87 @@ const I18N_EXACT={
 "Distance à la ligne":"Distance from the line",
 "tape ton texte":"type your text",
 "agrandis la forme ou réduis le texte":"enlarge the shape or shorten the text",
-"Mon texte":"My text","© 2026 Christophe Tanniou · tous droits réservés":"© 2026 Christophe Tanniou · all rights reserved","Utilisation gratuite. Modification et redistribution interdites sans accord.":"Free to use. Modifying and redistributing without permission is not allowed.","Ce texte est plus long que le bord disponible. Réduis la hauteur des lettres ou l'espacement.":"This text is longer than the available edge. Reduce the letter height or the spacing.","Ce texte reste dans la forme sans toucher les autres éléments.":"This text stays inside the shape without touching anything else.",
+"Mon texte":"My text",
+/* V1.14 */
+"Projet":"Project",
+"Ouvrir…":"Open…",
+"Enregistrer":"Save",
+"Un fichier .courbeur garde tout : la forme, les frises, les motifs, les textes et tes polices.":"A .courbeur file keeps everything: the shape, friezes, patterns, texts and your fonts.",
+"Motifs":"Patterns",
+"Choisir dans la bibliothèque intégrée":"Pick from the built-in library",
+"Charger un SVG depuis ton ordinateur":"Load an SVG from your computer",
+"+ Coins":"+ Corners",
+"Un ornement dans chaque coin de la forme":"An ornament in every corner of the shape",
+"Coins":"Corners",
+"Polices intégrées":"Built-in fonts",
+"Monotrait (gravure rapide)":"Single-line (fast engraving)",
+"Rendu de l'aperçu":"Preview rendering",
+"Image":"Image",
+"Enregistrer une image de la pièce, comme sortie de la machine":"Save an image of the piece, as it comes out of the machine",
+"Plan":"Plan",
+"Bois clair":"Light wood",
+"Noyer":"Walnut",
+"Ardoise":"Slate",
+"Acrylique noir":"Black acrylic",
+"Ligne du texte":"Text line",
+"Le long d'un bord":"Along an edge",
+"Droit, n'importe où":"Straight, anywhere",
+"En cercle, n'importe où":"In a circle, anywhere",
+"Centre (mm)":"Centre (mm)",
+"Centre X en mm":"Centre X in mm",
+"Centre Y en mm":"Centre Y in mm",
+"Le texte se centre sur ce point. Glisse-le sur le dessin pour le déplacer.":"The text is centred on this point. Drag it on the drawing to move it.",
+"Centre du cercle. Glisse le texte sur le dessin pour déplacer le cercle.":"Centre of the circle. Drag the text on the drawing to move the circle.",
+"Rayon du cercle (mm)":"Circle radius (mm)",
+"Angle (°)":"Angle (°)",
+"Ornements de coin":"Corner ornaments",
+"Un ornement se pose dans chaque coin du contour choisi, pointe vers le coin. Choisis le motif dans la carte « Coins » ci-dessus.":"An ornament is placed in every corner of the chosen outline, pointing to the corner. Pick the pattern in the “Corners” card above.",
+"Taille (mm)":"Size (mm)",
+"Distance au coin (mm)":"Distance from the corner (mm)",
+"Sensibilité des coins":"Corner sensitivity",
+"Un coin est repéré quand le bord tourne de plus que cet angle. Plus petit = plus de coins.":"A corner is detected where the edge turns more than this angle. Smaller = more corners.",
+"Retourner les ornements":"Flip the ornaments",
+"Réglages des coins":"Corner settings",
+"Coins décorés":"Decorated corners",
+"Taille":"Size",
+"Aucun coin trouvé : baisse la sensibilité":"No corner found: lower the sensitivity",
+"Coins supprimés":"Corners deleted",
+"Ajouter un texte droit ici":"Add a straight text here",
+"Ajouter un texte en cercle ici":"Add a text in a circle here",
+"Décorer les coins":"Decorate the corners",
+"Régler les coins":"Adjust the corners",
+"Supprimer les coins":"Delete the corners",
+"Motifs de frise":"Frieze patterns",
+"Fermer":"Close",
+"Ce fichier n'est pas un projet du Courbeur de frise.":"This file isn't a Frieze Bender project.",
+"Guirlande de feuilles":"Leaf garland",
+"Perles":"Beads",
+"Tulipes":"Tulips",
+"Grecque":"Greek key",
+"Entrelacs":"Interlace",
+"Festons":"Scallops",
+"Dentelle":"Lace",
+"Cœurs":"Hearts",
+"Étoiles":"Stars",
+"Fleurs":"Flowers",
+"Épis de blé":"Wheat ears",
+"Losanges":"Diamonds",
+"Torsade":"Rope",
+"Chevrons":"Chevrons",
+"Pointillés":"Dots and dashes",
+"Fleuron":"Fleuron",
+"Branches de feuilles":"Leaf branches",
+"Volutes":"Scrolls",
+"Étoile":"Star",
+"Trait · Readability":"Line · Readability",
+"Trait · Allure":"Line · Allure",
+"Trait · Felix":"Line · Felix",
+"Trait · Tech":"Line · Tech",
+"Monotrait bâton · gravure rapide, très lisible":"Single-line sans · fast engraving, very legible",
+"Monotrait écriture liée · gravure rapide, élégante":"Single-line script · fast engraving, elegant",
+"Monotrait calligraphie · gravure rapide":"Single-line calligraphy · fast engraving",
+"Monotrait manuscrite · gravure rapide":"Single-line handwriting · fast engraving",
+"© 2026 Christophe Tanniou · tous droits réservés":"© 2026 Christophe Tanniou · all rights reserved","Utilisation gratuite. Modification et redistribution interdites sans accord.":"Free to use. Modifying and redistributing without permission is not allowed.","Ce texte est plus long que le bord disponible. Réduis la hauteur des lettres ou l'espacement.":"This text is longer than the available edge. Reduce the letter height or the spacing.","Ce texte reste dans la forme sans toucher les autres éléments.":"This text stays inside the shape without touching anything else.",
 "Cette police n'est pas lisible.":"This font can't be read.",
 "Les polices .woff2 ne sont pas lues : prends la version .ttf ou .otf.":".woff2 fonts can't be read: use the .ttf or .otf version.",
 "Ajoute d'abord une frise pour ce motif":"Add a frieze first for this pattern",
@@ -475,6 +593,8 @@ const I18N_RULES=[
 [/^LightBurn n'a pas pu importer le fichier\. (.*)$/,"LightBurn couldn't import the file. $1"],
 [/^Écriture impossible : (.*)$/,"Can't write: $1"],
 [/^« (.*) »$/,"“$1”"],
+[/^(\d+) coins décorés$/,"$1 corners decorated"],[/^· (\d+) coins · ([\d.]+) mm$/,"· $1 corners · $2 mm"],[/^Projet ouvert : (.*)$/,"Project opened: $1"],
+[/^Environ ([\d.]+) % de ce texte sort de la forme\. Déplace-le ou réduis sa hauteur\.$/,"About $1 % of this text goes outside the shape. Move it or reduce its height."],
 [/^(Ce texte|Cette frise) touche (le texte|la frise) (\d+)\.$/,(m,a,b,n)=>(a==='Ce texte'?'This text':'This frieze')+' touches '+(b==='le texte'?'text ':'frieze ')+n+'.'],
 [/^Environ ([\d.]+) % de ce texte dépasse du contour\. Change la distance, la hauteur ou la position\.$/,"About $1 % of this text goes past the outline. Change the distance, the height or the position."],
 [/^Environ ([\d.]+) % de ce texte dépasse à l'intérieur de la forme\. Change la distance, la hauteur ou la position\.$/,"About $1 % of this text goes inside the shape. Change the distance, the height or the position."],
@@ -486,7 +606,7 @@ function trText(s){if(LANG!=='en'||!s)return s;const m=s.match(/^(\s*)([\s\S]*?)
   let r=I18N_EXACT[core];if(r===undefined)for(const [re,to] of I18N_RULES){if(re.test(core)){r=core.replace(re,to);break;}}
   return r===undefined?s:m[1]+r+m[3];}
 const I18N_ORIG=new WeakMap();   /* texte français d'origine de chaque nœud traduit */
-const I18N_ATTRS=['title','aria-label','placeholder'];
+const I18N_ATTRS=['title','aria-label','placeholder','label'];
 function trNode(n){
   if(n.nodeType===3){const p=n.parentNode;if(!p||p.nodeName==='SCRIPT'||p.nodeName==='STYLE'||p.nodeName==='TEXTAREA')return;
     const t=trText(n.data);if(t!==n.data){I18N_ORIG.set(n,n.data);n.data=t;}return;}
@@ -508,7 +628,7 @@ function setLang(l,save){LANG=l==='en'?'en':'fr';document.documentElement.lang=L
 function initialLang(){try{const s=localStorage.getItem('courbeur.lang');if(s==='fr'||s==='en')return s;}catch(e){}
   return /^fr\b/i.test(navigator.language||'')?'fr':'en';}
 
-const PAGE_VERSION = '1.13.1';
+const PAGE_VERSION = '1.14';
 
 /* ---------- geometry helpers ---------- */
 const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
@@ -671,14 +791,14 @@ function bestChain(){let best=0,bl=-1;chains.forEach((c,i)=>{const sc=(c.closed?
 /* remplace la forme : toutes les frises se recalent sur le nouveau contour */
 function setForme(text,name){
   const ch=parseForme(text,docOpts.units);chains=ch;formeName=name;formeText=text;$('nameForme').textContent=name;
-  const b=bestChain();for(const f of frises){f.ci=b;if(f.kind!=='text')autoPortionFor(f,f.lastAuto);}
+  const b=bestChain();for(const f of frises){f.ci=b;if(isFr(f))autoPortionFor(f,f.lastAuto);}
   fillChainSelect();computeAll();
 }
 function fillChainSelect(){const s=$('selChain');s.textContent='';chains.forEach((c,i)=>{const o=document.createElement('option');o.value=i;o.textContent=`Contour ${i+1} · ${c.closed?'fermé':'ouvert'} · ${c.L.toFixed(0)} mm`;s.appendChild(o);});if(state)s.value=state.ci;}
 
 /* ---------- frises ---------- */
 const DEF={ci:0,a:0,b:1,side:'in',reps:1,autoH:true,H:20,offset:0,margin:0,smooth:3,flip:false,mirror:false,slope:30,lastAuto:'bas',layer:2,order:'AB',autoReps:false,orient:'h',cornerSoft:true,
-  kind:'frise',text:'',font:'',tracking:0,tc:0.5,rot180:false,rotAuto:true};
+  kind:'frise',text:'',font:'',tracking:0,tc:0.5,rot180:false,rotAuto:true,sens:40,free:'',cx:0,cy:0,radius:40,angle:0};
 const KEYS=Object.keys(DEF);
 const PREF_KEYS=['side','reps','autoH','H','offset','margin','smooth','flip','mirror','slope','lastAuto','layer','order','autoReps','orient','cornerSoft'];
 const pick=(o,keys)=>{const r={};for(const k of keys)r[k]=o[k];return r;};
@@ -717,7 +837,7 @@ function autoPortionFor(f,dir){
   let a=ex,b=ex;while(ok(a-1)&&ex-a<n-2)a--;while(ok(b+1)&&b-a<n-2)b++;
   f.a=(((a%n)+n)%n)/n;f.b=(((b%n)+n)%n)/n;
 }
-function autoPortion(dir){if(state.kind==='text'){update();return;}autoPortionFor(state,dir);syncInputs();update();}
+function autoPortion(dir){if(!isFr(state)){update();return;}autoPortionFor(state,dir);syncInputs();update();}
 
 /* ---------- textes le long du bord ----------
    Un texte est une frise particulière : son « motif » est fait des lettres d'une police, posé une seule fois,
@@ -739,7 +859,7 @@ async function loadKerning(){try{const st=new Blob([b64buf(FONT_FILES.kern)]).st
 function capHeightOf(font){const o=font.tables.os2;if(o&&o.sCapHeight>0)return o.sCapHeight;
   try{const g=font.charToGlyph('H');const b=g.getBoundingBox();if(b.y2>0)return b.y2;}catch(e){}return font.unitsPerEm*0.7;}
 function fontEntry(id,font,meta,kern){const F=Object.assign({id,font,capH:capHeightOf(font),kern:kern||null},meta);FONTS.set(id,F);return F;}
-function getFont(id){let F=FONTS.get(id);if(F)return F;const d=FONT_LIST.find(x=>x.id===id);if(!d||!window.opentype||!FONT_FILES.files[d.file])return null;
+function getFont(id){let F=FONTS.get(id);if(F)return F;if(typeof id==='string'&&id.startsWith('l-'))return getLineFont(id);const d=FONT_LIST.find(x=>x.id===id);if(!d||!window.opentype||!FONT_FILES.files[d.file])return null;
   try{const font=opentype.parse(b64buf(FONT_FILES.files[d.file]));const k=KERNDATA[d.file];let kern=null;
     if(k){kern=new Map();for(const g1 in k){const a=k[g1];for(let i=0;i<a.length;i+=2)kern.set(+g1*65536+a[i],a[i+1]);}}
     return fontEntry(id,font,{name:d.name,style:d.style,user:false},kern);}catch(e){return null;}}
@@ -765,11 +885,12 @@ function buildTextMotif(F,t,trU){const font=F.font,upm=font.unitsPerEm,tol=upm/2
 const TXT=new Map();
 function textMotif(f){const F=fontOf(f);if(!F)return null;const t=String(f.text||'').replace(/\s+/g,' ');if(!t.trim())return null;
   const trU=Math.round((f.tracking||0)/((f.H>0?f.H:10)/F.capH));const key=F.id+'|'+trU+'|'+t;let m=TXT.get(key);if(m)return m;
-  m=buildTextMotif(F,t,trU);if(TXT.size>80)TXT.delete(TXT.keys().next().value);TXT.set(key,m);return m;}
+  m=F.single?buildLineMotif(F,t,trU):buildTextMotif(F,t,trU);if(TXT.size>80)TXT.delete(TXT.keys().next().value);TXT.set(key,m);return m;}
 /* le texte occupe exactement sa longueur sur le bord, centrée sur la position choisie */
-function fitTextSpan(f){if(f.kind!=='text')return;const c=chains[f.ci];if(!c&&chains.length)f.ci=0;
+function fitTextSpan(f){if(f.kind!=='text')return;if(!f.free&&!chains[f.ci]&&chains.length)f.ci=0;
   const m=textMotif(f);f.motif=m;f.motifB=null;f.reps=1;f.autoH=false;f.autoReps=false;f.margin=0;f.orient='h';f.mirror=false;f.flip=false;
-  const ch=chains[f.ci];if(!ch||!m){f.a=f.b=f.tc;return;}
+  if(f.free){freeChain(f,m?m.bb.w*(f.H/m.bb.h):10);if(f.free==='line')f.tc=0.5;}
+  const ch=chainOf(f);if(!ch||!m){f.a=f.b=f.tc;return;}
   /* portion de bord assez longue pour la ligne de base (plus courte que le bord dans un creux, plus longue sur une bosse) */
   let w=m.bb.w*(f.H/m.bb.h)*2+6*Math.abs(f.offset)+2*f.H;const L=ch.L;
   if(ch.closed){w=Math.min(w,L*0.995);let a=f.tc-w/2/L;a=((a%1)+1)%1;f.a=a;f.b=((a+w/L)%1+1)%1;}
@@ -795,11 +916,11 @@ function addTextAt(w){if(!chains.length)return;commit();
   const side=w?sideAt(w,hit):'in';let off=w?Math.max(1,Math.round((hit.d-H/2)*2)/2):2;
   /* au-dessus des frises déjà posées à cet endroit du bord, pour ne pas les recouvrir */
   const u=hit.s/c.L;let top=0;
-  for(const g of frises){if(g.kind==='text'||g.ci!==hit.ci||g.side!==side)continue;const sp=edgeSpan(g);if(!sp)continue;
+  for(const g of frises){if(!isFr(g)||g.ci!==hit.ci||g.side!==side)continue;const sp=edgeSpan(g);if(!sp)continue;
     const inSpan=Math.abs(g.a-g.b)<1e-9||(u>=sp.a&&u<=sp.b)||(u+1>=sp.a&&u+1<=sp.b);if(!inSpan)continue;
     top=Math.max(top,(g.stackOff||0)+g.offset+(g.guide&&g.guide.H?g.guide.H:estimateHeight(g))+Math.max(1,docOpts.gap));}
   if(top>0&&off<top)off=Math.ceil(top*2)/2;
-  const f=newFrise({kind:'text',text:LANG==='en'?'My text':'Mon texte',font:FONTS.has(lastText.font)||FONT_LIST.some(x=>x.id===lastText.font)?lastText.font:DEFAULT_FONT,
+  const f=newFrise({kind:'text',text:LANG==='en'?'My text':'Mon texte',font:FONTS.has(lastText.font)||FONT_LIST.some(x=>x.id===lastText.font)||SL_LIST.some(x=>x.id===lastText.font)?lastText.font:DEFAULT_FONT,
     ci:hit.ci,tc:hit.s/c.L,side,H,offset:off,smooth:2,cornerSoft:true,layer:freeLayer(),lastAuto:''},null,null);
   autoUpright(f);frises.push(f);fi=frises.length-1;state=f;syncAll();update();
   toast('Texte ajouté : tape ton texte');setTimeout(()=>{const e=$('txtVal');e.focus();e.select();},30);}
@@ -808,6 +929,7 @@ function injectFontFaces(){const css=FONT_LIST.filter(d=>FONT_FILES.files[d.file
   const st=document.createElement('style');st.textContent=css;document.head.append(st);}
 function fillFontSelect(){const s=$('fontSel');s.textContent='';
   const g1=document.createElement('optgroup');g1.label='Polices intégrées';for(const d of FONT_LIST){const o=document.createElement('option');o.value=d.id;o.textContent=d.name;g1.append(o);}s.append(g1);
+  const g3=document.createElement('optgroup');g3.label='Monotrait (gravure rapide)';for(const d of SL_LIST){const o=document.createElement('option');o.value=d.id;o.textContent=d.name;g3.append(o);}s.append(g3);
   const us=[...FONTS.values()].filter(F=>F.user);if(us.length){const g2=document.createElement('optgroup');g2.label='Mes polices';for(const F of us){const o=document.createElement('option');o.value=F.id;o.textContent=F.name;g2.append(o);}s.append(g2);}
   if(state&&state.kind==='text')s.value=fontOf(state).id;}
 function syncTextUI(){const f=state;if(!f||f.kind!=='text')return;const F=fontOf(f);
@@ -817,7 +939,12 @@ function syncTextUI(){const f=state;if(!f||f.kind!=='text')return;const F=fontOf
   $('fontHint').textContent=F?F.style||'':'';
   for(const [id,v] of [['txtH',f.H],['txtOff',f.offset],['txtTrack',f.tracking||0]])if(document.activeElement!==$(id))$(id).value=+(+v).toFixed(2);
   $('txtPos').value=(f.tc*100).toFixed(1);if(document.activeElement!==$('txtPosVal'))$('txtPosVal').value=+(f.tc*100).toFixed(2);
-  const c=chains[f.ci];$('txtPosMm').textContent=c?' '+(f.tc*c.L).toFixed(1)+' mm':'';$('txtRot').checked=!!f.rot180;}
+  const c=chainOf(f);$('txtPosMm').textContent=c&&!f.free?' '+(f.tc*c.L).toFixed(1)+' mm':'';$('txtRot').checked=!!f.rot180;
+  $('txtMode').value=f.free||'';for(const [id,k] of [['txtCx','cx'],['txtCy','cy'],['txtRadius','radius'],['txtAngle','angle']])if(document.activeElement!==$(id))$(id).value=+(+f[k]).toFixed(2);
+  if(F&&F.single){const m=f.motif;p.textContent='';if(m){const b=m.bb,pad=b.h*0.35;const ns='http://www.w3.org/2000/svg',sv=document.createElementNS(ns,'svg');
+      sv.setAttribute('viewBox',`${b.x0-pad} ${b.y0-pad} ${b.w+2*pad} ${b.h*1.6+2*pad}`);sv.setAttribute('height','34');sv.style.maxWidth='100%';
+      const pa=document.createElementNS(ns,'path');pa.setAttribute('d',m.polys.map(q=>'M'+q.pts.map(v=>v[0].toFixed(1)+','+v[1].toFixed(1)).join('L')).join(''));
+      pa.setAttribute('fill','none');pa.setAttribute('stroke','currentColor');pa.setAttribute('stroke-width',String(b.h*0.07));pa.setAttribute('stroke-linecap','round');pa.setAttribute('stroke-linejoin','round');sv.append(pa);p.append(sv);}}}
 function textLabel(f){const t=String(f.text||'').trim()||'…';return '« '+(t.length>16?t.slice(0,15)+'…':t)+' »';}
 $('txtVal').addEventListener('input',e=>{state.text=e.target.value;$('fontPrev').textContent=state.text||'Aa';update();});
 $('txtVal').addEventListener('change',()=>commit());
@@ -835,7 +962,7 @@ $('fileFont').addEventListener('change',async()=>{const file=$('fileFont').files
   try{if(/\.woff2$/i.test(file.name))throw new Error('Les polices .woff2 ne sont pas lues : prends la version .ttf ou .otf.');
     const buf=await file.arrayBuffer();const font=opentype.parse(buf);if(!font.unitsPerEm||!font.glyphs||!font.glyphs.length)throw 0;
     const nm=(font.names&&(font.names.fullName||font.names.fontFamily)&&((font.names.fullName||font.names.fontFamily).fr||(font.names.fullName||font.names.fontFamily).en||Object.values(font.names.fullName||font.names.fontFamily)[0]))||file.name.replace(/\.[^.]+$/,'');
-    const id='u'+(++userFontSeq);fontEntry(id,font,{name:nm,style:'Ta police · '+file.name,user:true},null);
+    const id='u'+(++userFontSeq);fontEntry(id,font,{name:nm,style:'Ta police · '+file.name,user:true,b64:ab2b64(buf)},null);
     try{const ff=new FontFace('cf-'+id,buf);await ff.load();document.fonts.add(ff);}catch(e){}
     fillFontSelect();state.font=id;lastText.font=id;syncTextUI();update();toast('Police ajoutée : '+nm);}
   catch(e){toast(e&&e.message?e.message:'Cette police n\'est pas lisible.');}});
@@ -850,9 +977,196 @@ document.addEventListener('pointerdown',e=>{if(!ctxMenu.hidden&&!ctxMenu.contain
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!ctxMenu.hidden)closeCtx();});
 addEventListener('scroll',closeCtx,{passive:true});addEventListener('resize',closeCtx);
 
+/* ---------- V1.14 : bibliothèque de motifs, coins, polices monotrait, textes libres, projet, aperçu réaliste ---------- */
+const isFr=f=>!f.kind||f.kind==='frise';
+/* ligne suivie par une frise ou un texte : un contour de la forme, ou la ligne propre d'un texte libre */
+function chainOf(f){return f.free&&f._chain?f._chain:chains[f.ci];}
+
+/* -- bibliothèque intégrée -- */
+const LIBM=new Map();
+function libMotif(name){let m=LIBM.get(name);if(m)return m;const svg=MOTIF_LIB.files[name];if(!svg)return null;
+  const all=MOTIF_LIB.index.frises.concat(MOTIF_LIB.index.coins);const it=all.find(x=>x[0]===name);
+  m=parseMotif(svg,(it?it[1]:name)+'.svg');m.lib=name;LIBM.set(name,m);return m;}
+function openGallery(kind,onPick){const box=$('galBox'),grid=$('galGrid');grid.textContent='';
+  $('galTitle').textContent=kind==='coins'?'Ornements de coin':'Motifs de frise';
+  for(const [name,label] of MOTIF_LIB.index[kind]){const b=document.createElement('button');b.type='button';b.className='galItem'+(kind==='coins'?' coin':'');
+    const img=document.createElement('img');img.alt='';img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(MOTIF_LIB.files[name]);
+    const t=document.createElement('span');t.textContent=label;b.append(img,t);
+    b.addEventListener('click',()=>{closeGallery();const m=libMotif(name);if(m)onPick(m);});grid.append(b);}
+  box.hidden=false;const f=grid.querySelector('button');if(f)f.focus();}
+function closeGallery(){$('galBox').hidden=true;}
+$('galClose').addEventListener('click',closeGallery);
+$('galBox').addEventListener('click',e=>{if(e.target===$('galBox'))closeGallery();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('galBox').hidden)closeGallery();});
+
+/* -- ornements de coin --
+   Les coins du contour sont repérés là où le bord tourne nettement (plus que la « sensibilité ») sur quelques mm.
+   Le motif est posé tel quel (sans être courbé), pointe vers le coin, sur la bissectrice, à la distance choisie. */
+function detectCorners(c,sens,side){if(!c||c.L<1)return [];const W=Math.max(1.5,Math.min(16,c.L/30)),ds=Math.max(0.25,c.L/6000),n=Math.floor(c.L/ds);
+  const dir=(a,b)=>{const x=b[0]-a[0],y=b[1]-a[1],l=Math.hypot(x,y)||1;return [x/l,y/l];};const cand=[];
+  for(let i=0;i<n;i++){const s=i*ds;if(!c.closed&&(s<W||s>c.L-W))continue;const p=pointAt(c,s),ta=dir(pointAt(c,s-W),p),tb=dir(p,pointAt(c,s+W));
+    const ang=Math.abs(Math.atan2(ta[0]*tb[1]-ta[1]*tb[0],ta[0]*tb[0]+ta[1]*tb[1]))*180/Math.PI;if(ang>=sens)cand.push({s,ang,p,ta,tb});}
+  cand.sort((x,y)=>y.ang-x.ang);const out=[];const gap=2.2*W;
+  const far=(x,y)=>{let d=Math.abs(x-y);if(c.closed)d=Math.min(d,c.L-d);return d>gap;};
+  for(const k of cand)if(out.every(o=>far(o.s,k.s)))out.push(k);
+  out.sort((x,y)=>x.s-y.s);
+  return out.map(k=>{let bx=k.tb[0]-k.ta[0],by=k.tb[1]-k.ta[1];const l=Math.hypot(bx,by);if(l<1e-9)return null;bx/=l;by/=l;
+    if(c.closed){const ins=pip(k.p[0]+bx*0.3,k.p[1]+by*0.3,c.pts);if(!ins){bx=-bx;by=-by;}}
+    if(side==='out'){bx=-bx;by=-by;}return {p:k.p,d:[bx,by],s:k.s};}).filter(Boolean);}
+function warpCorners(f){f.warped=[];f.guide=null;f.capped=false;const c=chains[f.ci],m=f.motif;if(!c||!m)return;
+  const cs=detectCorners(c,f.sens||40,f.side);f.repsEff=cs.length;if(!cs.length)return;
+  const mb=m.bb,s=f.H/(mb.h||1),cx=(mb.x0+mb.x1)/2,rot=!!f.rot180,off=f.offset;
+  const prep=preparedMotif(m,s,s);
+  cs.forEach((k,ci)=>{const d=k.d,t=[d[1],-d[0]];
+    for(const {D,closed,el} of prep){const out=new Float64Array(D.length*2);
+      for(let i=0;i<D.length;i++){const p=D[i];let lx=(p[0]-cx)*s,ly=(mb.y1-p[1])*s;if(rot){lx=-lx;ly=f.H-ly;}
+        out[2*i]=k.p[0]+d[0]*(off+ly)+t[0]*lx;out[2*i+1]=k.p[1]+d[1]*(off+ly)+t[1]*lx;}
+      f.warped.push(polyOf(out,closed,ci*65536+el));}});
+  f.guide={P:cs.map(k=>k.p),N:cs.map(k=>k.d),n:Math.max(1,cs.length-1),len:0,ds:1,H:f.H,sU:s,sV:s,closed:false,chain:c};f.unitIsTile=false;}
+
+/* -- polices monotrait : les lettres sont des traits (un seul passage du laser), pas des contours -- */
+const SL_LIST=[
+  {id:'l-readability',file:'EMSReadability.svg',name:'Trait · Readability',style:'Monotrait bâton · gravure rapide, très lisible'},
+  {id:'l-allure',file:'EMSAllure.svg',name:'Trait · Allure',style:'Monotrait écriture liée · gravure rapide, élégante'},
+  {id:'l-felix',file:'EMSFelix.svg',name:'Trait · Felix',style:'Monotrait calligraphie · gravure rapide'},
+  {id:'l-tech',file:'EMSTech.svg',name:'Trait · Tech',style:'Monotrait manuscrite · gravure rapide'}];
+function parseSvgFont(txt){const doc=new DOMParser().parseFromString(txt,'image/svg+xml');const font=doc.querySelector('font');const face=doc.querySelector('font-face');
+  const upm=+(face&&face.getAttribute('units-per-em'))||1000,defAdv=+(font&&font.getAttribute('horiz-adv-x'))||upm/2;const glyphs=new Map();
+  for(const g of doc.querySelectorAll('glyph')){const u=g.getAttribute('unicode');if(!u)continue;const adv=+(g.getAttribute('horiz-adv-x')||defAdv);
+    const strokes=[];const tok=(g.getAttribute('d')||'').match(/[MLCmlc]|-?\d*\.?\d+(?:e-?\d+)?/g)||[];let cur=null,cmd='',i=0,x=0,y=0;
+    const num=()=>+tok[i++];
+    while(i<tok.length){const t=tok[i];if(/[MLCmlc]/.test(t)){cmd=t;i++;continue;}
+      if(cmd==='M'){x=num();y=num();cur=[[x,-y]];strokes.push(cur);cmd='L';}
+      else if(cmd==='L'){x=num();y=num();if(cur)cur.push([x,-y]);}
+      else if(cmd==='C'){const x1=num(),y1=num(),x2=num(),y2=num(),x3=num(),y3=num();if(cur)for(let k=1;k<=8;k++){const u2=k/8,v=1-u2;
+          cur.push([v*v*v*x+3*v*v*u2*x1+3*v*u2*u2*x2+u2*u2*u2*x3,-(v*v*v*y+3*v*v*u2*y1+3*v*u2*u2*y2+u2*u2*u2*y3)]);}x=x3;y=y3;}
+      else i++;}
+    glyphs.set(u,{adv,strokes:strokes.filter(s=>s.length>1)});}
+  const H=glyphs.get('H');let capH=0;if(H)for(const s of H.strokes)for(const p of s)capH=Math.max(capH,-p[1]);
+  return {upm,glyphs,capH:capH||upm*0.65};}
+function getLineFont(id){const d=SL_LIST.find(x=>x.id===id);if(!d||!SL_FONTS[d.file])return null;
+  try{const P=parseSvgFont(SL_FONTS[d.file]);const F={id,name:d.name,style:d.style,single:true,user:false,font:null,capH:P.capH,glyphs:P.glyphs,upm:P.upm};FONTS.set(id,F);return F;}catch(e){return null;}}
+function buildLineMotif(F,t,trU){const polys=[];let x=0,xEnd=0;const chars=[...t];
+  chars.forEach((ch,i)=>{const g=F.glyphs.get(ch)||F.glyphs.get(ch.normalize('NFD')[0])||F.glyphs.get('?');if(!g)return;
+    for(const s of g.strokes)polys.push({pts:s.map(p=>[p[0]+x,p[1]]),closed:false,el:i});
+    x+=g.adv;xEnd=x;if(i<chars.length-1)x+=trU;});
+  if(!polys.length||!(xEnd>0))return null;
+  return {polys,bb:{x0:0,x1:xEnd,y0:-F.capH,y1:0,w:xEnd,h:F.capH},name:t,isText:true,single:true,tile:null};}
+
+/* -- textes libres : sur une ligne droite ou un cercle à soi, placés n'importe où sur la forme -- */
+function freeChain(f,w){const key=[f.free,f.cx,f.cy,f.radius,f.angle,Math.round(w)].join('|');if(f._chain&&f._chainKey===key)return f._chain;
+  let pts;
+  if(f.free==='circle'){const R=Math.max(1,+f.radius||40),n=Math.max(180,Math.ceil(2*Math.PI*R/0.5));pts=[];
+    for(let i=0;i<n;i++){const a=2*Math.PI*i/n;pts.push([f.cx+R*Math.cos(a),f.cy+R*Math.sin(a)]);}f._chain=makeChain(pts,true);}
+  else{const a=(+f.angle||0)*Math.PI/180,ux=Math.cos(a),uy=Math.sin(a),half=Math.max(30,w*1.3+20),n=Math.ceil(2*half);pts=[];
+    for(let i=0;i<=n;i++){const t=-half+2*half*i/n;pts.push([f.cx+ux*t,f.cy+uy*t]);}f._chain=makeChain(pts,false);}
+  f._chainKey=key;return f._chain;}
+function addFreeTextAt(w,mode){if(!chains.length)return;commit();const H=lastText.H>0?lastText.H:10;
+  const f=newFrise({kind:'text',free:mode,cx:+w[0].toFixed(2),cy:+w[1].toFixed(2),radius:40,angle:0,tc:0.25,text:LANG==='en'?'My text':'Mon texte',
+    font:FONTS.has(lastText.font)||FONT_LIST.some(x=>x.id===lastText.font)||SL_LIST.some(x=>x.id===lastText.font)?lastText.font:DEFAULT_FONT,
+    ci:bestChain(),side:mode==='circle'?'out':'in',H,offset:mode==='circle'?0:-H/2,smooth:0,cornerSoft:false,layer:freeLayer(),lastAuto:''},null,null);
+  if(mode==='circle')f.cy=+(w[1]-40).toFixed(2);   /* le haut du cercle passe par le clic */
+  autoUpright(f);frises.push(f);fi=frises.length-1;state=f;syncAll();update();
+  toast('Texte ajouté : tape ton texte');setTimeout(()=>{const e=$('txtVal');e.focus();e.select();},30);}
+
+/* -- projet : tout enregistrer dans un fichier .courbeur, et le rouvrir -- */
+function ab2b64(buf){const u=new Uint8Array(buf);let s='';for(let i=0;i<u.length;i+=0x8000)s+=String.fromCharCode.apply(null,u.subarray(i,i+0x8000));return btoa(s);}
+function projectData(){const usedFonts=new Set(frises.filter(f=>f.kind==='text').map(f=>f.font));
+  return {app:'courbeur-de-frise',format:1,version:PAGE_VERSION,saved:new Date().toISOString(),doc:Object.assign({},docOpts),
+    forme:{name:formeName,text:formeText},fi,
+    frises:frises.map(f=>({p:pick(f,KEYS),motif:f.kind!=='text'&&f.motif?{name:f.motif.name,lib:f.motif.lib||'',text:f.motif.lib?'':f.motif.text}:null,
+      motifB:f.motifB?{name:f.motifB.name,lib:f.motifB.lib||'',text:f.motifB.lib?'':f.motifB.text}:null})),
+    fonts:[...FONTS.values()].filter(F=>F.user&&F.b64&&usedFonts.has(F.id)).map(F=>({id:F.id,name:F.name,style:F.style,data:F.b64}))};}
+function motifFrom(r){if(!r)return null;if(r.lib){const m=libMotif(r.lib);if(m)return m;}return r.text?parseMotif(r.text,r.name||'motif.svg'):null;}
+async function openProject(text){let d;try{d=JSON.parse(text);}catch(e){throw new Error('Ce fichier n\'est pas un projet du Courbeur de frise.');}
+  if(!d||d.app!=='courbeur-de-frise'||!Array.isArray(d.frises)||!d.forme)throw new Error('Ce fichier n\'est pas un projet du Courbeur de frise.');
+  commit();const remap={};
+  for(const u of d.fonts||[]){try{const buf=b64buf(u.data);const font=opentype.parse(buf);const id='u'+(++userFontSeq);
+    fontEntry(id,font,{name:u.name,style:u.style||'Ta police',user:true,b64:u.data},null);remap[u.id]=id;
+    try{const ff=new FontFace('cf-'+id,buf);await ff.load();document.fonts.add(ff);}catch(e){}}catch(e){}}
+  Object.assign(docOpts,d.doc||{});
+  chains=parseForme(d.forme.text,docOpts.units);formeName=d.forme.name||'forme';formeText=d.forme.text;$('nameForme').textContent=formeName;
+  frises=d.frises.map(x=>{const p=Object.assign({},x.p);for(const k of Object.keys(p))if(!(k in DEF))delete p[k];if(remap[p.font])p.font=remap[p.font];
+    return newFrise(p,p.kind==='text'?null:motifFrom(x.motif),motifFrom(x.motifB));});
+  if(!frises.length)frises=[newFrise({},lastMotif,null)];
+  fi=Math.min(Math.max(0,d.fi|0),frises.length-1);state=frises[fi];
+  fillChainSelect();fillFontSelect();computeAll();syncAll();renderTabs();fit();renderStats();scheduleChecks();commit();savePrefsSoon();
+  toast('Projet ouvert : '+formeName);}
+$('btnProjSave').addEventListener('click',async()=>{await whenIdle();const name=(formeName||'projet').replace(/\.[^.]+$/,'')+'.courbeur';
+  offer(name,new Blob([JSON.stringify(projectData())],{type:'application/json'}));});
+$('btnProjOpen').addEventListener('click',()=>$('fileProj').click());
+$('fileProj').addEventListener('change',async()=>{const f=$('fileProj').files[0];$('fileProj').value='';if(!f)return;try{await openProject(await f.text());}catch(e){toast(e.message);}});
+
+/* -- aperçu réaliste : la pièce comme si elle sortait de la machine, et export en image -- */
+const MATS={
+  bois:{base:'#d8b07c',a:'#c39461',b:'#ecd2a6',grain:1,engr:'#4a2a14',hi:'rgba(255,240,210,.55)',edge:'#5e3a1c'},
+  noyer:{base:'#6e4a30',a:'#553621',b:'#8d6545',grain:1,engr:'#1f120a',hi:'rgba(190,150,110,.35)',edge:'#24160d'},
+  ardoise:{base:'#3d4247',a:'#33373b',b:'#4b5157',grain:0,engr:'#dfe3e6',hi:'rgba(0,0,0,.35)',edge:'#1a1d20'},
+  acrylique:{base:'#141414',a:'#0e0e0e',b:'#262626',grain:2,engr:'#eeeeee',hi:'rgba(0,0,0,.5)',edge:'#000000'}};
+const TEX={};
+function hexRgb(h){const n=parseInt(h.slice(1),16);return [n>>16&255,n>>8&255,n&255];}
+function matTexture(key){if(TEX[key])return TEX[key];const M=MATS[key],S=512,cv2=document.createElement('canvas');cv2.width=cv2.height=S;const g=cv2.getContext('2d');
+  const img=g.createImageData(S,S),A=hexRgb(M.a),B=hexRgb(M.b),C=hexRgb(M.base);
+  const R=new Float32Array(256*256);let seed=7;for(let i=0;i<R.length;i++){seed=(seed*16807)%2147483647;R[i]=seed/2147483647;}
+  /* bruit lissé, périodique sur la texture (pas de raccord visible quand elle se répète) */
+  const vn=(x,y,px,py)=>{const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,h=(a,b)=>R[(((a%px)+px)%px)*256+(((b%py)+py)%py)],sx=xf*xf*(3-2*xf),sy=yf*yf*(3-2*yf);
+    return (h(xi,yi)*(1-sx)+h(xi+1,yi)*sx)*(1-sy)+(h(xi,yi+1)*(1-sx)+h(xi+1,yi+1)*sx)*sy;};
+  const N=(x,y,dx,dy)=>vn(x/dx,y/dy,S/dx,S/dy);
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++){let v;
+    if(M.grain===1){const w=N(x,y,128,32)*1.6+N(x,y,32,8)*0.35;v=0.5+0.5*Math.sin((y/S*20+w)*Math.PI*2);v=v*0.62+N(x,y,32,2)*0.28+N(x,y,4,1)*0.10;}
+    else if(M.grain===2){v=0.55+0.25*(1-y/S)+N(x,y,64,64)*0.08;}
+    else v=N(x,y,64,64)*0.55+N(x,y,8,8)*0.3+N(x,y,2,2)*0.15;
+    const o=(y*S+x)*4,mix=(p,q,t)=>p+(q-p)*t,t=Math.max(0,Math.min(1,v));
+    const c0=t<0.5?[mix(A[0],C[0],t*2),mix(A[1],C[1],t*2),mix(A[2],C[2],t*2)]:[mix(C[0],B[0],t*2-1),mix(C[1],B[1],t*2-1),mix(C[2],B[2],t*2-1)];
+    img.data[o]=c0[0];img.data[o+1]=c0[1];img.data[o+2]=c0[2];img.data[o+3]=255;}
+  g.putImageData(img,0,0);TEX[key]=cv2;return cv2;}
+let materialPath=null,materialChains=null;
+function shapePath(){if(materialChains!==chains){materialChains=chains;materialPath=new Path2D();for(const c of chains){if(!c.closed)continue;const P=c.pts;materialPath.moveTo(P[0][0],P[0][1]);for(let i=1;i<P.length;i++)materialPath.lineTo(P[i][0],P[i][1]);materialPath.closePath();}}return materialPath;}
+function renderReal(g,W,H,k,vcx,vcy,key,d,exporting){const M=MATS[key]||MATS.bois;const T=[k,0,0,-k,W/2-vcx*k,H/2+vcy*k];
+  g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,W,H);if(!exporting){g.fillStyle='#1c2320';g.fillRect(0,0,W,H);}
+  const sp=shapePath();
+  g.save();g.setTransform(...T);g.shadowColor='rgba(0,0,0,.5)';g.shadowBlur=18*d;g.shadowOffsetX=5*d;g.shadowOffsetY=8*d;g.fillStyle=M.base;g.fill(sp,'evenodd');g.restore();
+  g.save();g.setTransform(...T);g.clip(sp,'evenodd');g.setTransform(1,0,0,1,0,0);
+  const pat=g.createPattern(matTexture(key),'repeat');if(pat.setTransform)pat.setTransform(new DOMMatrix().translate(T[4],T[5]).scale(k*0.22));g.fillStyle=pat;g.fillRect(0,0,W,H);
+  if(M.grain===2){const gr=g.createLinearGradient(0,0,W,H);gr.addColorStop(0,'rgba(255,255,255,.10)');gr.addColorStop(.45,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(0,0,W,H);}
+  g.setTransform(...T);const px=1/k,off=0.22;
+  for(const f of frises){if(!f.warped.length)continue;const p=frisePath(f),rule=f.kind==='text'?'nonzero':'evenodd',single=f.motif&&f.motif.single;
+    if(single){g.lineCap='round';g.lineJoin='round';g.lineWidth=Math.max(0.3,1.2*d*px);g.strokeStyle=M.engr;g.stroke(p);continue;}
+    g.save();g.translate(off,-off);g.fillStyle=M.hi;g.fill(p,rule);g.restore();g.fillStyle=M.engr;g.fill(p,rule);}
+  g.restore();
+  g.save();g.setTransform(...T);g.lineJoin='round';g.strokeStyle=M.edge;g.lineWidth=Math.max(0.45,1.4*d/k);for(const c of chains)g.stroke(chainPath(c));
+  g.restore();}
+$('renderSel').addEventListener('change',()=>{view.mode=$('renderSel').value;draw();savePrefsSoon();});
+$('btnPng').addEventListener('click',async()=>{await whenIdle();if(!chains.length)return;const key=view.mode&&view.mode!=='plan'?view.mode:'bois';
+  const list=chains.map(c=>c.pts).concat(allWarped().map(w=>w.pts));const b=bboxOf(list),pad=8;
+  const ppm=Math.min(12,4000/Math.max(b.w+2*pad,b.h+2*pad));const W=Math.round((b.w+2*pad)*ppm),H=Math.round((b.h+2*pad)*ppm);
+  const oc=document.createElement('canvas');oc.width=W;oc.height=H;renderReal(oc.getContext('2d'),W,H,ppm,(b.x0+b.x1)/2,(b.y0+b.y1)/2,key,ppm/4,true);
+  oc.toBlob(bl=>{if(bl)offer(baseName()+'_apercu.png',bl);},'image/png');});
+
+/* -- réglages des coins -- */
+$('cornH').addEventListener('input',e=>{const v=parseFloat(String(e.target.value).replace(',','.'));if(v>=1){state.H=v;update();}});
+$('cornOff').addEventListener('input',e=>{const v=parseFloat(String(e.target.value).replace(',','.'));if(!isNaN(v)){state.offset=v;update();}});
+$('cornSens').addEventListener('input',e=>{state.sens=+e.target.value;$('cornSensVal').textContent=e.target.value;update();});
+$('cornRot').addEventListener('change',e=>{state.rot180=e.target.checked;update();});
+function syncCornerUI(){const f=state;if(!f||f.kind!=='coin')return;for(const [id,v] of [['cornH',f.H],['cornOff',f.offset]])if(document.activeElement!==$(id))$(id).value=+(+v).toFixed(2);
+  $('cornSens').value=f.sens||40;$('cornSensVal').textContent=f.sens||40;$('cornRot').checked=!!f.rot180;}
+function addCorners(){if(!chains.length)return;commit();const base=frises.find(isFr);
+  const f=newFrise({kind:'coin',ci:base?base.ci:bestChain(),side:base?base.side:'in',H:18,offset:2,sens:40,layer:base?base.layer:freeLayer(),lastAuto:''},libMotif('coin-fleuron'),null);
+  frises.push(f);fi=frises.length-1;state=f;syncAll();update();
+  setTimeout(()=>{toast(f.repsEff?f.repsEff+' coins décorés':'Aucun coin trouvé : baisse la sensibilité');},350);}
+/* -- texte libre : réglages -- */
+function setTextMode(mode){const f=state;if(!f||f.kind!=='text')return;const prev=f.free||'';if(prev===mode)return;
+  if(mode){if(!prev){const c=chainOf(f);const p=c?pointAt(c,f.tc*c.L):[0,0];f.cx=+p[0].toFixed(2);f.cy=+p[1].toFixed(2);}
+    f.free=mode;f.radius=f.radius||40;f.angle=f.angle||0;if(mode==='circle'){f.side='out';f.tc=0.25;f.cy=+(f.cy-f.radius).toFixed(2);f.offset=0;}else{f.side='in';f.offset=-f.H/2;}}
+  else{f.free='';f.offset=Math.max(1,f.offset);f.ci=bestChain();}
+  f._chain=null;autoUpright(f);syncAll();update();}
+$('txtMode').addEventListener('change',e=>setTextMode(e.target.value));
+for(const [id,key] of [['txtCx','cx'],['txtCy','cy'],['txtRadius','radius'],['txtAngle','angle']])
+  $(id).addEventListener('input',e=>{const v=parseFloat(String(e.target.value).replace(',','.'));if(isNaN(v))return;if(key==='radius'&&v<1)return;state[key]=v;if(key!=='angle')autoUpright(state);update();});
+
 /* ---------- guide + déformation ---------- */
 function buildGuide(f,hNorm){
-  const c=chains[f.ci];if(!c)return null;let sa=f.a*c.L,sb=f.b*c.L;
+  const c=chainOf(f);if(!c)return null;let sa=f.a*c.L,sb=f.b*c.L;
   if(c.closed){if(sb<=sa)sb+=c.L;}else if(sb<sa)[sa,sb]=[sb,sa];
   const len=sb-sa;if(len<0.5)return null;
   const n=Math.min(20000,Math.max(200,Math.ceil(len/0.2))),ds=len/n,h=Math.max(f.smooth/2,ds,hNorm||0);
@@ -907,7 +1221,7 @@ function warpText(f,m){
   const NB=new Array(nb);for(let i=0;i<nb;i++){const a=B[Math.max(0,i-1)],b=B[Math.min(nb-1,i+1)];const tx=b[0]-a[0],ty=b[1]-a[1],l=Math.hypot(tx,ty);
     NB[i]=l<1e-12?(i?NB[i-1]:N[0]):[-ty/l,tx/l];}
   /* centre du texte : le point du bord choisi */
-  const c=chains[f.ci],pc=pointAt(c,f.tc*c.L);let ic=0,bd=Infinity;for(let i=0;i<n;i++){const d=(P[i][0]-pc[0])**2+(P[i][1]-pc[1])**2;if(d<bd){bd=d;ic=i;}}
+  const c=chainOf(f),pc=pointAt(c,f.tc*c.L);let ic=0,bd=Infinity;for(let i=0;i<n;i++){const d=(P[i][0]-pc[0])**2+(P[i][1]-pc[1])**2;if(d<bd){bd=d;ic=i;}}
   let qc=0;{let best=Infinity;for(let q=0;q<nb;q++){const d=Math.abs(SI[q]-ic);if(d<best){best=d;qc=q;}}}
   const tot=SB[nb-1];let u0=SB[qc]-w/2;if(u0+w>tot)u0=tot-w;if(u0<0)u0=0;
   const at=u=>{if(u<=0)return 0;if(u>=tot)return nb-2+0.999999;let lo=0,hi=nb-1;while(hi-lo>1){const md=(lo+hi)>>1;if(SB[md]<=u)lo=md;else hi=md;}const d=SB[hi]-SB[lo];return lo+(d>0?(u-SB[lo])/d:0);};
@@ -923,6 +1237,7 @@ function warpText(f,m){
   f.guide=Object.assign({},G,{P:P.slice(j0,j1+1),N:N.slice(j0,j1+1),n:j1-j0,len:(j1-j0)*G.ds,H:f.H,sU:s,sV:s});
   f.repsEff=1;f.unitIsTile=false;f.capped=w>tot+0.01;}
 function computeWarp(f){
+  if(f.kind==='coin'){warpCorners(f);return;}
   f.warped=[];f.capped=false;f.guide=f.kind==='text'&&!f.motif?null:buildGuide(f);if(!f.guide||!f.motif)return;
   const vert=f.orient==='v',fm=vert?rotMotif(f.motif):f.motif,fmB=vert?rotMotif(f.motifB):f.motifB;
   if(f.kind==='text'){warpText(f,fm);return;}
@@ -980,8 +1295,8 @@ function coversLoop(list){const parts=[];for(const g of list){let a=g.a,b=g.b;if
   parts.sort((x,y)=>x[0]-y[0]);let end=0;for(const [a,b] of parts){if(a>end+1e-4)return false;end=Math.max(end,b);}return end>=1-1e-4;}
 function restack(){const changed=[];
   frises.forEach((f,k)=>{let base=0,on=null;
-    if(docOpts.stack&&f.kind!=='text'){const sp=edgeSpan(f);   /* un texte garde exactement la distance choisie */
-      for(let j=0;j<k;j++){const g=frises[j];if(g.kind==='text'||g.ci!==f.ci||g.side!==f.side||!spansOverlap(sp,edgeSpan(g)))continue;
+    if(docOpts.stack&&isFr(f)){const sp=edgeSpan(f);   /* un texte garde exactement la distance choisie */
+      for(let j=0;j<k;j++){const g=frises[j];if(!isFr(g)||g.ci!==f.ci||g.side!==f.side||!spansOverlap(sp,edgeSpan(g)))continue;
         const top=(g.stackOff||0)+g.offset+estimateHeight(g)+docOpts.gap;if(top>base){base=top;on=j;}}}
     base=Math.round(base*1000)/1000;if((f.stackOff||0)!==base)changed.push(f);f.stackOff=base;f.stackOn=on;});
   return changed;}
@@ -1001,7 +1316,7 @@ const motifIds=new WeakMap();let motifSeq=0;
 const motifId=m=>{if(!m)return 0;let id=motifIds.get(m);if(!id){id=++motifSeq;motifIds.set(m,id);}return id;};
 const unflat=a=>{const P=new Array(a.length/2);for(let i=0;i<P.length;i++)P[i]=[a[2*i],a[2*i+1]];return P;};
 function workerSource(){
-  const fns=[bboxOf,pip,decimate,dedupe,densify,rdp,makeChain,pointAt,simplify,sequenceOf,detectTile,rotMotif,polyOf,preparedMotif,buildGuide,warpText,computeWarp,checksCore].map(f=>f.toString()).join('\n');
+  const fns=[bboxOf,pip,decimate,dedupe,densify,rdp,makeChain,pointAt,chainOf,simplify,sequenceOf,detectTile,rotMotif,polyOf,preparedMotif,buildGuide,warpText,detectCorners,warpCorners,computeWarp,checksCore].map(f=>f.toString()).join('\n');
   return `const dist=${dist.toString()};\nconst POINT_BUDGET=${POINT_BUDGET};\nlet chains=[];const M=new Map();const ROT=new WeakMap();const PREP=new WeakMap();\n${fns}
 const flat=P=>{const a=new Float64Array(P.length*2);for(let i=0;i<P.length;i++){a[2*i]=P[i][0];a[2*i+1]=P[i][1];}return a;};
 const unflat=a=>{const P=new Array(a.length/2);for(let i=0;i<P.length;i++)P[i]=[a[2*i],a[2*i+1]];return P;};
@@ -1012,7 +1327,7 @@ onmessage=e=>{const d=e.data;
     const G=f.guide,polys=f.warped.map(w=>w.flat),buf=polys.map(a=>a.buffer);let g=null;
     if(G){g={P:flat(G.P),len:G.len,n:G.n,ds:G.ds,H:G.H||0,sU:G.sU||0,sV:G.sV||0,closed:G.closed};buf.push(g.P.buffer);}
     postMessage({t:'warp',job:d.job,gen:d.gen,guide:g,polys,closed:f.warped.map(w=>w.closed),groups:f.warped.map(w=>w.g),repsEff:f.repsEff,capped:f.capped,unitIsTile:f.unitIsTile,ms},buf);return;}
-  if(d.t==='check'){const list=d.list.map(x=>({joined:x.joined,kind:x.kind,side:x.side,ci:x.ci,capped:x.capped,repsEff:x.repsEff,guide:x.has?{chain:chains[x.ci]}:null,warped:x.polys.map((a,i)=>({pts:unflat(a),closed:x.closed[i]}))}));
+  if(d.t==='check'){const list=d.list.map(x=>({joined:x.joined,kind:x.kind,free:x.free,side:x.side,ci:x.ci,capped:x.capped,repsEff:x.repsEff,guide:x.has?{chain:chains[x.ci]}:null,warped:x.polys.map((a,i)=>({pts:unflat(a),closed:x.closed[i]}))}));
     postMessage({t:'check',job:d.job,msgs:checksCore(list[d.fi],list,chains)});}
 };`;}
 function startPool(){
@@ -1031,7 +1346,7 @@ const anyBusy=()=>!!POOL&&frises.some(f=>f._busy);
 /* live = la frise que tu es en train de régler : si son calcul est court (< 6 ms), il est fait tout de suite,
    pour que le résultat s'affiche dans la même image que ton geste. Les autres frises passent par les workers. */
 function requestWarp(f,live){
-  if(!POOL){computeWarp(f);return;}
+  if(!POOL||f.free){computeWarp(f);f._flat=f.warped.map(w=>w.flat);f._doneKey=null;f._busy=false;return;}   /* un texte libre a sa propre ligne : calcul direct */
   const sameShape=chains===sentChains;syncChains();
   /* rien n'a changé pour cette frise (même réglages, même forme, même motif) : pas de recalcul */
   const p=Object.assign(pick(f,KEYS),{stackOff:f.stackOff||0}),mk=motifId(f.motif)+':'+motifId(f.motifB),key=poolGen+'|'+mk+'|'+JSON.stringify(p);
@@ -1055,7 +1370,7 @@ function onWorkerMsg(e){const d=e.data;
   if(!frises.includes(f)){flushIdle();return;}
   if(d.gen!==poolGen){requestWarp(f);return;}
   f._doneKey=f._key;f.capped=!!d.capped;f.repsEff=d.repsEff;f.unitIsTile=!!d.unitIsTile;f._flat=d.polys;
-  f.guide=d.guide?Object.assign({},d.guide,{P:unflat(d.guide.P),chain:chains[f.ci]}):null;
+  f.guide=d.guide?Object.assign({},d.guide,{P:unflat(d.guide.P),chain:chainOf(f)}):null;
   f.warped=d.polys.map((a,i)=>polyOf(a,d.closed[i],d.groups?d.groups[i]:0));
   if(f._dirty){f._dirty=false;requestWarp(f);}
   draw();if(f===state)renderStats();renderTabs();
@@ -1067,7 +1382,7 @@ function runChecks(){if(!state)return;
   if(anyBusy())return;   /* relancé dès que les calculs en cours sont finis */
   syncChains();chkJob++;
   CHECKER.postMessage({t:'check',job:chkJob,fi:frises.indexOf(state),
-    list:frises.map(g=>({joined:joinedTo(state,g),kind:g.kind,side:g.side,ci:g.ci,capped:!!g.capped,repsEff:g.repsEff,has:!!g.guide,polys:g._flat||[],closed:(g.warped||[]).map(w=>w.closed)}))});}
+    list:frises.map(g=>({joined:joinedTo(state,g),kind:g.kind,free:g.free,side:g.side,ci:g.ci,capped:!!g.capped,repsEff:g.repsEff,has:!!g.guide,polys:g._flat||[],closed:(g.warped||[]).map(w=>w.closed)}))});}
 
 
 const allWarped=()=>frises.flatMap(f=>f.warped);
@@ -1075,12 +1390,14 @@ const allWarped=()=>frises.flatMap(f=>f.warped);
 function checksCore(f,list,chs){
   const msgs=[];if(!f||!f.guide||!f.warped.length)return msgs;const T=f.kind==='text';
   const c=f.guide.chain,W=f.warped;
-  if(c.closed){let tot=0,bad=0;const wantIn=f.side==='in';
+  if(f.free){let tot=0,bad=0;const cl=chs.filter(o=>o.closed);for(const w of W)for(let i=0;i<w.pts.length;i+=4){tot++;if(!cl.some(o=>pip(w.pts[i][0],w.pts[i][1],o.dec)))bad++;}
+    const pc=tot?bad/tot*100:0;if(pc>0.5)msgs.push(['warn',`Environ ${pc.toFixed(1)} % de ce texte sort de la forme. Déplace-le ou réduis sa hauteur.`]);}
+  else if(c.closed){let tot=0,bad=0;const wantIn=f.side==='in';
     for(const w of W)for(let i=0;i<w.pts.length;i+=4){tot++;const ins=pip(w.pts[i][0],w.pts[i][1],c.dec);if(ins!==wantIn)bad++;}
     const pc=tot?bad/tot*100:0;if(pc>0.5)msgs.push(['warn',T?`Environ ${pc.toFixed(1)} % de ce texte dépasse ${wantIn?'du contour':'à l\'intérieur de la forme'}. Change la distance, la hauteur ou la position.`:`Environ ${pc.toFixed(1)} % de cette frise dépasse ${wantIn?'du contour':'à l\'intérieur de la forme'}. Réduis la pente max, ajoute une marge ou un lissage.`]);}
   const wb=bboxOf(W.map(w=>w.pts));const hits=[];
   const wd=W.map(w=>({bb:bboxOf([w.pts]),d:decimate(w.pts,800)}));
-  chs.forEach((o,idx)=>{if(o===c||!o.closed)return;const b=o.bb;if(b.x1<wb.x0||b.x0>wb.x1||b.y1<wb.y0||b.y0>wb.y1)return;
+  chs.forEach((o,idx)=>{if(o===c||!o.closed)return;if(f.free&&W.some(w=>pip(w.pts[0][0],w.pts[0][1],o.dec))&&!o.dec.some(q=>W.some(w=>pip(q[0],q[1],w.pts))))return;const b=o.bb;if(b.x1<wb.x0||b.x0>wb.x1||b.y1<wb.y0||b.y0>wb.y1)return;
     let hit=false;for(const w of W){for(let i=0;i<w.pts.length&&!hit;i+=3){const p=w.pts[i];if(p[0]>=b.x0&&p[0]<=b.x1&&p[1]>=b.y0&&p[1]<=b.y1&&pip(p[0],p[1],o.dec))hit=true;}if(hit)break;}
     if(!hit){for(const p of o.dec){let ins=false;for(const w of wd){if(p[0]<w.bb.x0||p[0]>w.bb.x1||p[1]<w.bb.y0||p[1]>w.bb.y1)continue;if(pip(p[0],p[1],w.d))ins=!ins;}if(ins){hit=true;break;}}}
     if(hit)hits.push(idx+1);});
@@ -1098,7 +1415,7 @@ function checksCore(f,list,chs){
 }
 
 /* deux frises jointes : même contour, et le bout de l'une est exactement le début de l'autre */
-function joinedTo(f,g){if(!f||!g||f===g||f.kind==='text'||g.kind==='text'||f.ci!==g.ci||Math.abs(f.a-f.b)<1e-9||Math.abs(g.a-g.b)<1e-9||stackLevel(f)!==stackLevel(g))return false;const e=1e-6,d=(x,y)=>{const t=Math.abs(x-y);return Math.min(t,Math.abs(1-t));};return d(f.a,g.b)<e||d(f.b,g.a)<e;}
+function joinedTo(f,g){if(!f||!g||f===g||!isFr(f)||!isFr(g)||f.ci!==g.ci||Math.abs(f.a-f.b)<1e-9||Math.abs(g.a-g.b)<1e-9||stackLevel(f)!==stackLevel(g))return false;const e=1e-6,d=(x,y)=>{const t=Math.abs(x-y);return Math.min(t,Math.abs(1-t));};return d(f.a,g.b)<e||d(f.b,g.a)<e;}
 function checks(){for(const g of frises)g.joined=joinedTo(state,g);return checksCore(state,frises,chains);}
 
 /* ---------- dessin ---------- */
@@ -1124,6 +1441,7 @@ function draw(){if(!drawReq)drawReq=requestAnimationFrame(()=>{drawReq=0;drawNow
 function drawNow(){
   if(!COL)readColors();
   const W=cv.width,H=cv.height,d=window.devicePixelRatio||1,k=view.k;
+  if(view.mode&&view.mode!=='plan'){renderReal(ctx,W,H,k,view.cx,view.cy,view.mode,d,false);return;}
   ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,W,H);
   /* quadrillage du tapis : deux tracés seulement (fin / tous les 50 mm) */
   let step=10;while(step*k<6*d)step*=5;
@@ -1136,20 +1454,21 @@ function drawNow(){
   ctx.lineJoin='round';ctx.lineCap='round';
   ctx.strokeStyle=COL.shape;ctx.lineWidth=1.3*d*px;for(const c of chains)ctx.stroke(chainPath(c));
   ctx.strokeStyle=COL.guide;ctx.globalAlpha=.35;ctx.lineWidth=2*d*px;ctx.setLineDash([6*d*px,5*d*px]);
-  for(const f of frises)if(f!==state&&f.guide)ctx.stroke(guidePath(f.guide));
+  for(const f of frises)if(f!==state&&f.guide&&f.kind!=='coin')ctx.stroke(guidePath(f.guide));
   ctx.setLineDash([]);ctx.globalAlpha=.45;ctx.fillStyle=COL.ink;
-  for(const f of frises)if(f!==state&&f.warped.length)ctx.fill(frisePath(f),f.kind==='text'?'nonzero':'evenodd');
+  for(const f of frises)if(f!==state&&f.warped.length){if(f.motif&&f.motif.single){ctx.strokeStyle=COL.ink;ctx.lineWidth=Math.max(0.3,1.3*d*px);ctx.stroke(frisePath(f));}else ctx.fill(frisePath(f),f.kind==='text'?'nonzero':'evenodd');}
   ctx.globalAlpha=1;
   const f=state;
-  if(f&&f.guide){ctx.globalAlpha=.85;ctx.lineWidth=4*d*px;ctx.stroke(guidePath(f.guide));ctx.globalAlpha=1;}
-  if(f&&f.warped.length){ctx.fillStyle=COL.ink;ctx.fill(frisePath(f),f.kind==='text'?'nonzero':'evenodd');}
+  if(f&&f.guide&&f.kind!=='coin'){ctx.globalAlpha=.85;ctx.lineWidth=4*d*px;ctx.stroke(guidePath(f.guide));ctx.globalAlpha=1;}
+  if(f&&f.warped.length){ctx.fillStyle=COL.ink;if(f.motif&&f.motif.single){ctx.strokeStyle=COL.ink;ctx.lineWidth=Math.max(0.3,1.6*d*px);ctx.stroke(frisePath(f));}else ctx.fill(frisePath(f),f.kind==='text'?'nonzero':'evenodd');}
   /* poignées début / fin, en pixels écran */
   ctx.setTransform(1,0,0,1,0,0);
-  if(f&&f.guide&&f.kind!=='text'){const c=chains[f.ci];const pa=toS(...pointAt(c,f.a*c.L)),pb=toS(...pointAt(c,f.b*c.L));
+  if(f&&f.guide&&isFr(f)){const c=chains[f.ci];const pa=toS(...pointAt(c,f.a*c.L)),pb=toS(...pointAt(c,f.b*c.L));
     ctx.fillStyle=COL.guide;ctx.beginPath();ctx.arc(pa[0],pa[1],6*d,0,7);ctx.fill();
     ctx.strokeStyle=COL.guide;ctx.lineWidth=2.5*d;ctx.fillStyle=COL.mat;ctx.beginPath();ctx.arc(pb[0],pb[1],6*d,0,7);ctx.fill();ctx.stroke();}
   /* texte : un repère au centre, sur la ligne suivie */
-  if(f&&f.kind==='text'&&chains[f.ci]){const c=chains[f.ci];const pc=toS(...pointAt(c,f.tc*c.L));
+  if(f&&f.kind==='coin'&&f.guide){ctx.fillStyle=COL.guide;for(const q of f.guide.P){const pq=toS(q[0],q[1]);ctx.beginPath();ctx.arc(pq[0],pq[1],5*d,0,7);ctx.fill();}}
+  if(f&&f.kind==='text'&&chainOf(f)){const c=chainOf(f);const pc=toS(...pointAt(c,f.tc*c.L));
     ctx.fillStyle=COL.guide;ctx.beginPath();ctx.moveTo(pc[0],pc[1]-7*d);ctx.lineTo(pc[0]+6*d,pc[1]);ctx.lineTo(pc[0],pc[1]+7*d);ctx.lineTo(pc[0]-6*d,pc[1]);ctx.closePath();ctx.fill();}
 }
 /* zoom fluide : on glisse vers le zoom visé sur quelques images, en gardant le point sous la souris immobile */
@@ -1168,18 +1487,20 @@ let tmr=null;
 function update(){fitTexts();for(const g of restack())if(g!==state)requestWarp(g);requestWarp(state,true);draw();renderStats();renderTabs();scheduleChecks();scheduleCommit();savePrefsSoon();}
 function renderStats(){const s=$('stats');s.textContent='';const g=state&&state.guide;
   const it=[];if(chains.length){const b=bboxOf(chains.map(c=>c.pts));it.push(['Forme',b.w.toFixed(1)+' × '+b.h.toFixed(1)+' mm']);}
-  if(g&&state.kind==='text'){const m=state.motif;const F=fontOf(state);it.push(['Texte',(m?m.bb.w*state.H/m.bb.h:0).toFixed(1)+' × '+(+state.H).toFixed(1)+' mm'],['Police',F?F.name:'—'],['Distance à la ligne',(+state.offset).toFixed(1)+' mm']);}
+  if(state&&state.kind==='coin'){it.push(['Coins décorés',String(state.repsEff||0)],['Taille',(+state.H).toFixed(1)+' mm']);}
+  else if(g&&state.kind==='text'){const m=state.motif;const F=fontOf(state);it.push(['Texte',(m?m.bb.w*state.H/m.bb.h:0).toFixed(1)+' × '+(+state.H).toFixed(1)+' mm'],['Police',F?F.name:'—'],['Distance à la ligne',(+state.offset).toFixed(1)+' mm']);}
   else if(g){if(state.stackOff>0&&state.stackOn!==null)it.push(['Empilée sur la frise '+(state.stackOn+1),'+'+state.stackOff.toFixed(1)+' mm']);it.push(['Bord suivi',g.len.toFixed(1)+' mm'],['Hauteur',(g.H||0).toFixed(2)+' mm'],['Échelle',((g.sU||0)*100).toFixed(1)+' %']);if(!state.autoH)it.push(['Étirement',((g.sU/g.sV)*100).toFixed(0)+' %']);}
   else if(state&&state.kind==='text')it.push(['Texte',String(state.text||'').trim()?'agrandis la forme ou réduis le texte':'tape ton texte']);
   else it.push(['Frise','choisis une portion de bord plus longue']);
   for(const [k,v] of it){const e=document.createElement('span');e.append(k+' ');const b=document.createElement('b');b.textContent=v;e.append(b);s.append(e);}
-  if(state.kind==='text')return;
+  if(!isFr(state))return;
   if(g&&state.autoH&&!state.autoReps)$('height').value=(g.H||0).toFixed(2);
   if(state.autoReps){$('reps').value=state.repsEff||1;const e=document.createElement('span');e.append(state.unitIsTile?'Éléments ':'Copies ');const b=document.createElement('b');b.textContent='× '+(state.repsEff||1);e.append(b);s.append(e);}}
 function renderMsgs(m){const box=$('msgs');box.textContent='';for(const [t,x] of m){const d=document.createElement('div');d.className='msg '+t;d.textContent=x;box.append(d);}}
 function renderTabs(){renderMotifList();const t=$('tabs');t.textContent='';frises.forEach((f,i)=>{const b=document.createElement('button');b.type='button';b.setAttribute('role','tab');b.setAttribute('aria-selected',i===fi);
     const sw=document.createElement('i');sw.className='sw';sw.style.background=layerColor(f.layer);
     if(f.kind==='text'){b.append(sw,' '+textLabel(f));}
+    else if(f.kind==='coin'){b.append(sw,' Coins');}
     else{b.append(sw,' Frise '+(i+1));const sub=document.createElement('small');sub.textContent=' '+({bas:'bas',haut:'haut',gauche:'gauche',droite:'droite'}[f.lastAuto]||'');b.append(sub);}
     b.addEventListener('click',()=>selectFrise(i));t.append(b);});
   $('btnDelFrise').disabled=frises.length<2;}
@@ -1187,7 +1508,9 @@ function selectFrise(i){if(i===fi)return;commit();fi=i;state=frises[i];syncAll()
 function syncInputs(){$('posA').value=(state.a*100).toFixed(1);$('posB').value=(state.b*100).toFixed(1);
   if(document.activeElement!==$('aVal'))$('aVal').value=+(state.a*100).toFixed(2);if(document.activeElement!==$('bVal'))$('bVal').value=+(state.b*100).toFixed(2);
   const c=chains[state.ci];$('aMm').textContent=c?' '+(state.a*c.L).toFixed(1)+' mm':'';$('bMm').textContent=c?' '+(state.b*c.L).toFixed(1)+' mm':'';}
-function syncAll(){const isT=state.kind==='text';document.body.classList.toggle('is-text',isT);$('setTitle').textContent=isT?'Réglages du texte':'Réglages du motif';if(isT)syncTextUI();
+function syncAll(){const isT=state.kind==='text',isC=state.kind==='coin';document.body.classList.toggle('is-text',isT);document.body.classList.toggle('is-coin',isC);
+  document.body.classList.toggle('is-free',isT&&!!state.free);document.body.classList.toggle('free-line',isT&&state.free==='line');document.body.classList.toggle('free-circle',isT&&state.free==='circle');
+  $('setTitle').textContent=isT?'Réglages du texte':isC?'Réglages des coins':'Réglages du motif';if(isT)syncTextUI();if(isC)syncCornerUI();
   $('btnPick').textContent=isT?'Placer sur le dessin':'Choisir sur le dessin';
   syncInputs();$('selChain').value=state.ci;$('reps').value=state.autoReps?(state.repsEff||state.reps):state.reps;$('autoH').checked=state.autoH;syncSizeUI();
   if(!state.autoH)$('height').value=state.H;$('offset').value=state.offset;$('margin').value=state.margin;$('smooth').value=state.smooth;
@@ -1240,14 +1563,14 @@ $('bVal').addEventListener('input',e=>{const v=clampPct(e.target.value);if(isNaN
 for(const id of ['aVal','bVal'])$(id).addEventListener('change',()=>{$(id).blur();syncInputs();});
 $('posB').addEventListener('input',e=>{state.b=e.target.value/100;syncInputs();update();});
 $('slope').addEventListener('input',e=>{state.slope=+e.target.value;$('slopeVal').textContent=e.target.value;autoPortion(state.lastAuto);});
-$('selChain').addEventListener('change',e=>{state.ci=+e.target.value;if(state.kind==='text'){autoUpright(state);syncTextUI();update();}else autoPortion(state.lastAuto);fit();});
+$('selChain').addEventListener('change',e=>{state.ci=+e.target.value;if(state.kind==='coin'){update();fit();return;}if(state.kind==='text'){autoUpright(state);syncTextUI();update();}else autoPortion(state.lastAuto);fit();});
 for(const [id,d] of [['autoBas','bas'],['autoHaut','haut'],['autoGauche','gauche'],['autoDroite','droite']])$(id).addEventListener('click',()=>autoPortion(d));
 $('btnSwap').addEventListener('click',()=>{[state.a,state.b]=[state.b,state.a];syncInputs();update();});
 /* Joindre les bordures : le début de la frise se colle à la fin de la frise précédente sur le même contour,
    et sa fin au début de la suivante. Seule sur son contour (fermé), elle en fait tout le tour. */
 $('btnJoin').addEventListener('click',()=>{const f=state,c=chains[f.ci];if(!c)return;
   restack();const lv=stackLevel(f);
-  const others=frises.filter(g=>g!==f&&g.kind!=='text'&&g.ci===f.ci&&g.side===f.side&&stackLevel(g)===lv);   /* voisines du même anneau */
+  const others=frises.filter(g=>g!==f&&isFr(g)&&g.ci===f.ci&&g.side===f.side&&stackLevel(g)===lv);   /* voisines du même anneau */
   const keepSize=h=>{if(!(h>0))return;f.H=+h.toFixed(2);f.autoReps=true;};
   if(!others.length){keepSize(f.guide&&f.guide.H);if(!c.closed){f.a=0;f.b=1;}else{f.b=f.a;}syncAll();update();toast(c.closed?'La frise fait maintenant tout le tour du contour, en gardant sa hauteur':'La frise couvre tout le contour, en gardant sa hauteur');return;}
   const fwd=(x,y)=>c.closed?((y-x)%1+1)%1:y-x;   /* distance en avançant le long du contour */
@@ -1274,16 +1597,16 @@ for(const id of ['incShape','svgMode','lbScope','lbPlace'])$(id).addEventListene
 
 const NEXT_DIR={bas:'haut',haut:'gauche',gauche:'droite',droite:'bas'};
 function addFrise(){commit();const used=new Set(frises.map(f=>f.lastAuto));let d=NEXT_DIR[state.lastAuto]||'bas';for(let k=0;k<4&&used.has(d);k++)d=NEXT_DIR[d];
-  const freeL=freeLayer();const base=state.kind==='text'?(frises.find(g=>g.kind!=='text')||null):state;
+  const freeL=freeLayer();const base=!isFr(state)?(frises.find(isFr)||null):state;
   const f=base?newFrise(Object.assign(pick(base,KEYS),{lastAuto:d,layer:freeL}),base.motif,null):newFrise({ci:state.ci,lastAuto:d,layer:freeL},lastMotif,null);
-  restack();const c=chains[f.ci],same=frises.filter(g=>g.kind!=='text'&&g.ci===f.ci&&g.side===f.side);let ring=-1;
+  restack();const c=chains[f.ci],same=frises.filter(g=>isFr(g)&&g.ci===f.ci&&g.side===f.side);let ring=-1;
   if(c&&c.closed&&same.length){const top=Math.max(...same.map(g=>stackLevel(g)));if(coversLoop(same.filter(g=>stackLevel(g)===top)))ring=top;}
   if(ring>=0){const h=Math.max(...same.filter(g=>stackLevel(g)===ring).map(g=>g.guide&&g.guide.H||0));
     f.a=f.b=same[0].a;if(h>0){f.H=+h.toFixed(2);f.autoReps=true;}}
   else autoPortionFor(f,d);
   frises.push(f);fi=frises.length-1;state=f;syncAll();update();
   toast(ring>=0?'Frise '+frises.length+' ajoutée : un anneau complet à l\'intérieur du précédent':'Frise '+frises.length+' ajoutée : choisis son bord et son motif');}
-function removeFrise(i){if(frises.length<2)return;commit();const gone=frises[i];frises.splice(i,1);fi=Math.min(fi>=i?Math.max(0,fi-1):fi,frises.length-1);state=frises[fi];for(const g of restack())requestWarp(g);syncAll();draw();renderStats();renderTabs();renderMsgs(checks());commit();toast(gone.kind==='text'?'Texte supprimé':'Frise supprimée');}
+function removeFrise(i){if(frises.length<2)return;commit();const gone=frises[i];frises.splice(i,1);fi=Math.min(fi>=i?Math.max(0,fi-1):fi,frises.length-1);state=frises[fi];for(const g of restack())requestWarp(g);syncAll();draw();renderStats();renderTabs();renderMsgs(checks());commit();toast(gone.kind==='text'?'Texte supprimé':gone.kind==='coin'?'Coins supprimés':'Frise supprimée');}
 $('btnAddFrise').addEventListener('click',addFrise);
 $('btnDelFrise').addEventListener('click',()=>removeFrise(fi));
 
@@ -1296,24 +1619,26 @@ function wireDrop(box,input,handler){
 }
 function useMotif(m){setMotif(fi,'A',m);}
 
-wireDrop($('dropForme'),$('fileForme'),async f=>{try{setForme(await f.text(),f.name);syncAll();update();fit();toast('Forme chargée');}catch(e){toast(e.message);}});
+wireDrop($('dropForme'),$('fileForme'),async f=>{try{const t=await f.text();if(/\.courbeur$/i.test(f.name)||/^\s*\{/.test(t)){await openProject(t);return;}setForme(t,f.name);syncAll();update();fit();toast('Forme chargée');}catch(e){toast(e.message);}});
 
 /* interactions avec l'aperçu */
 const ptrs=new Map();let drag=null;
 const worldOf=e=>{const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;return toW((e.clientX-r.left)*d,(e.clientY-r.top)*d);};
 /* frise ou texte sous le pointeur (-1 si rien) */
 function hitTest(w){const d=window.devicePixelRatio||1,tol=8*d/view.k;let hit=-1,bd=Infinity;
-  frises.forEach((f,i)=>{if(!f.guide||f.kind==='text')return;for(let k=0;k<f.guide.P.length;k+=4){const q=f.guide.P[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}});
+  frises.forEach((f,i)=>{if(!f.guide||!isFr(f))return;for(let k=0;k<f.guide.P.length;k+=4){const q=f.guide.P[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}});
   frises.forEach((f,i)=>{for(const pl of f.warped){const P=pl.pts,st=f.kind==='text'?2:8;for(let k=0;k<P.length;k+=st){const q=P[k];const dd=Math.hypot(q[0]-w[0],q[1]-w[1]);if(dd<bd){bd=dd;hit=i;}}}});
-  if(hit<0)return -1;const g=frises[hit];const reach=g.kind==='text'?Math.max(tol,g.H*0.6):Math.max(tol,(g.guide?g.guide.H||0:0)/2);return bd<reach?hit:-1;}
+  if(hit<0)return -1;const g=frises[hit];const reach=!isFr(g)?Math.max(tol,g.H*0.6):Math.max(tol,(g.guide?g.guide.H||0:0)/2);return bd<reach?hit:-1;}
 cv.addEventListener('pointerdown',e=>{if(e.button===2)return;closeCtx();cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY});
   /* un texte se glisse directement : le long du bord, et en s'éloignant ou se rapprochant de la ligne */
   if(ptrs.size===1&&!pickStep){const w=worldOf(e);const i=hitTest(w);const f=frises[i];
-    if(f&&f.kind==='text'&&chains[f.ci]){const n=nearestOnChain(w,f.ci);if(n){if(i!==fi)selectFrise(i);commit();const L=chains[f.ci].L;
+    if(f&&f.kind==='text'&&f.free){if(i!==fi)selectFrise(i);commit();drag={f,id:e.pointerId,free:true,w0:w,c0:[f.cx,f.cy],moved:false};}
+    else if(f&&f.kind==='text'&&chains[f.ci]){const n=nearestOnChain(w,f.ci);if(n){if(i!==fi)selectFrise(i);commit();const L=chains[f.ci].L;
       drag={f,id:e.pointerId,ds:n.s-f.tc*L,d0:n.d,off0:f.offset,moved:false};}}}});
 cv.addEventListener('pointermove',e=>{const p=ptrs.get(e.pointerId);if(!p)return;const d=window.devicePixelRatio||1;
   if(drag&&drag.id===e.pointerId){if(!drag.moved&&Math.hypot(e.clientX-p.sx,e.clientY-p.sy)<4)return;drag.moved=true;cv.classList.add('dragging');
-    const f=drag.f,c=chains[f.ci],n=nearestOnChain(worldOf(e),f.ci);if(!n||!c)return;
+    const f=drag.f;if(drag.free){const w=worldOf(e);f.cx=+(drag.c0[0]+w[0]-drag.w0[0]).toFixed(2);f.cy=+(drag.c0[1]+w[1]-drag.w0[1]).toFixed(2);syncTextUI();update();return;}
+    const c=chains[f.ci],n=nearestOnChain(worldOf(e),f.ci);if(!n||!c)return;
     let tc=(n.s-drag.ds)/c.L;tc=c.closed?((tc%1)+1)%1:Math.min(1,Math.max(0,tc));f.tc=tc;
     f.offset=Math.round((drag.off0+(n.d-drag.d0))*10)/10;syncTextUI();update();return;}
   if(ptrs.size===2){const [a,b]=[...ptrs.values()];const before=Math.hypot(a.x-b.x,a.y-b.y);p.x=e.clientX;p.y=e.clientY;const after=Math.hypot(a.x-b.x,a.y-b.y);if(before>0){view.k*=after/before;draw();}return;}
@@ -1333,9 +1658,11 @@ cv.addEventListener('pointerup',e=>{const p=ptrs.get(e.pointerId);ptrs.delete(e.
   const hit=hitTest(w);if(hit>=0)selectFrise(hit);});
 /* clic droit : ajouter un texte à cet endroit, ou modifier / supprimer celui qui est dessous */
 cv.addEventListener('contextmenu',e=>{e.preventDefault();if(!chains.length)return;const w=worldOf(e);const hit=hitTest(w);const g=frises[hit];
-  const items=[['Ajouter un texte ici',()=>addTextAt(w)]];
+  const items=[['Ajouter un texte ici',()=>addTextAt(w)],['Ajouter un texte droit ici',()=>addFreeTextAt(w,'line')],['Ajouter un texte en cercle ici',()=>addFreeTextAt(w,'circle')]];
   if(g&&g.kind==='text')items.push('-',['Modifier ce texte',()=>{selectFrise(hit);const t=$('txtVal');t.focus();t.select();}],['Tourner ce texte de 180°',()=>{selectFrise(hit);g.rot180=!g.rot180;g.rotAuto=false;syncTextUI();update();}],['Supprimer ce texte',()=>removeFrise(hit)]);
+  else if(g&&g.kind==='coin')items.push('-',['Régler les coins',()=>selectFrise(hit)],['Supprimer les coins',()=>removeFrise(hit)]);
   else if(g)items.push('-',['Régler cette frise',()=>selectFrise(hit)]);
+  if(chains.length)items.push(['Décorer les coins',addCorners]);
   items.push('-',['Recadrer',fit]);
   openCtx(e.clientX,e.clientY,items);});
 cv.addEventListener('pointercancel',e=>{ptrs.delete(e.pointerId);if(drag&&drag.id===e.pointerId){drag=null;cv.classList.remove('dragging');}});
@@ -1380,12 +1707,12 @@ function fusedByLayer(){
 function outputGroups(inc){
   let groups=null;lastFuse=null;
   if(docOpts.fuse){const F=fusedByLayer();if(F){lastFuse=F;const many=F.groups.length>1;
-    const onlyText=L=>frises.every(f=>f.layer!==L||!f.warped.length||f.kind==='text');
-    groups=F.groups.map(g=>({name:(onlyText(g.layer)?'TEXTE':'MOTIF')+(many?'-C'+String(g.layer).padStart(2,'0'):''),layer:g.layer,motif:true,polys:simp(g.polys)}));}}
+    const onlyText=L=>frises.every(f=>f.layer!==L||!f.warped.length||f.kind==='text');const onlyCoin=L=>frises.every(f=>f.layer!==L||!f.warped.length||f.kind==='coin');
+    groups=F.groups.map(g=>({name:(onlyText(g.layer)?'TEXTE':onlyCoin(g.layer)?'COINS':'MOTIF')+(many?'-C'+String(g.layer).padStart(2,'0'):''),layer:g.layer,motif:true,polys:simp(g.polys)}));}}
   if(!groups)groups=frises.filter(f=>f.warped.length).map((f,i)=>{let polys=f.warped;
     /* sans fusion, les lettres sont quand même nettoyées une à une (certaines polices dessinent des contours qui se recouvrent) */
     if(f.kind==='text'){const r=fusePolys(f.warped.map(w=>({flat:w.flat,closed:w.closed,get pts(){return w.pts;},g:w.g,nz:true})));if(r)polys=r.polys;}
-    return {name:(f.kind==='text'?'TEXTE':'MOTIF')+(frises.length>1?(frises.indexOf(f)+1):''),layer:f.layer,motif:true,polys:simp(polys)};});
+    return {name:(f.kind==='text'?'TEXTE':f.kind==='coin'?'COINS':'MOTIF')+(frises.length>1?(frises.indexOf(f)+1):''),layer:f.layer,motif:true,polys:simp(polys)};});
   if(inc&&chains.length)groups.unshift({name:'FORME',layer:docOpts.formeLayer,motif:false,polys:simp(chains.map(c=>({pts:c.pts,closed:c.closed})))});
   return groups;}
 const f4=v=>(Math.round(v*1e4)/1e4).toString();
@@ -1404,7 +1731,9 @@ function buildSVG(inc,pad){if(inc===undefined)inc=$('incShape').checked;if(pad==
   let s=`<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${f4(W)}mm" height="${f4(H)}mm" viewBox="0 0 ${f4(W)} ${f4(H)}">\n`;
   for(const g of G){const c=layerColor(g.layer);
     if(!g.motif||line)s+=`<path id="${g.name}" fill="none" stroke="${c}" stroke-width="0.1" d="${d(g.polys)}"/>\n`;
-    else s+=`<path id="${g.name}" fill="${c}" fill-rule="evenodd" stroke="${c}" stroke-width="0.05" d="${d(g.polys)}"/>\n`;}
+    else{const cl=g.polys.filter(w=>w.closed),op=g.polys.filter(w=>!w.closed);
+      if(cl.length)s+=`<path id="${g.name}" fill="${c}" fill-rule="evenodd" stroke="${c}" stroke-width="0.05" d="${d(cl)}"/>\n`;
+      if(op.length)s+=`<path id="${g.name}${cl.length?'-TRAIT':''}" fill="none" stroke="${c}" stroke-width="0.2" stroke-linecap="round" stroke-linejoin="round" d="${d(op)}"/>\n`;}}
   return {svg:s+'</svg>\n',bb:b,pad};}
 const baseName=()=>(formeName||'forme').replace(/\.[^.]+$/,'')+'_frise';
 /* hébergée dans claude.ai, la page passe par la fonction de téléchargement de l'hébergeur ; partout ailleurs, téléchargement direct */
@@ -1468,7 +1797,8 @@ function motifLine(i,slot){const f=frises[i],m=slot==='B'?f.motifB:f.motif;const
   const k=document.createElement('span');k.className='k';k.textContent='Motif';
   const n=document.createElement('span');n.className='n'+(m?'':' none');n.textContent=m?m.name.replace(/\.svg$/i,''):(slot==='B'?'aucun (pas d\'alternance)':'—');if(m)n.title=m.name;
   const acts=document.createElement('span');acts.className='acts';
-  const bC=document.createElement('button');bC.type='button';bC.textContent=m?'Changer':'Ajouter';bC.addEventListener('click',()=>{fileTarget={i,slot};$('fileMotif').click();});acts.append(bC);
+  const bL=document.createElement('button');bL.type='button';bL.textContent='Motifs';bL.title='Choisir dans la bibliothèque intégrée';bL.addEventListener('click',()=>openGallery(f.kind==='coin'?'coins':'frises',mm=>{setMotif(i,slot,mm);toast('Motif : '+mm.name.replace(/\.svg$/i,''));}));acts.append(bL);
+  const bC=document.createElement('button');bC.type='button';bC.textContent=m?'Fichier':'Ajouter';bC.title='Charger un SVG depuis ton ordinateur';bC.addEventListener('click',()=>{fileTarget={i,slot};$('fileMotif').click();});acts.append(bC);
   if(slot==='B'&&m){const bX=document.createElement('button');bX.type='button';bX.textContent='Retirer';bX.title='Ne plus alterner';bX.addEventListener('click',()=>setMotif(i,'B',null));acts.append(bX);}
   if(HTTP&&m&&!libNames.includes(m.name)){const bS=document.createElement('button');bS.type='button';bS.textContent='Garder';bS.title='Ajouter à la bibliothèque';
     bS.addEventListener('click',async()=>{try{const nm=await saveToLibrary(m);toast('Ajouté à la bibliothèque : '+nm);}catch(e){toast(e.message);}});acts.append(bS);}
@@ -1486,14 +1816,16 @@ function renderMotifList(){const box=$('mlist');if(!box)return;box.textContent='
   frises.forEach((f,i)=>{const card=document.createElement('div');card.className='mcard'+(i===fi?' active':'');
     const h=document.createElement('div');h.className='mh';const sw=document.createElement('i');sw.className='sw';sw.style.background=layerColor(f.layer);
     const sm=document.createElement('small');sm.textContent=f.guide?' · '+f.guide.len.toFixed(0)+' mm de bord':'';
-    if(f.kind==='text'){const F=fontOf(f);sm.textContent=F?' · '+F.name+' · '+(+f.H)+' mm':'';h.append(sw,'Texte',sm);}else h.append(sw,'Frise '+(i+1),sm);h.addEventListener('click',()=>selectFrise(i));
+    if(f.kind==='text'){const F=fontOf(f);sm.textContent=F?' · '+F.name+' · '+(+f.H)+' mm':'';h.append(sw,'Texte',sm);}
+    else if(f.kind==='coin'){sm.textContent=' · '+(f.repsEff||0)+' coins · '+(+f.H)+' mm';h.append(sw,'Coins',sm);}else h.append(sw,'Frise '+(i+1),sm);h.addEventListener('click',()=>selectFrise(i));
     if(frises.length>1){const del=document.createElement('button');del.type='button';del.className='mdel';del.textContent='Supprimer';del.title='Supprimer la frise '+(i+1);
       del.addEventListener('click',e=>{e.stopPropagation();removeFrise(i);});h.append(del);}
     card.append(h,f.kind==='text'?textLine(i):motifLine(i,'A'));box.append(card);});
   const row=document.createElement('div');row.className='addrow';
   const add=document.createElement('button');add.type='button';add.className='madd';add.textContent='+ Ajouter une frise';add.addEventListener('click',addFrise);
   const addT=document.createElement('button');addT.type='button';addT.className='madd';addT.textContent='+ Ajouter un texte';addT.title='Ou clic droit sur le dessin, à l\'endroit voulu';addT.addEventListener('click',()=>addTextAt(null));
-  row.append(add,addT);box.append(row);}
+  const addC=document.createElement('button');addC.type='button';addC.className='madd';addC.textContent='+ Coins';addC.title='Un ornement dans chaque coin de la forme';addC.addEventListener('click',addCorners);
+  row.append(add,addT,addC);box.append(row);}
 function textLine(i){const f=frises[i];const line=document.createElement('div');line.className='mline';
   const k=document.createElement('span');k.className='k';k.textContent='Texte';
   const n=document.createElement('span');n.className='n tx';n.textContent=String(f.text||'').trim()||'—';const F=fontOf(f);if(F)n.style.fontFamily='"cf-'+F.id+'",var(--f-body)';
@@ -1521,7 +1853,7 @@ $('ibOpenForme').addEventListener('click',()=>openDir('forme'));$('ibOpenMotif')
 
 /* ---------- réglages mémorisés ---------- */
 let prefT=null;
-function prefsObj(){const pf=state&&state.kind==='text'?frises.find(g=>g.kind!=='text'):state;return {frise:pf?pick(pf,PREF_KEYS):{},lastText,formeLayer:docOpts.formeLayer,units:docOpts.units,stack:docOpts.stack,gap:docOpts.gap,fuse:docOpts.fuse,motif:pf&&pf.motif?pf.motif.name:'',
+function prefsObj(){const pf=state&&!isFr(state)?frises.find(isFr):state;return {frise:pf?pick(pf,PREF_KEYS):{},lastText,render:view.mode||'plan',formeLayer:docOpts.formeLayer,units:docOpts.units,stack:docOpts.stack,gap:docOpts.gap,fuse:docOpts.fuse,motif:pf&&pf.motif?pf.motif.name:'',
   incShape:$('incShape').checked,svgMode:$('svgMode').value,lbScope:$('lbScope').value,lbPlace:$('lbPlace').value};}
 function savePrefsSoon(){if(restoring)return;clearTimeout(prefT);prefT=setTimeout(savePrefs,800);}
 function savePrefs(){const p=JSON.stringify(prefsObj());
@@ -1540,7 +1872,8 @@ function applyPrefsUI(p){if(typeof p.incShape==='boolean')$('incShape').checked=
   if(p.units&&UNIT_MM[p.units]!==undefined||p.units==='auto')docOpts.units=p.units||'auto';
   if(Number.isInteger(p.formeLayer))docOpts.formeLayer=p.formeLayer;if(typeof p.stack==='boolean')docOpts.stack=p.stack;if(typeof p.fuse==='boolean')docOpts.fuse=p.fuse;if(typeof p.gap==='number'&&p.gap>=0)docOpts.gap=p.gap;
   applyPrefsUI(p);
-  if(p.lastText&&typeof p.lastText==='object'){if(FONT_LIST.some(x=>x.id===p.lastText.font))lastText.font=p.lastText.font;if(p.lastText.H>=0.5)lastText.H=p.lastText.H;}
+  if(p.lastText&&typeof p.lastText==='object'){if(FONT_LIST.some(x=>x.id===p.lastText.font)||SL_LIST.some(x=>x.id===p.lastText.font))lastText.font=p.lastText.font;if(p.lastText.H>=0.5)lastText.H=p.lastText.H;}
+  if(p.render&&MATS[p.render]){view.mode=p.render;$('renderSel').value=p.render;}
   injectFontFaces();KERNDATA=await loadKerning();fillFontSelect();
   let m=null;
   if(HTTP){try{await refreshLibrary();}catch(e){}}

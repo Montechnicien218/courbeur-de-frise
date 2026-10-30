@@ -1,5 +1,13 @@
 # Journal des versions · Changelog
 
+## 1.14 — 30.10.2026 — projet, coins, aperçu · project, corners, preview
+- Projet : enregistrer et rouvrir tout un travail (fichier .courbeur, polices comprises) · Project: save and reopen a whole job (.courbeur file, fonts included).
+- Bibliothèque intégrée : 15 frises et 4 ornements de coin, à choisir en un clic · Built-in library: 15 friezes and 4 corner ornaments, one click away.
+- Ornements de coin : un motif dans chaque coin de la forme, pointe vers le coin · Corner ornaments: a pattern in every corner of the shape.
+- Polices monotrait (4) pour une gravure rapide, exportées en traits · 4 single-line fonts for fast engraving, exported as strokes.
+- Textes libres : droits ou en cercle, n'importe où sur la forme, à glisser · Free text: straight or in a circle, anywhere on the shape, draggable.
+- Aperçu réaliste (bois clair, noyer, ardoise, acrylique noir) et export d'une image PNG · Realistic preview (light wood, walnut, slate, black acrylic) and PNG export.
+
 ## 1.13.1 — 29.10.2026 — licence
 - Nouvelle licence : tous droits réservés, utilisation gratuite (voir LICENSE). Les versions 1.12.0 à 1.13.0 restent sous licence MIT · New licence: all rights reserved, free to use (see LICENSE). Versions 1.12.0 to 1.13.0 remain under the MIT licence.
 - Exemple : horloge murale (examples/horloge) · Example: wall clock.

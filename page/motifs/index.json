@@ -1,0 +1,82 @@
+{
+ "frises": [
+  [
+   "motif-feuilles",
+   "Guirlande de feuilles"
+  ],
+  [
+   "motif-perles",
+   "Perles"
+  ],
+  [
+   "motif-tulipes",
+   "Tulipes"
+  ],
+  [
+   "grecque",
+   "Grecque"
+  ],
+  [
+   "entrelacs",
+   "Entrelacs"
+  ],
+  [
+   "festons",
+   "Festons"
+  ],
+  [
+   "dentelle",
+   "Dentelle"
+  ],
+  [
+   "coeurs",
+   "Cœurs"
+  ],
+  [
+   "etoiles",
+   "Étoiles"
+  ],
+  [
+   "fleurs",
+   "Fleurs"
+  ],
+  [
+   "epis",
+   "Épis de blé"
+  ],
+  [
+   "losanges",
+   "Losanges"
+  ],
+  [
+   "torsade",
+   "Torsade"
+  ],
+  [
+   "chevrons",
+   "Chevrons"
+  ],
+  [
+   "pointilles",
+   "Pointillés"
+  ]
+ ],
+ "coins": [
+  [
+   "coin-fleuron",
+   "Fleuron"
+  ],
+  [
+   "coin-feuilles",
+   "Branches de feuilles"
+  ],
+  [
+   "coin-volute",
+   "Volutes"
+  ],
+  [
+   "coin-etoile",
+   "Étoile"
+  ]
+ ]
+}

@@ -22,10 +22,16 @@ Le **Courbeur de frise** fait suivre un motif SVG (une frise) le long d'un bord 
 - **Fusion des formes** à l'export : un seul contour propre par calque, sans trait en double ni trou en gravure.
 - **Textes le long du bord** : clic droit sur le dessin › « Ajouter un texte ici ». Hauteur des lettres et distance à la ligne suivie en millimètres, position le long du bord, glisser-déposer sur le dessin. 7 polices intégrées choisies pour le laser (bâton, majuscules étroites, pochoir, écritures liées, capitales romaines, empattements) ou ta propre police `.ttf`, `.otf`, `.woff`.
 - Export **DXF** (coordonnées d'origine) et **SVG** en millimètres, ou **envoi direct à LightBurn**, posé sur la forme, sur le bon calque.
+- **Bibliothèque intégrée** : 15 frises (feuilles, grecque, festons, dentelle, cœurs, épis…) et 4 **ornements de coin** posés automatiquement dans chaque coin.
+- **Polices monotrait** pour graver vite (un seul passage du laser), et **textes libres**, droits ou en cercle, n'importe où sur la forme.
+- **Aperçu réaliste** (bois clair, noyer, ardoise, acrylique noir) et **image PNG** de la pièce, pour la montrer avant de graver.
+- **Projets** : tout se garde dans un fichier `.courbeur` et se rouvre plus tard.
 - Aperçu en temps réel, Précédent / Suivant (Ctrl+Z / Ctrl+Y), calcul réparti sur tous les cœurs du processeur.
 - Interface en français et en anglais.
 
 ![Textes le long du bord : « Fait main avec amour » au-dessus de la frise, « ATELIER » sur l'arc](screenshots/texte-fr.png)
+
+![Aperçu réaliste en bois clair : festons, ornements de coin, texte en cercle et texte monotrait](screenshots/apercu-realiste-fr.png)
 
 ### Exemple : horloge murale
 
@@ -94,10 +100,16 @@ LightBurn est une marque de LightBurn Software, LLC. Ce projet n'est ni affilié
 - **Shape merging** on export: one clean outline per layer, no double lines when cutting, no holes when engraving.
 - **Text along the edge**: right-click on the drawing › “Add a text here”. Letter height and distance from the followed line in millimetres, position along the edge, drag on the drawing. 7 built-in fonts picked for laser work (sans-serif, narrow capitals, stencil, joined scripts, Roman capitals, serif) or your own `.ttf`, `.otf`, `.woff` font.
 - **DXF** export (original coordinates) and **SVG** in millimetres, or **direct sending to LightBurn**, placed on the shape, on the right layer.
+- **Built-in library**: 15 friezes (leaves, Greek key, scallops, lace, hearts, wheat…) and 4 **corner ornaments** placed automatically in every corner.
+- **Single-line fonts** for fast engraving (one laser pass), and **free text**, straight or in a circle, anywhere on the shape.
+- **Realistic preview** (light wood, walnut, slate, black acrylic) and a **PNG image** of the piece, to show it before engraving.
+- **Projects**: everything is kept in a `.courbeur` file and reopens later.
 - Live preview, Undo / Redo (Ctrl+Z / Ctrl+Y), computation spread over all CPU cores.
 - French and English interface.
 
 ![Text along the edge: “Handmade with love” above the frieze, “WORKSHOP” on the arch](screenshots/texte-en.png)
+
+![Realistic light-wood preview: scallops, corner ornaments, circular text and single-line text](screenshots/apercu-realiste-en.png)
 
 ### Example: wall clock
 
