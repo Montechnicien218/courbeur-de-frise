@@ -1,6 +1,6 @@
 # Courbeur de frise · Frieze Bender
 
-[Français](#français) · [English](#english)
+[Français](#français) · [English](#english) · [Deutsch](#deutsch)
 
 ![Courbeur de frise : deux anneaux de frise sur une forme en arc brisé](screenshots/apercu-fr.png)
 
@@ -169,3 +169,85 @@ GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-H windowsgui -s -w" 
 Third-party components: see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Permission requests: info@montechnicien.ch
 
 LightBurn is a trademark of LightBurn Software, LLC. This project is not affiliated with or endorsed by LightBurn Software.
+
+---
+
+## Deutsch
+
+Der **Courbeur de frise** (Frieze Bender) legt ein SVG-Muster (eine Bordüre) entlang einer Kante deiner DXF- oder SVG-Form und schickt das Ergebnis an **LightBurn** zum Laserschneiden oder Gravieren. LightBurn kann ein Muster nicht entlang einer Kurve biegen: Dieses Tool macht es, und Grösse und Qualität des Musters bleiben erhalten.
+
+**Ohne Installation ausprobieren:** [Web-Version](https://montechnicien218.github.io/courbeur-de-frise/), ohne direktes Senden an LightBurn und ohne Austauschordner. Die Sprache wählst du oben rechts mit **DE**.
+
+![Courbeur de frise: Vorschau in hellem Holz mit Bordüre, Eckornamenten, Text im Kreis und Einlinien-Text](screenshots/apercu-realiste-de.png)
+
+### Was es kann
+
+- Biegt das Muster entlang jeder Kante, innerhalb oder ausserhalb der Form.
+- Mehrere unabhängige Bordüren, jede mit eigener Kante, eigenem Muster, eigenen Einstellungen und eigener LightBurn-Ebene.
+- **Automatische Wiederholung**: Das Muster behält seine Höhe und wird so oft dupliziert, bis die Kante gefüllt ist, Element für Element.
+- **Ränder verbinden**: Bordüren schliessen Ende an Ende an; eine weitere Bordüre bildet einen ganzen Ring innen.
+- **Stapeln** von Bordüren an derselben Stelle, **abgerundete Ecken** in engen Kurven, waagrechte oder senkrechte Ausrichtung.
+- **Formen verschmelzen** beim Export: eine saubere Kontur pro Ebene, keine doppelten Linien beim Schneiden, keine Löcher beim Gravieren.
+- **Text entlang der Kante**: Rechtsklick auf die Zeichnung › „Hier einen Text hinzufügen“. Buchstabenhöhe und Abstand zur Linie in Millimetern, Position entlang der Kante, direkt auf der Zeichnung verschiebbar. 7 eingebaute, lasertaugliche Schriften (Grotesk, schmale Versalien, Schablone, Schreibschriften, römische Versalien, Serifenschrift) oder deine eigene `.ttf`-, `.otf`- oder `.woff`-Schrift.
+- Export als **DXF** (Originalkoordinaten) und **SVG** in Millimetern, oder **direkt an LightBurn senden**, auf der Form platziert, auf der richtigen Ebene.
+- **Eingebaute Bibliothek**: 15 Bordüren (Blätter, Mäander, Bögen, Spitze, Herzen, Ähren…), 6 **optische Täuschungen** (3D-Würfel, Café-Wand, Op-Art-Wellen, Tunnel, gefaltetes Band, gewölbtes Schachbrett) und 4 **Eckornamente**, die automatisch in jede Ecke gesetzt werden.
+- **Einlinien-Schriften** für schnelles Gravieren (ein einziger Laserdurchgang) und **freie Texte**, gerade oder im Kreis, überall auf der Form.
+- **Realistische Vorschau** (helles Holz, Sperrholz, Metall, Nussbaum, Schiefer, schwarzes Acryl) und ein **PNG-Bild** des Werkstücks, um es vor dem Gravieren zu zeigen.
+- **Projekte**: Alles wird in einer `.courbeur`-Datei gespeichert und lässt sich später wieder öffnen.
+- Vorschau in Echtzeit, Rückgängig / Wiederholen (Ctrl+Z / Ctrl+Y), Berechnung auf allen Prozessorkernen.
+- **Bedienung wie in einer Lasersoftware**: Element auf der Zeichnung anklicken, um es einzustellen, Griffe für Anfang und Ende der Kante ziehen, Dateien direkt auf die Zeichnung ziehen, Lineale in mm und Cursorposition.
+- **Tastenkürzel** (Taste **?** für die Liste): Ctrl+S, Ctrl+O, Ctrl+D, Entf, T, F, Pfeiltasten zum Verschieben, Ctrl+E zum Exportieren, Ctrl+Eingabe zum Senden an LightBurn.
+- **Elemente wie Ebenen**: ausblenden, sperren, duplizieren und per Ziehen die Reihenfolge ändern.
+- **Schnelle Einstellungen**: Mausrad in einem Feld oder auf dem Namen einer Einstellung ziehen. Erklärungen hinter einem kleinen „i“, seltene Einstellungen unter „Erweitert“.
+- **Galerie** mit Suche, Favoriten, zuletzt verwendeten Mustern und Live-Vorschau auf der Zeichnung beim Darüberfahren.
+- **Automatisches Speichern**: Nach dem Schliessen wird dir die letzte Arbeit beim Start angeboten.
+- Oberfläche auf Deutsch, Französisch und Englisch.
+
+![Text entlang der Kante: „Handgemacht mit Liebe“ über der Bordüre, „WERKSTATT“ auf dem Bogen](screenshots/texte-de.png)
+
+### Beispiel: Wanduhr
+
+![Gravierte Wanduhr: Blattgirlande, Perlen, römische Ziffern und Bogentexte](screenshots/exemple-horloge-en.jpg)
+
+Eine Uhr mit Ø 240 mm, ganz mit dem Tool gemacht: zwei Bordüren rundherum, vier Ziffern und zwei Bogentexte. Die Dateien und Schritte findest du in [`examples/horloge`](examples/horloge).
+
+### Installation (Windows)
+
+1. Lade die neueste Version unter [Releases](../../releases) herunter und entpacke sie in einen festen Ordner, zum Beispiel `C:\Tools\Courbeur de frise\`.
+2. Starte `CourbeurDeFrise.exe`: Das Tool öffnet sich im Browser, und neben der Uhr erscheint ein Symbol (Rechtsklick › Quit, um es zu stoppen).
+3. Damit es mit Windows startet, ohne den Browser zu öffnen: **Windows + R**, `shell:startup` eingeben und eine Verknüpfung zu `CourbeurDeFrise.exe` in diesen Ordner legen.
+
+> **Virenschutz und SmartScreen.** Die `.exe` ist noch nicht signiert, deshalb können Windows oder manche Virenschutzprogramme warnen oder sie blockieren. Der ganze Code liegt in diesem Repository: Du kannst ihn lesen und selbst kompilieren (siehe unten). Blockiert dein Virenschutz sie zu Unrecht, füge den Ordner des Tools zu den Ausnahmen hinzu.
+
+### Mit LightBurn (ab 2.2)
+
+1. In LightBurn: **Web Tools › Manage User Tools › Add**, Name `Courbeur de frise`, Adresse **`http://127.0.0.1:19580/lightburn`**. Das Tool öffnet sich dann im Browser, und das Menü von LightBurn bleibt frei.
+2. Wähle in LightBurn deine Form aus, dann **Datei › Exportieren** in den Ordner `Dokumente\Frieze Bender\Shape`: Sie erscheint automatisch im Tool.
+3. Stelle deine Bordüren ein, dann **An LightBurn senden**: Beim ersten Mal fragt LightBurn, ob „Courbeur de frise“ zugelassen werden soll.
+
+Das Senden nutzt die [REST-API von LightBurn](https://github.com/LightBurnSoftware/LightBurn-REST), die in Version 2.2 noch als „Labs“ (experimentell) markiert ist. Ohne sie funktionieren die Knöpfe **DXF / SVG herunterladen** trotzdem.
+
+### Aus dem Quellcode bauen
+
+Um das Programm zu prüfen und selbst zu nutzen, ohne Änderungen (siehe Lizenz). Du brauchst [Python 3](https://www.python.org) und [Go 1.24](https://go.dev).
+
+```
+python3 build.py
+cd launcher
+GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags "-H windowsgui -s -w" -o ../dist/CourbeurDeFrise.exe .
+```
+
+`build.py` setzt die Seite (`page/courbeur.src.html` + Clipper + opentype.js + die Schriften + die Beispiele) zu `dist/courbeur.html` und `docs/index.html` zusammen. Der Starter liest die `courbeur.html` neben sich: Um das Tool zu aktualisieren, genügt es, diese Datei zu ersetzen.
+
+### Lizenz
+
+© 2026 Christophe Tanniou · **alle Rechte vorbehalten** ([Lizenz](LICENSE)).
+
+- **Erlaubt**: das Tool hier oder auf [montechnicien.ch](https://montechnicien.ch/de/courbeur-de-frise.html) herunterladen und kostenlos nutzen, auch beruflich. Was du damit machst (Dateien, gravierte oder geschnittene Gegenstände), gehört dir und darf verkauft werden.
+- **Ohne schriftliche Zustimmung nicht erlaubt**: das Tool ändern, anderswo kopieren oder weitergeben, verkaufen oder in ein anderes Produkt einbauen. Die Beispieldateien sind für deine eigenen Arbeiten, nicht zum Weiterverkauf.
+- Der Code ist zur Transparenz sichtbar; wer ihn teilen will, teilt den Link zu diesem Repository.
+- Die Versionen 1.12.0 bis 1.13.0 wurden unter der MIT-Lizenz veröffentlicht; die aktuelle Lizenz gilt ab Version 1.13.1.
+
+Komponenten von Dritten: siehe [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md). Anfragen für Genehmigungen: info@montechnicien.ch
+
+LightBurn ist eine Marke von LightBurn Software, LLC. Dieses Projekt ist weder mit LightBurn Software verbunden noch von ihr unterstützt.
