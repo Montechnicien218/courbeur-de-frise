@@ -33,7 +33,7 @@ Le **Courbeur de frise** fait suivre un motif SVG (une frise) le long d'un bord 
 - **Réglages rapides** : molette dans un champ, ou glisser sur le nom d'un réglage. Explications repliées derrière un petit « i », réglages rares dans « Avancé ».
 - **Galerie** avec recherche, favoris, motifs récents et aperçu en direct sur le dessin au survol.
 - **Enregistrement automatique** : après une fermeture, le dernier travail est proposé au démarrage.
-- Interface en français et en anglais.
+- Interface en français, en anglais et en allemand.
 
 ![Textes le long du bord : « Fait main avec amour » au-dessus de la frise, « ATELIER » sur l'arc](screenshots/texte-fr.png)
 
@@ -117,7 +117,7 @@ LightBurn est une marque de LightBurn Software, LLC. Ce projet n'est ni affilié
 - **Quick settings**: mouse wheel in a field, or drag on a setting's name. Explanations folded behind a small "i", rare settings under "Advanced".
 - **Gallery** with search, favourites, recent patterns and a live preview on the drawing on hover.
 - **Autosave**: after closing, your last work is offered at start-up.
-- French and English interface.
+- French, English and German interface.
 
 ![Text along the edge: “Handmade with love” above the frieze, “WORKSHOP” on the arch](screenshots/texte-en.png)
 

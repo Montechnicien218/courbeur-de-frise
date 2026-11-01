@@ -1,5 +1,8 @@
 # Journal des versions · Changelog
 
+## 1.19.0 — 01.11.2026 — interface en allemand · German interface
+- Nouvelle langue : allemand (bouton DE en haut à droite, choisi automatiquement si le navigateur est en allemand). Tous les menus, réglages, messages et noms de motifs sont traduits · New language: German (DE button at the top right, picked automatically when the browser is in German). All menus, settings, messages and pattern names are translated.
+
 ## 1.18.2 — 30.10.2026 — Image vers LightBurn · Image to LightBurn
 - Dans LightBurn, Image, DXF et SVG partent directement dans LightBurn par son API (comme avant, mais sans téléchargement) ; le projet .courbeur va dans Exports · In LightBurn, Image, DXF and SVG go straight into LightBurn through its API (as before, without downloading); the .courbeur project goes to Exports.
 - L'image PNG porte sa vraie résolution : elle arrive à la bonne taille en mm, posée sur la pièce · The PNG image carries its true resolution: it arrives at the right size in mm, placed over the piece.
